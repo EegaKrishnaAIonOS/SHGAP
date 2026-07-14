@@ -1,0 +1,211 @@
+erDiagram
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : grants
+    DISTRICTS ||--o{ USER_ROLES : "scopes (optional)"
+    ULBS ||--o{ USER_ROLES : "scopes (optional)"
+
+    DISTRICTS ||--o{ ULBS : contains
+    DISTRICTS ||--o{ MANDALS : contains
+    DISTRICTS ||--o{ FESTIVAL_CALENDAR : "applies to (optional)"
+
+    DISTRICTS ||--o{ SHG : "located in"
+    ULBS ||--o{ SHG : "located in (optional)"
+    MANDALS ||--o{ SHG : "located in (optional)"
+    USERS ||--o{ SHG : "contact user for"
+
+    CATEGORIES ||--o{ CATEGORIES : "parent of (optional)"
+    CATEGORIES ||--o{ PRODUCTS : classifies
+    SHG ||--o{ PRODUCTS : lists
+    PRODUCTS ||--o{ PRODUCT_IMAGES : has
+
+    DISTRICTS ||--o{ BUYERS : "located in (optional)"
+    BUYERS ||--o{ BUYER_CATEGORY_INTERESTS : "interested in"
+    CATEGORIES ||--o{ BUYER_CATEGORY_INTERESTS : "interest target"
+
+    PRODUCTS ||--o{ SALES : "sold as"
+    SHG ||--o{ SALES : sells
+    BUYERS ||--o{ SALES : "buys (optional)"
+    DISTRICTS ||--o{ SALES : "recorded in"
+
+    BUYERS ||--o{ ENQUIRIES : raises
+    PRODUCTS ||--o{ ENQUIRIES : "about (optional)"
+    SHG ||--o{ ENQUIRIES : receives
+
+    SHG ||--o{ RECOMMENDATIONS : "recommended for"
+    BUYERS ||--o{ RECOMMENDATIONS : "recommended as"
+    PRODUCTS ||--o{ RECOMMENDATIONS : "recommended via (optional)"
+
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ CONSENTS : grants
+    USERS ||--o{ AUDIT_LOG : "acted as (optional)"
+
+    USERS {
+        uuid id PK
+        varchar phone UK
+        string email UK
+        string name
+        enum preferred_language
+        enum status
+        datetime last_login_at
+    }
+
+    ROLES {
+        uuid id PK
+        enum name UK
+        string description
+    }
+
+    USER_ROLES {
+        uuid id PK
+        uuid user_id FK
+        uuid role_id FK
+        uuid district_id FK "nullable, scoping"
+        uuid ulb_id FK "nullable, scoping"
+    }
+
+    DISTRICTS {
+        uuid id PK
+        string name UK
+        varchar code UK
+    }
+
+    ULBS {
+        uuid id PK
+        string name
+        varchar code UK
+        uuid district_id FK
+    }
+
+    MANDALS {
+        uuid id PK
+        string name
+        varchar code UK
+        uuid district_id FK
+    }
+
+    CATEGORIES {
+        uuid id PK
+        string name
+        string slug UK
+        uuid parent_id FK "nullable, self-relation"
+    }
+
+    FESTIVAL_CALENDAR {
+        uuid id PK
+        string name
+        date start_date
+        date end_date
+        boolean recurring
+        uuid district_id FK "nullable"
+    }
+
+    SHG {
+        uuid id PK
+        string name
+        string mepma_registration_number UK
+        enum type
+        uuid district_id FK
+        uuid ulb_id FK "nullable"
+        uuid mandal_id FK "nullable"
+        uuid contact_user_id FK
+        geometry location "PostGIS Point, SRID 4326"
+        boolean is_active
+    }
+
+    PRODUCTS {
+        uuid id PK
+        uuid shg_id FK
+        uuid category_id FK
+        string name
+        decimal price
+        int moq
+        int stock
+        boolean is_available
+        geometry location "PostGIS Point, SRID 4326, nullable"
+        vector embedding "pgvector(768), nullable"
+    }
+
+    PRODUCT_IMAGES {
+        uuid id PK
+        uuid product_id FK
+        string url
+        string thumbnail_url
+        boolean is_primary
+    }
+
+    BUYERS {
+        uuid id PK
+        string name
+        enum type
+        uuid district_id FK "nullable"
+        geometry location "PostGIS Point, SRID 4326, nullable"
+        json demand_profile
+        vector embedding "pgvector(768), nullable"
+    }
+
+    BUYER_CATEGORY_INTERESTS {
+        uuid buyer_id FK
+        uuid category_id FK
+    }
+
+    SALES {
+        uuid id PK
+        uuid product_id FK
+        uuid shg_id FK
+        uuid buyer_id FK "nullable"
+        uuid district_id FK
+        decimal quantity
+        decimal unit_price
+        decimal total_amount
+        date sale_date
+    }
+
+    ENQUIRIES {
+        uuid id PK
+        uuid buyer_id FK
+        uuid product_id FK "nullable"
+        uuid shg_id FK
+        enum status
+        string message
+    }
+
+    RECOMMENDATIONS {
+        uuid id PK
+        uuid shg_id FK
+        uuid buyer_id FK
+        uuid product_id FK "nullable"
+        decimal match_score
+        decimal expected_demand
+        json reasons
+        enum status
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        enum channel
+        enum event
+        string template_key
+        enum status
+        string provider_message_id
+    }
+
+    CONSENTS {
+        uuid id PK
+        uuid user_id FK
+        enum purpose
+        boolean granted
+        varchar version
+        datetime granted_at
+        datetime withdrawn_at
+    }
+
+    AUDIT_LOG {
+        uuid id PK
+        uuid actor_user_id FK "nullable"
+        string action
+        string entity_type
+        uuid entity_id
+        json before_state
+        json after_state
+    }

@@ -54,6 +54,7 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 | [0013](../adr/0013-infra-india-region-hosting.md) | India-region hosting on Docker/Kubernetes with Terraform |
 | [0014](../adr/0014-observability-stack.md) | Prometheus + Grafana + Loki for observability |
 | [0015](../adr/0015-security-dpdp-baseline.md) | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline |
+| [0016](../adr/0016-orm-prisma.md) | Prisma as the ORM/migration tool for Core API (T02) |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 

@@ -1,0 +1,25 @@
+name: shgap-database
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: shgap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shgap
+      POSTGRES_PASSWORD: shgap_dev_password
+      POSTGRES_DB: shgap
+    ports:
+      - "55432:5432"
+    volumes:
+      - shgap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shgap -d shgap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  shgap_pgdata:

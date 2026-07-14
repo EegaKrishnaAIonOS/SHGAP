@@ -1,0 +1,519 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis, vector]
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum RoleName {
+  SHG
+  ULB_OFFICIAL
+  DISTRICT_OFFICIAL
+  STATE_OFFICIAL
+  ADMIN
+
+  @@map("role_name")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+
+  @@map("user_status")
+}
+
+enum PreferredLanguage {
+  TELUGU
+  ENGLISH
+
+  @@map("preferred_language")
+}
+
+enum ShgType {
+  FOOD
+  HANDICRAFTS
+  HANDLOOM
+  AGRICULTURE_ALLIED
+  HOME_BASED_ENTERPRISE
+
+  @@map("shg_type")
+}
+
+enum BuyerType {
+  INSTITUTIONAL
+  RETAIL
+  BULK
+  GOVERNMENT_PROCUREMENT
+
+  @@map("buyer_type")
+}
+
+enum EnquiryStatus {
+  OPEN
+  RESPONDED
+  CLOSED
+
+  @@map("enquiry_status")
+}
+
+enum RecommendationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+
+  @@map("recommendation_status")
+}
+
+enum NotificationChannel {
+  SMS
+  WHATSAPP
+  VOICE
+  EMAIL
+
+  @@map("notification_channel")
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+
+  @@map("notification_status")
+}
+
+enum NotificationEvent {
+  BUYER_ENQUIRY
+  DEMAND_INCREASE
+  PRICE_CHANGE
+  TENDER_OPPORTUNITY
+  OTP
+
+  @@map("notification_event")
+}
+
+enum ConsentPurpose {
+  PRODUCT_REGISTRATION
+  VOICE_ASSISTANT_RECORDING
+  MARKETING_NOTIFICATIONS
+  DATA_SHARING_WITH_BUYERS
+  ANALYTICS
+
+  @@map("consent_purpose")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & RBAC
+// ---------------------------------------------------------------------------
+
+model User {
+  id                String            @id @default(uuid()) @db.Uuid
+  phone             String            @unique @db.VarChar(15)
+  email             String?           @unique
+  name              String?
+  preferredLanguage PreferredLanguage @default(TELUGU) @map("preferred_language")
+  status            UserStatus        @default(PENDING_VERIFICATION)
+  lastLoginAt       DateTime?         @map("last_login_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  userRoles     UserRole[]
+  shgs          Shg[]          @relation("ShgContactUser")
+  notifications Notification[]
+  consents      Consent[]
+  auditLogs     AuditLog[]     @relation("AuditLogActor")
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        RoleName @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+/// Assigns a role to a user, optionally scoped to a district/ULB for officials
+/// (e.g. a DISTRICT_OFFICIAL row is scoped by districtId; a ULB_OFFICIAL row by ulbId).
+model UserRole {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  roleId     String   @map("role_id") @db.Uuid
+  districtId String?  @map("district_id") @db.Uuid
+  ulbId      String?  @map("ulb_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     Role      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  ulb      Ulb?      @relation(fields: [ulbId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roleId, districtId, ulbId])
+  @@index([roleId])
+  @@index([districtId])
+  @@index([ulbId])
+  @@map("user_roles")
+}
+
+// ---------------------------------------------------------------------------
+// Master data
+// ---------------------------------------------------------------------------
+
+model District {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+  code String @unique @db.VarChar(10)
+
+  ulbs              Ulb[]
+  mandals           Mandal[]
+  shgs              Shg[]
+  buyers            Buyer[]
+  sales             Sale[]
+  userRoles         UserRole[]
+  festivalCalendars FestivalCalendar[]
+
+  @@map("districts")
+}
+
+model Ulb {
+  id         String @id @default(uuid()) @db.Uuid
+  name       String
+  code       String @unique @db.VarChar(15)
+  districtId String @map("district_id") @db.Uuid
+
+  district  District   @relation(fields: [districtId], references: [id], onDelete: Restrict)
+  shgs      Shg[]
+  userRoles UserRole[]
+
+  @@unique([districtId, name])
+  @@index([districtId])
+  @@map("ulbs")
+}
+
+model Mandal {
+  id         String @id @default(uuid()) @db.Uuid
+  name       String
+  code       String @unique @db.VarChar(15)
+  districtId String @map("district_id") @db.Uuid
+
+  district District @relation(fields: [districtId], references: [id], onDelete: Restrict)
+  shgs     Shg[]
+
+  @@unique([districtId, name])
+  @@index([districtId])
+  @@map("mandals")
+}
+
+/// Self-referencing product taxonomy (e.g. "Food Products" -> "Pickles").
+model Category {
+  id       String  @id @default(uuid()) @db.Uuid
+  name     String
+  slug     String  @unique
+  parentId String? @map("parent_id") @db.Uuid
+
+  parent                 Category?               @relation("CategoryToParent", fields: [parentId], references: [id], onDelete: SetNull)
+  children               Category[]              @relation("CategoryToParent")
+  products               Product[]
+  buyerCategoryInterests BuyerCategoryInterest[]
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+/// Recurring or dated festival/demand-season markers used as forecasting regressors.
+model FestivalCalendar {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  startDate   DateTime @map("start_date") @db.Date
+  endDate     DateTime @map("end_date") @db.Date
+  recurring   Boolean  @default(true)
+  districtId  String?  @map("district_id") @db.Uuid
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+
+  @@index([districtId])
+  @@index([startDate, endDate])
+  @@map("festival_calendar")
+}
+
+// ---------------------------------------------------------------------------
+// SHG Product Registry (Module 1)
+// ---------------------------------------------------------------------------
+
+model Shg {
+  id                      String                                @id @default(uuid()) @db.Uuid
+  name                    String
+  mepmaRegistrationNumber String?                               @unique @map("mepma_registration_number")
+  type                    ShgType
+  productionCapacityNote  String?                               @map("production_capacity_note")
+  bankAccountNumber       String?                               @map("bank_account_number")
+  bankIfsc                String?                               @map("bank_ifsc") @db.VarChar(11)
+  districtId              String                                @map("district_id") @db.Uuid
+  ulbId                   String?                               @map("ulb_id") @db.Uuid
+  mandalId                String?                               @map("mandal_id") @db.Uuid
+  contactUserId           String                                @map("contact_user_id") @db.Uuid
+  /// Geo-tagged location, WGS84 (SRID 4326). Managed outside Prisma's typed
+  /// client — see migrations/*_add_postgis_pgvector_columns for the raw SQL
+  /// definition and GIST index; queried via $queryRaw (ADR-0016).
+  location                Unsupported("geometry(Point, 4326)")?
+  isActive                Boolean                               @default(true) @map("is_active")
+  createdAt               DateTime                              @default(now()) @map("created_at")
+  updatedAt               DateTime                              @updatedAt @map("updated_at")
+
+  district    District @relation(fields: [districtId], references: [id], onDelete: Restrict)
+  ulb         Ulb?     @relation(fields: [ulbId], references: [id], onDelete: SetNull)
+  mandal      Mandal?  @relation(fields: [mandalId], references: [id], onDelete: SetNull)
+  contactUser User     @relation("ShgContactUser", fields: [contactUserId], references: [id], onDelete: Restrict)
+
+  products        Product[]
+  sales           Sale[]
+  enquiries       Enquiry[]
+  recommendations Recommendation[]
+
+  @@index([districtId])
+  @@index([ulbId])
+  @@index([mandalId])
+  @@index([contactUserId])
+  @@map("shg")
+}
+
+model Product {
+  id          String                                @id @default(uuid()) @db.Uuid
+  shgId       String                                @map("shg_id") @db.Uuid
+  categoryId  String                                @map("category_id") @db.Uuid
+  name        String
+  description String?
+  unit        String                                @db.VarChar(20)
+  price       Decimal                               @db.Decimal(12, 2)
+  moq         Int                                   @default(1)
+  stock       Int                                   @default(0)
+  isAvailable Boolean                               @default(true) @map("is_available")
+  /// Geo-tagged location (defaults to SHG location; overridable per product), SRID 4326.
+  location    Unsupported("geometry(Point, 4326)")?
+  /// Embedding for content-based buyer matching (ADR-0009); dimension fixed at
+  /// build time to match the embedding model in use.
+  embedding   Unsupported("vector(768)")?
+  createdAt   DateTime                              @default(now()) @map("created_at")
+  updatedAt   DateTime                              @updatedAt @map("updated_at")
+
+  shg      Shg      @relation(fields: [shgId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  images          ProductImage[]
+  sales           Sale[]
+  enquiries       Enquiry[]
+  recommendations Recommendation[]
+
+  @@index([shgId])
+  @@index([categoryId])
+  @@map("products")
+}
+
+model ProductImage {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  url          String
+  thumbnailUrl String?  @map("thumbnail_url")
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+// ---------------------------------------------------------------------------
+// Buyer Matching Engine (Module 4)
+// ---------------------------------------------------------------------------
+
+model Buyer {
+  id            String                                @id @default(uuid()) @db.Uuid
+  name          String
+  type          BuyerType
+  organization  String?
+  districtId    String?                               @map("district_id") @db.Uuid
+  /// Geo-tagged location, SRID 4326.
+  location      Unsupported("geometry(Point, 4326)")?
+  /// Structured demand profile (typical volumes, frequency, price bands).
+  demandProfile Json?                                 @map("demand_profile")
+  /// Embedding for content-based buyer matching (ADR-0009).
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                              @default(now()) @map("created_at")
+  updatedAt     DateTime                              @updatedAt @map("updated_at")
+
+  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+
+  categoryInterests BuyerCategoryInterest[]
+  sales             Sale[]
+  enquiries         Enquiry[]
+  recommendations   Recommendation[]
+
+  @@index([districtId])
+  @@map("buyers")
+}
+
+/// Many-to-many: which product categories a buyer is interested in.
+model BuyerCategoryInterest {
+  buyerId    String @map("buyer_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  buyer    Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([buyerId, categoryId])
+  @@map("buyer_category_interests")
+}
+
+model Sale {
+  id          String   @id @default(uuid()) @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  shgId       String   @map("shg_id") @db.Uuid
+  buyerId     String?  @map("buyer_id") @db.Uuid
+  districtId  String   @map("district_id") @db.Uuid
+  quantity    Decimal  @db.Decimal(12, 2)
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(12, 2)
+  totalAmount Decimal  @map("total_amount") @db.Decimal(14, 2)
+  saleDate    DateTime @map("sale_date") @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  shg      Shg      @relation(fields: [shgId], references: [id], onDelete: Restrict)
+  buyer    Buyer?   @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  district District @relation(fields: [districtId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([shgId])
+  @@index([buyerId])
+  @@index([districtId])
+  @@index([saleDate])
+  @@map("sales")
+}
+
+model Enquiry {
+  id        String        @id @default(uuid()) @db.Uuid
+  buyerId   String        @map("buyer_id") @db.Uuid
+  productId String?       @map("product_id") @db.Uuid
+  shgId     String        @map("shg_id") @db.Uuid
+  message   String?
+  status    EnquiryStatus @default(OPEN)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  buyer   Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  shg     Shg      @relation(fields: [shgId], references: [id], onDelete: Cascade)
+
+  @@index([buyerId])
+  @@index([productId])
+  @@index([shgId])
+  @@index([status])
+  @@map("enquiries")
+}
+
+model Recommendation {
+  id             String               @id @default(uuid()) @db.Uuid
+  shgId          String               @map("shg_id") @db.Uuid
+  buyerId        String               @map("buyer_id") @db.Uuid
+  productId      String?              @map("product_id") @db.Uuid
+  matchScore     Decimal              @map("match_score") @db.Decimal(5, 4)
+  expectedDemand Decimal?             @map("expected_demand") @db.Decimal(12, 2)
+  /// Human-readable explanation(s) generated from SHAP values + templates (ADR-0009).
+  reasons        Json?
+  status         RecommendationStatus @default(PENDING)
+  respondedAt    DateTime?            @map("responded_at")
+  createdAt      DateTime             @default(now()) @map("created_at")
+
+  shg     Shg      @relation(fields: [shgId], references: [id], onDelete: Cascade)
+  buyer   Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([shgId])
+  @@index([buyerId])
+  @@index([productId])
+  @@index([status])
+  @@map("recommendations")
+}
+
+// ---------------------------------------------------------------------------
+// Notification Engine (Module 6)
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id                String              @id @default(uuid()) @db.Uuid
+  userId            String              @map("user_id") @db.Uuid
+  channel           NotificationChannel
+  event             NotificationEvent
+  templateKey       String              @map("template_key")
+  payload           Json?
+  status            NotificationStatus  @default(QUEUED)
+  providerMessageId String?             @map("provider_message_id")
+  sentAt            DateTime?           @map("sent_at")
+  deliveredAt       DateTime?           @map("delivered_at")
+  failureReason     String?             @map("failure_reason")
+  createdAt         DateTime            @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([channel])
+  @@map("notifications")
+}
+
+// ---------------------------------------------------------------------------
+// DPDP Act 2023 compliance
+// ---------------------------------------------------------------------------
+
+model Consent {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  purpose     ConsentPurpose
+  granted     Boolean        @default(true)
+  version     String         @db.VarChar(20)
+  grantedAt   DateTime       @default(now()) @map("granted_at")
+  withdrawnAt DateTime?      @map("withdrawn_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([purpose])
+  @@map("consents")
+}
+
+/// Append-only audit trail. Tamper-evidence (hash chaining) is added in T22;
+/// this table already carries the fields that chain will be computed over.
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id") @db.Uuid
+  beforeState Json?    @map("before_state")
+  afterState  Json?    @map("after_state")
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
