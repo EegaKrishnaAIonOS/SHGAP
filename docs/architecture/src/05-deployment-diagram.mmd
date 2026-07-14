@@ -1,0 +1,39 @@
+flowchart TB
+    users["SHG members / Buyers / Officials\n(mobile browsers, PWA)"] -->|"HTTPS"| cdn["CDN / Edge\n(static PWA assets, images)"]
+    users -->|"HTTPS / WSS"| waf["WAF + API Gateway / Ingress\n(TLS termination, rate limiting)"]
+
+    cdn --> objectStore
+
+    subgraph cloud["India-region Cloud (MeitY-empanelled, DPDP Act 2023 data residency)"]
+        subgraph k8s["Kubernetes / Compose cluster (per environment: dev / staging / prod)"]
+            waf --> coreApiPods["Core API pods\n(NestJS)\nHPA-scaled"]
+            waf --> mlPods["ML Services pods\n(FastAPI)\nHPA-scaled, GPU-optional"]
+            waf --> voicePods["Voice Service pods\n(FastAPI, WebSocket)"]
+            waf --> notifPods["Notification Service pods\n(NestJS + BullMQ workers)"]
+        end
+
+        coreApiPods --> pg[("PostgreSQL 16\nPostGIS + pgvector\n(managed, Multi-AZ, encrypted at rest)")]
+        mlPods --> pg
+        voicePods --> redis[("Redis\n(managed, encrypted)")]
+        coreApiPods --> redis
+        notifPods --> redis
+
+        coreApiPods --> objectStore[("Object Storage\nS3 / MinIO\n(images, audio, exports)")]
+
+        secrets["Secrets Manager\n(KMS-backed)"] -.->|"env/secret injection"| coreApiPods
+        secrets -.-> mlPods
+        secrets -.-> voicePods
+        secrets -.-> notifPods
+
+        obs["Observability stack\nPrometheus + Grafana + Loki"] -.->|"scrape/logs"| coreApiPods
+        obs -.-> mlPods
+        obs -.-> voicePods
+        obs -.-> notifPods
+    end
+
+    voicePods -->|"outbound HTTPS"| bhashini["Bhashini / AI4Bharat"]
+    notifPods -->|"outbound HTTPS"| channels["WhatsApp / MSG91 / Exotel / SES"]
+    coreApiPods -->|"outbound HTTPS/ETL"| externalApis["MEPMA / ONDC / GeM / Agmarknet"]
+
+    classDef ext fill:#eef,stroke:#557;
+    class bhashini,channels,externalApis ext;

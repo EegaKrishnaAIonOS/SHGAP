@@ -1,0 +1,28 @@
+flowchart LR
+    subgraph ingest["Data Ingestion"]
+        sales["Sales / enquiry\nevents"]
+        prices["Agmarknet\nprice feed"]
+        catalog["Product & SHG\ncatalogue"]
+        buyers["Buyer registry\n(incl. GeM opportunities)"]
+    end
+
+    ingest --> features["Feature Pipeline\n(Pandas, Parquet)\nseasonality, festival calendar,\ngeo (H3), lag features"]
+
+    features --> embed["Embeddings\n(product & buyer)\nstored in pgvector / FAISS"]
+    features --> forecast["Forecasting models\nProphet / XGBoost\n(demand, price, seasonality)"]
+
+    embed --> hybrid["Hybrid Recommender\ncontent similarity +\ncollaborative signals"]
+    buyers --> hybrid
+    forecast --> hybrid
+
+    hybrid --> score["Match score +\nexpected demand"]
+    score --> ltr["Learning-to-rank\n(LightGBM)"]
+    ltr --> explain["Explainability\n(SHAP + templates)"]
+    explain --> api["GET /recommendations/{shgId}\n(FastAPI)"]
+
+    api --> ui["SHG-facing UI\n+ Officials dashboards"]
+    ui -->|"accept / reject"| feedback["Feedback capture"]
+    feedback -.->|"retraining signal"| hybrid
+
+    classDef store fill:#efe,stroke:#575;
+    class embed store;

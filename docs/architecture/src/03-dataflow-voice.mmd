@@ -1,0 +1,20 @@
+flowchart LR
+    mic["Mic capture\n(push-to-talk, WebAudio)"] -->|"audio chunks\nWebSocket"| asr["ASR\nBhashini / AI4Bharat IndicASR\n(Telugu + English)"]
+    asr -->|"transcript"| nlu["NLU: Intent classifier\n+ Entity extractor\n(IndicBERT, IndicNLP/spaCy)"]
+    nlu -->|"intent + entities"| dm["Dialogue Manager\n(slot-filling, clarification,\nfallback, session state in Redis)"]
+
+    dm -->|"scheme guidance intent"| rag["RAG retrieval\n(pgvector) + LLM answer\nwith source citations"]
+    dm -->|"product registration /\nmarket enquiry / price enquiry /\nbuyer search intent"| action["Action Dispatcher"]
+
+    action -->|"REST calls"| coreApi["Core API (NestJS)\nregistry / enquiry / buyer search"]
+    rag -->|"grounded answer"| dm
+
+    coreApi -->|"action result"| dm
+    dm -->|"response text"| tts["TTS\nBhashini / Indic-TTS\n(with response caching)"]
+    tts -->|"audio reply"| speaker["Playback in Assistant UI\n+ live transcript"]
+
+    dm -.->|"low confidence /\nno match"| fallback["Fallback prompt\n(clarify or hand off to text input)"]
+    fallback -.-> dm
+
+    classDef ext fill:#eef,stroke:#557;
+    class asr,tts,rag ext;

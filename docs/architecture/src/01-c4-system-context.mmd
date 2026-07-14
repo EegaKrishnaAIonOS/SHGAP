@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph people["People"]
+        direction LR
+        shgMember["<b>SHG Member</b>\n(Person)\nProduct supplier / manufacturer.\nRegisters products, checks prices,\nfinds buyers. Telugu-first, mobile-only."]
+        buyer["<b>Buyer</b>\n(Person)\nInstitutional / retail / bulk buyer\nor government procurement officer."]
+        ulbOfficial["<b>ULB Official</b>\n(Person)\nMonitors SHG activity\nwithin a ULB."]
+        districtOfficial["<b>District Official</b>\n(Person)\nMonitors SHGs, products, buyers\nacross a district."]
+        stateOfficial["<b>State Official (MEPMA)</b>\n(Person)\nMonitors state-wide KPIs\n& district ranking."]
+        admin["<b>Platform Admin</b>\n(Person)\nManages master data, users,\ncontent moderation."]
+    end
+
+    platform["<b>Smart Market Linkage Platform</b>\n(Software System)\nRegisters SHG products, runs a voice\nassistant, forecasts demand/price,\nmatches buyers, gives officials\ndashboards and alerts."]
+
+    subgraph external["External Systems"]
+        direction LR
+        mepma[["<b>MEPMA SHG Database</b>\n(External System)\nAuthoritative SHG identity\n& registration master data."]]
+        ondc[["<b>ONDC Network</b>\n(External System)\nCatalogue publishing\n(Beckn protocol)."]]
+        gem[["<b>GeM</b>\n(External System)\nProcurement / tender\nopportunities."]]
+        agmarknet[["<b>Agmarknet / data.gov.in</b>\n(External System)\nMarket price feeds."]]
+        whatsapp[["<b>WhatsApp Business API</b>\n(External System)\nNotification & conversational\nmessaging."]]
+        bhashini[["<b>Bhashini / AI4Bharat</b>\n(External System)\nTelugu/English ASR + TTS."]]
+        smsGateway[["<b>SMS / IVR / Email Gateways</b>\n(External System)\nMSG91, Exotel, Amazon SES."]]
+    end
+
+    shgMember -->|"Registers products, asks\nvoice/text queries, PWA"| platform
+    buyer -->|"Discovers products,\nraises enquiries"| platform
+    ulbOfficial -->|"Views ULB dashboard"| platform
+    districtOfficial -->|"Views district dashboard"| platform
+    stateOfficial -->|"Views state/govt dashboard"| platform
+    admin -->|"Manages master data,\nusers, moderation"| platform
+
+    platform -->|"Syncs SHG identity\n& master data"| mepma
+    platform -->|"Publishes product\ncatalogue"| ondc
+    platform -->|"Maps procurement\nopportunities"| gem
+    platform -->|"Ingests market\nprice feeds"| agmarknet
+    platform -->|"Sends notifications,\nreceives replies"| whatsapp
+    platform -->|"Streams audio for ASR,\nrequests TTS"| bhashini
+    platform -->|"Sends OTP, SMS,\nIVR, email alerts"| smsGateway
+
+    classDef person fill:#08427b,stroke:#052e56,color:#fff;
+    classDef system fill:#1168bd,stroke:#0b4884,color:#fff;
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#fff;
+    class shgMember,buyer,ulbOfficial,districtOfficial,stateOfficial,admin person;
+    class platform system;
+    class mepma,ondc,gem,agmarknet,whatsapp,bhashini,smsGateway ext;

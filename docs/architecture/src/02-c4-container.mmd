@@ -1,0 +1,45 @@
+flowchart TB
+    users["<b>SHG Member / Buyer / Official</b>\n(Person)\nEnd users across roles"]
+
+    subgraph platform["Smart Market Linkage Platform (Software System)"]
+        webPwa["<b>Web / PWA</b>\n[React, TypeScript, Vite, Tailwind]\nMobile-first UI: registration, catalogue,\nvoice assistant, dashboards, admin.\nOffline queue via IndexedDB."]
+        coreApi["<b>Core API</b>\n[Node.js, NestJS]\nAuth/RBAC, SHG & product registry,\nbuyer registry, analytics aggregation,\nnotification orchestration, admin APIs."]
+        mlServices["<b>ML Services</b>\n[Python, FastAPI]\nCategorization, forecasting\n(demand/price), buyer recommendation\n& ranking, explainability (SHAP)."]
+        voiceService["<b>Voice Service</b>\n[Python, FastAPI, WebSocket]\nStreaming ASR/TTS bridge, Telugu NLP\nintent/entity extraction, dialogue\nmanager, RAG scheme-guidance."]
+        notificationService["<b>Notification Service</b>\n[Node.js, NestJS, BullMQ]\nTemplate engine + provider abstraction:\nSMS, WhatsApp, IVR, email;\ndelivery logs & retries."]
+        postgres[("<b>PostgreSQL 16</b>\n[PostGIS + pgvector]\nRelational + geo columns +\nvector embeddings.")]
+        redis[("<b>Redis</b>\nSessions, cache, BullMQ queue,\nvoice/dialogue state.")]
+        objectStore[("<b>Object Storage</b>\n[S3 / MinIO]\nImages, thumbnails, audio,\nexported reports.")]
+    end
+
+    bhashini[["<b>Bhashini / AI4Bharat</b>\n(External)\nASR + TTS"]]
+    externalIntegrations[["<b>MEPMA / ONDC / GeM / Agmarknet</b>\n(External)"]]
+    msgChannels[["<b>WhatsApp / SMS / IVR / Email</b>\n(External)"]]
+
+    users -->|"Uses (HTTPS)"| webPwa
+    webPwa -->|"REST: registry, auth,\nanalytics, admin (JWT)"| coreApi
+    webPwa -->|"Streams audio,\ngets transcript/TTS (WS)"| voiceService
+
+    coreApi -->|"Categorization / forecast /\nrecommendation requests"| mlServices
+    voiceService -->|"Dispatches actions: register\nproduct, enquiry, buyer search"| coreApi
+    voiceService -->|"ASR + TTS"| bhashini
+
+    coreApi -->|"Publishes domain events"| notificationService
+    notificationService -->|"Sends messages"| msgChannels
+
+    coreApi --> postgres
+    mlServices -->|"Reads features, writes\nembeddings/predictions"| postgres
+    voiceService -->|"Session/dialogue state"| redis
+    coreApi -->|"Cache, session, queue"| redis
+    notificationService -->|"BullMQ job queue"| redis
+    coreApi -->|"Images & exports"| objectStore
+    coreApi -->|"Sync SHG data, publish catalogue,\nmap tenders, ingest prices"| externalIntegrations
+
+    classDef person fill:#08427b,stroke:#052e56,color:#fff;
+    classDef container fill:#1168bd,stroke:#0b4884,color:#fff;
+    classDef db fill:#1168bd,stroke:#0b4884,color:#fff;
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#fff;
+    class users person;
+    class webPwa,coreApi,mlServices,voiceService,notificationService container;
+    class postgres,redis,objectStore db;
+    class bhashini,externalIntegrations,msgChannels ext;
