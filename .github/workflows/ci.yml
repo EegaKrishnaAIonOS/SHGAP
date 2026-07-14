@@ -76,8 +76,29 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
-        service: [web, core-api, notification-service, ml-services, voice-service]
+        include:
+          # web/core-api/notification-service build via `turbo prune` (see their
+          # Dockerfiles), which needs the whole monorepo as build context.
+          - service: web
+            context: .
+            dockerfile: apps/web/Dockerfile
+          - service: core-api
+            context: .
+            dockerfile: apps/core-api/Dockerfile
+          - service: notification-service
+            context: .
+            dockerfile: apps/notification-service/Dockerfile
+          # ml-services/voice-service are self-contained Python apps — their
+          # Dockerfiles COPY relative to their own directory, so the build
+          # context must be scoped to that directory too.
+          - service: ml-services
+            context: apps/ml-services
+            dockerfile: apps/ml-services/Dockerfile
+          - service: voice-service
+            context: apps/voice-service
+            dockerfile: apps/voice-service/Dockerfile
     steps:
       - uses: actions/checkout@v4
 
@@ -97,8 +118,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: apps/${{ matrix.service }}/Dockerfile
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image.outputs.repo }}/${{ matrix.service }}:latest
