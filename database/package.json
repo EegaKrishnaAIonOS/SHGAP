@@ -9,7 +9,10 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
     "seed": "tsx seed/index.ts",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "build": "prisma generate",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"no tests yet\""
   },
   "prisma": {
     "seed": "tsx seed/index.ts"

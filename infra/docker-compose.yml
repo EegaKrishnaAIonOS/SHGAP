@@ -1,0 +1,60 @@
+name: shgap-dev
+
+services:
+  postgres:
+    build:
+      context: ../database
+      dockerfile: Dockerfile.postgres
+    container_name: shgap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shgap
+      POSTGRES_PASSWORD: shgap_dev_password
+      POSTGRES_DB: shgap
+    ports:
+      - "55432:5432"
+    volumes:
+      - shgap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shgap -d shgap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: shgap-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - shgap_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: shgap-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: shgap
+      MINIO_ROOT_PASSWORD: shgap_dev_password
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web console
+    volumes:
+      - shgap_miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  shgap_pgdata:
+  shgap_redisdata:
+  shgap_miniodata:

@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+coverage
+.turbo
+database/prisma/migrations
+docs/architecture/rendered
+docs/database/rendered
+*.svg
+*.png

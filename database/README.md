@@ -2,11 +2,13 @@
 
 Prisma schema, migrations and master-data seed scripts for the SHG Smart Market Linkage Platform, per [ADR-0016](../docs/adr/0016-orm-prisma.md) (Prisma) and [ADR-0004](../docs/adr/0004-database-postgres-postgis-pgvector.md) (PostgreSQL 16 + PostGIS + pgvector).
 
-This is a standalone package for now; T03 (repo scaffold) will fold it into the mono-repo as a shared package consumed by `core-api`.
+Now part of the T03 mono-repo as the `@shgap/database` workspace package, consumed by `core-api` once T05 wires up Prisma client usage.
 
 ## Local setup
 
 Requires Docker Desktop. No official image ships both PostGIS and pgvector, so `Dockerfile.postgres` layers `postgresql-16-pgvector` onto the official `postgis/postgis:16-3.4` image.
+
+> **Two docker-compose files exist on purpose:** `database/docker-compose.yml` (below) starts Postgres only, for isolated schema/migration work. [`infra/docker-compose.yml`](../infra/docker-compose.yml) (T03) starts the full local-dev stack — the same Postgres image plus Redis and MinIO — for running the whole platform. Both declare the container name `shgap-postgres`, so only one can run at a time; prefer `infra/docker-compose.yml` unless you're specifically iterating on the schema in isolation.
 
 ```bash
 cd database

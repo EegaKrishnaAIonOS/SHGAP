@@ -10,3 +10,9 @@ Thumbs.db
 .vscode/
 .idea/
 coverage/
+.turbo/
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+*.tsbuildinfo
