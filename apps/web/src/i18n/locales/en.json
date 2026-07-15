@@ -1,0 +1,154 @@
+{
+  "common": {
+    "appName": "SHG Smart Market Linkage",
+    "language": "Language",
+    "english": "English",
+    "telugu": "Telugu",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "next": "Next",
+    "back": "Back",
+    "close": "Close",
+    "search": "Search",
+    "add": "Add",
+    "loading": "Loading...",
+    "viewDetails": "View details",
+    "status": "Status",
+    "actions": "Actions",
+    "wireframeNotice": "Wireframe screen — placeholder content, no live data or backend calls yet.",
+    "comingSoon": "Coming soon"
+  },
+  "nav": {
+    "home": "Home",
+    "registration": "SHG Registration",
+    "catalogue": "Product Catalogue",
+    "voiceAssistant": "Voice Assistant",
+    "dashboards": "Dashboards",
+    "districtDashboard": "District Dashboard",
+    "ulbDashboard": "ULB Dashboard",
+    "shgDashboard": "SHG Dashboard",
+    "productDashboard": "Product Dashboard",
+    "buyerDashboard": "Buyer Dashboard",
+    "governmentDashboard": "Government Dashboard",
+    "admin": "Admin"
+  },
+  "home": {
+    "title": "SHG Smart Market Linkage Platform",
+    "subtitle": "Sprint 0 wireframes (T04) — SHG-facing screens and official dashboards, implemented as real routed pages instead of Figma.",
+    "shgFacingHeading": "SHG member screens (mobile-first)",
+    "officialFacingHeading": "Official dashboards (desktop-first)"
+  },
+  "registration": {
+    "title": "SHG Registration",
+    "stepLabel": "Step {{current}} of {{total}}",
+    "step1Title": "Group details",
+    "step2Title": "Location",
+    "step3Title": "Verification",
+    "groupName": "SHG name",
+    "groupNameHint": "Enter the name of your Self Help Group",
+    "memberCount": "Number of members",
+    "district": "District",
+    "mandal": "Mandal",
+    "village": "Village",
+    "phoneNumber": "Phone number",
+    "sendOtp": "Send OTP",
+    "otp": "OTP",
+    "verify": "Verify",
+    "uploadPhoto": "Upload group photo",
+    "uploadPhotoHint": "Tap to take or choose a photo",
+    "submit": "Submit registration",
+    "successTitle": "Registration submitted",
+    "successBody": "An MEPMA official will review and confirm your SHG registration."
+  },
+  "catalogue": {
+    "title": "Product Catalogue",
+    "searchPlaceholder": "Search products...",
+    "allCategories": "All",
+    "byShg": "By {{shg}}",
+    "enquire": "Enquire",
+    "voiceSearchLabel": "Search by voice",
+    "price": "Price"
+  },
+  "voice": {
+    "title": "Voice Assistant",
+    "tapToSpeak": "Tap to speak",
+    "listening": "Listening...",
+    "processing": "Thinking...",
+    "languageLabel": "Speaking in",
+    "quickCommandsLabel": "Try saying",
+    "quickCommand1": "What is the price of turmeric powder?",
+    "quickCommand2": "Add my new product",
+    "quickCommand3": "Show my orders",
+    "transcriptEmpty": "Your conversation will appear here.",
+    "sampleUser": "How do I list a new product?",
+    "sampleAssistant": "Tap Add Product on the catalogue screen, then speak the product name, price and quantity."
+  },
+  "dashboard": {
+    "filters": "Filters",
+    "dateRange": "Date range",
+    "district": "District",
+    "allDistricts": "All districts",
+    "totalSales": "Total sales",
+    "totalOrders": "Total orders",
+    "activeShgs": "Active SHGs",
+    "activeMembers": "Active members",
+    "registeredBuyers": "Registered buyers",
+    "productsListed": "Products listed",
+    "salesTrend": "Sales trend",
+    "topCategories": "Top categories",
+    "topProducts": "Top products",
+    "ulbBreakdown": "ULB-wise breakdown",
+    "shgBreakdown": "SHG-wise breakdown",
+    "districtBreakdown": "District-wise breakdown",
+    "recentOrders": "Recent orders",
+    "name": "Name",
+    "sales": "Sales",
+    "orders": "Orders",
+    "members": "Members",
+    "growth": "Growth"
+  },
+  "districtDashboard": {
+    "title": "District Dashboard",
+    "subtitle": "MEPMA district officer view — SHG performance across ULBs and mandals."
+  },
+  "ulbDashboard": {
+    "title": "ULB Dashboard",
+    "subtitle": "Urban Local Body officer view — SHG and product performance within the ULB."
+  },
+  "shgDashboard": {
+    "title": "SHG Dashboard",
+    "subtitle": "Per-SHG monitoring view — membership, product mix and sales for a single group."
+  },
+  "productDashboard": {
+    "title": "Product Dashboard",
+    "subtitle": "Catalogue-wide view — category performance, pricing and inventory signals."
+  },
+  "buyerDashboard": {
+    "title": "Buyer Dashboard",
+    "subtitle": "Buyer engagement view — registered buyers, repeat orders and demand trends."
+  },
+  "governmentDashboard": {
+    "title": "Government Dashboard",
+    "subtitle": "State-level (MEPMA HQ) view across all districts — Module 7 policy & monitoring dashboard.",
+    "stateOverview": "State overview",
+    "districtComparison": "District comparison",
+    "mapPlaceholder": "Map visualisation placeholder — district heat-map lands with the mapping library in a later sprint."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Platform administration — users, roles and content moderation.",
+    "users": "Users",
+    "inviteUser": "Invite user",
+    "inviteUserTitle": "Invite a new user",
+    "inviteUserBody": "Send an invitation email with a role assignment. This is a wireframe action and does not send a real email yet.",
+    "role": "Role",
+    "email": "Email",
+    "roleAdmin": "Admin",
+    "roleDistrictOfficer": "District officer",
+    "roleUlbOfficer": "ULB officer",
+    "featureFlags": "Feature flags",
+    "moderationQueue": "Content moderation queue",
+    "sendInvite": "Send invite"
+  }
+}
