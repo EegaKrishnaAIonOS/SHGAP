@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "description": "Prisma schema, migrations and seed scripts for the SHG Smart Market Linkage Platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
@@ -10,7 +12,7 @@
     "migrate:reset": "prisma migrate reset",
     "seed": "tsx seed/index.ts",
     "studio": "prisma studio",
-    "build": "prisma generate",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "echo \"no tests yet\""
   },
