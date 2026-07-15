@@ -1,6 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
+  // "native" covers local dev (Windows/macOS/glibc-Linux); the explicit musl
+  // target covers the Alpine-based Docker images (core-api, etc.) — without it,
+  // `prisma generate` running inside Alpine can mis-detect the OpenSSL version
+  // and produce an engine binary that fails to load at container runtime.
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
