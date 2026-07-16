@@ -54,7 +54,25 @@ services:
       timeout: 5s
       retries: 10
 
+  clamav:
+    image: clamav/clamav:stable
+    container_name: shgap-clamav
+    restart: unless-stopped
+    ports:
+      - "3310:3310" # clamd (TCP), scanned by core-api's image-upload pipeline (T06)
+    volumes:
+      - shgap_clamavdata:/var/lib/clamav
+    healthcheck:
+      # First boot downloads virus definitions (freshclam) — can take several
+      # minutes; the healthcheck naturally stays "starting" until clamd is up.
+      test: ["CMD-SHELL", "echo PING | nc -w 3 127.0.0.1 3310 | grep -q PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 5m
+
 volumes:
   shgap_pgdata:
   shgap_redisdata:
   shgap_miniodata:
+  shgap_clamavdata:

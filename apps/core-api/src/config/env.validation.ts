@@ -1,5 +1,18 @@
+// class-transformer's enableImplicitConversion (used below) relies on
+// Reflect.getMetadata, which only exists once this polyfill has run. The full
+// Nest app happens to pull it in transitively via other Nest packages, but
+// this module shouldn't depend on that — it needs it directly.
+import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
-import { IsIn, IsInt, IsString, Max, Min, validateSync } from 'class-validator';
+import {
+  IsBoolean,
+  IsIn,
+  IsInt,
+  IsString,
+  Max,
+  Min,
+  validateSync,
+} from 'class-validator';
 
 class EnvironmentVariables {
   @IsIn(['development', 'production', 'test'])
@@ -44,14 +57,56 @@ class EnvironmentVariables {
   @IsInt()
   @Min(60)
   OTP_RATE_LIMIT_WINDOW_SECONDS: number;
+
+  @IsString()
+  MINIO_ENDPOINT: string;
+
+  @IsInt()
+  MINIO_PORT: number;
+
+  @IsBoolean()
+  MINIO_USE_SSL: boolean;
+
+  @IsString()
+  MINIO_ACCESS_KEY: string;
+
+  @IsString()
+  MINIO_SECRET_KEY: string;
+
+  @IsString()
+  MINIO_BUCKET: string;
+
+  @IsString()
+  MINIO_PUBLIC_URL: string;
+
+  @IsString()
+  CLAMAV_HOST: string;
+
+  @IsInt()
+  CLAMAV_PORT: number;
 }
 
 export function validate(
   config: Record<string, unknown>,
 ): EnvironmentVariables {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
+  // Booleans must be converted to real booleans *before* plainToInstance runs —
+  // enableImplicitConversion casts remaining strings via Boolean(value), and
+  // Boolean("false") is `true` (any non-empty string is truthy). Doing it here
+  // avoids that trap instead of fighting it with a @Transform decorator, which
+  // runs too late: implicit conversion has already mangled the value by then.
+  const withRealBooleans = {
+    ...config,
+    MINIO_USE_SSL:
+      config.MINIO_USE_SSL === true || config.MINIO_USE_SSL === 'true',
+  };
+
+  const validatedConfig = plainToInstance(
+    EnvironmentVariables,
+    withRealBooleans,
+    {
+      enableImplicitConversion: true,
+    },
+  );
   const errors = validateSync(validatedConfig, {
     skipMissingProperties: false,
   });
