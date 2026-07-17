@@ -31,7 +31,18 @@
     "productDashboard": "Product Dashboard",
     "buyerDashboard": "Buyer Dashboard",
     "governmentDashboard": "Government Dashboard",
-    "admin": "Admin"
+    "admin": "Admin",
+    "logout": "Log out"
+  },
+  "login": {
+    "title": "Log in",
+    "phoneSubtitle": "Enter your phone number. We'll send you a one-time code — no password needed.",
+    "otpSubtitle": "Enter the code sent to {{phone}}",
+    "phoneInvalid": "Enter a valid 10-digit mobile number",
+    "otpInvalid": "Enter the code you received",
+    "otpIncorrect": "That code is incorrect or has expired. Please try again.",
+    "networkError": "Couldn't reach the server. Check your connection and try again.",
+    "changeNumber": "Change phone number"
   },
   "home": {
     "title": "SHG Smart Market Linkage Platform",
@@ -44,13 +55,39 @@
     "stepLabel": "Step {{current}} of {{total}}",
     "step1Title": "Group details",
     "step2Title": "Location",
-    "step3Title": "Verification",
+    "step3Title": "Bank details (optional)",
+    "step4Title": "Review & submit",
     "groupName": "SHG name",
     "groupNameHint": "Enter the name of your Self Help Group",
     "memberCount": "Number of members",
+    "type": {
+      "label": "Group type",
+      "placeholder": "Select what your group makes",
+      "FOOD": "Food products",
+      "HANDICRAFTS": "Handicrafts",
+      "HANDLOOM": "Handloom",
+      "AGRICULTURE_ALLIED": "Agriculture allied products",
+      "HOME_BASED_ENTERPRISE": "Home based enterprise"
+    },
+    "mepmaRegistrationNumber": "MEPMA registration number",
+    "mepmaRegistrationNumberHint": "Leave blank if you don't have one yet",
+    "productionCapacityNote": "Production capacity note",
     "district": "District",
     "mandal": "Mandal",
     "village": "Village",
+    "detectLocation": "Detect my location",
+    "geoSuggestion": "We think you're in {{district}} — is that right?",
+    "geoSuggestionAccept": "Yes, that's correct",
+    "geoSuggestionDismiss": "No, I'll choose",
+    "geoUnavailable": "Couldn't detect your location — please choose your district below.",
+    "selectDistrictFirst": "Select a district first",
+    "ulb": "ULB (town/municipality)",
+    "ulbOptional": "Select ULB (optional)",
+    "mandalOptional": "Select mandal (optional)",
+    "bankDetailsHint": "Optional — you can add these later if you don't have them now.",
+    "bankAccountNumber": "Bank account number",
+    "bankIfsc": "IFSC code",
+    "bankIfscHint": "11-character bank branch code",
     "phoneNumber": "Phone number",
     "sendOtp": "Send OTP",
     "otp": "OTP",
@@ -59,7 +96,17 @@
     "uploadPhotoHint": "Tap to take or choose a photo",
     "submit": "Submit registration",
     "successTitle": "Registration submitted",
-    "successBody": "An MEPMA official will review and confirm your SHG registration."
+    "successBody": "An MEPMA official will review and confirm your SHG registration.",
+    "queuedTitle": "Saved — will sync when you're back online",
+    "queuedBody": "You're offline right now. Your registration is saved on this device and will be submitted automatically once you're connected again.",
+    "goToCatalogue": "Go to product catalogue",
+    "errors": {
+      "nameRequired": "Enter your SHG's name",
+      "typeRequired": "Select a group type",
+      "districtRequired": "Select a district",
+      "ifscLength": "IFSC code must be exactly 11 characters",
+      "submitFailed": "Couldn't submit your registration. Please try again."
+    }
   },
   "catalogue": {
     "title": "Product Catalogue",
@@ -68,7 +115,56 @@
     "byShg": "By {{shg}}",
     "enquire": "Enquire",
     "voiceSearchLabel": "Search by voice",
-    "price": "Price"
+    "price": "Price",
+    "registerFirst": "Register your SHG before adding products to the catalogue.",
+    "registerFirstCta": "Register my SHG",
+    "addProduct": "Add product",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete \"{{name}}\"? This cannot be undone.",
+    "deleteQueued": "You're offline — the delete will complete once you're back online.",
+    "noProducts": "No products yet. Tap \"Add product\" to list your first one.",
+    "loadFailed": "Couldn't load your catalogue. Please try again.",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "form": {
+      "addTitle": "Add product",
+      "editTitle": "Edit product",
+      "categoryGroup": "Category group",
+      "categoryGroupPlaceholder": "Select a category group",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "categoryGroupFirst": "Select a category group first",
+      "name": "Product name",
+      "description": "Description",
+      "unit": "Unit",
+      "unitHint": "e.g. kg, piece, jar, dozen, litre",
+      "moq": "Minimum order quantity",
+      "stock": "Stock",
+      "isAvailable": "Available for sale",
+      "queuedOffline": "You're offline — these changes will sync automatically once you're back online.",
+      "queuedOfflineNoPhotos": "You're offline — this product will be added once you're back online. You can add photos after it syncs.",
+      "errors": {
+        "categoryRequired": "Select a category",
+        "nameRequired": "Enter a product name",
+        "unitRequired": "Enter a unit (e.g. kg, piece)",
+        "priceInvalid": "Enter a price greater than 0",
+        "moqInvalid": "Minimum order quantity must be a whole number of 1 or more",
+        "stockInvalid": "Stock must be a whole number of 0 or more",
+        "submitFailed": "Couldn't save this product. Please try again."
+      }
+    },
+    "photos": {
+      "title": "Photos",
+      "openCamera": "Take photo",
+      "chooseFromGallery": "Choose from gallery",
+      "capture": "Capture",
+      "cameraUnavailable": "Couldn't access the camera. You can still choose a photo from your gallery.",
+      "uploading": "Uploading... {{percent}}%",
+      "uploadFailed": "Photo upload failed. Please try again.",
+      "queuedOffline": "You're offline — this photo will upload automatically once you're back online.",
+      "deleteImage": "Delete photo"
+    }
   },
   "voice": {
     "title": "Voice Assistant",
@@ -150,5 +246,11 @@
     "featureFlags": "Feature flags",
     "moderationQueue": "Content moderation queue",
     "sendInvite": "Send invite"
+  },
+  "sync": {
+    "offline": "You're offline. Changes you make will be saved on this device.",
+    "offlineWithPending": "You're offline. {{count}} change(s) will sync once you're back online.",
+    "pending": "{{count}} change(s) waiting to sync.",
+    "syncNow": "Sync now"
   }
 }

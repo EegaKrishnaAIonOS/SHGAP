@@ -182,19 +182,26 @@ To see the SW in action: `npm run build --workspace=@shgap/web && npm run previe
 
 ## What was deliberately deferred / simplified
 
-This is a Sprint-0 wireframe/scaffold deliverable, not a finished product:
+T04 delivered a Sprint-0 wireframe/scaffold; T07 (Sprint 1) wired the
+SHG-facing screens up to the real core-api backend (phone-OTP login,
+registration, product catalogue, camera/gallery image upload, an IndexedDB
+offline queue). What's still deferred:
 
-- **No backend calls anywhere.** All dashboard/catalogue/admin data is local
-  mock data in-file or in `mockData.ts`.
+- **Dashboards and admin are still mock data.** `District/ULB/SHG/Product/
+Buyer/Government` dashboards and the admin screen are official-facing
+  (Modules 5/7) and out of T07's SHG-facing scope — they still read from
+  local `mockData.ts` and sit outside the login gate.
 - **No real voice capture.** The mic button toggles local UI state and a
   couple of quick-command chips fake a transcript; the actual ASR/voice
-  pipeline is a separate service integration.
+  pipeline is a separate service integration (T10-T12).
 - **No real map.** The government dashboard has a clearly labelled
   placeholder box instead of a GeoJSON/Leaflet/Mapbox district heat-map.
-- **No auth/session.** The admin "Invite user" modal doesn't send email;
-  there's no login screen (out of scope for T04).
 - **Icons are placeholders.** The PWA icons are generated wordmark squares,
   not final iconography from a design pass.
 - **No dark-mode toggle**, even though the token file could support one —
   `darkMode: "media"` is set in `tailwind.config.ts` for future use, but no
   component currently exposes a manual switch.
+
+See `src/lib/api/`, `src/lib/auth/`, and `src/lib/offlineQueue/` for the
+real API client, token/session handling, and offline-mutation queue added
+in T07.

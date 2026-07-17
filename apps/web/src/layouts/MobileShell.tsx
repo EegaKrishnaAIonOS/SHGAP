@@ -1,7 +1,9 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "../lib/cn";
 import { LanguageToggle } from "../components/LanguageToggle";
+import { SyncStatusBanner } from "../components/SyncStatusBanner";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * Mobile-first app shell for SHG-member-facing screens (registration,
@@ -13,6 +15,8 @@ import { LanguageToggle } from "../components/LanguageToggle";
  */
 export function MobileShell() {
   const { t } = useTranslation();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const tabs = [
     { to: "/register", icon: "📝", label: t("nav.registration") },
@@ -26,10 +30,22 @@ export function MobileShell() {
         <NavLink to="/" className="text-base font-semibold text-neutral-900">
           {t("common.appName")}
         </NavLink>
-        <LanguageToggle size="touch" />
+        <div className="flex items-center gap-2">
+          <LanguageToggle size="touch" />
+          <button
+            type="button"
+            onClick={() => {
+              void logout().finally(() => navigate("/login", { replace: true }));
+            }}
+            className="min-h-touch-sm px-2 text-sm font-medium text-neutral-500"
+          >
+            {t("nav.logout")}
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-md flex-1 px-4 pb-24 pt-4">
+        <SyncStatusBanner />
         <Outlet />
       </main>
 
