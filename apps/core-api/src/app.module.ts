@@ -9,6 +9,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { validate } from './config/env.validation';
 import { GeoModule } from './geo/geo.module';
 import { HealthController } from './health.controller';
+import { MasterDataModule } from './master-data/master-data.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { RedisModule } from './redis/redis.module';
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ShgsModule,
     ProductsModule,
+    MasterDataModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

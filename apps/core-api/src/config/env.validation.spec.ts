@@ -46,7 +46,8 @@ describe('validate (env)', () => {
   });
 
   it('throws when a required variable is missing', () => {
-    const { DATABASE_URL: _drop, ...withoutDbUrl } = BASE_ENV;
+    const withoutDbUrl = { ...BASE_ENV };
+    delete withoutDbUrl.DATABASE_URL;
     expect(() => validate(withoutDbUrl)).toThrow(
       'Invalid environment configuration',
     );
