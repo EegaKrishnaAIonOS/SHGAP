@@ -22,6 +22,7 @@ const BASE_ENV: Record<string, unknown> = {
   MINIO_PUBLIC_URL: 'http://x',
   CLAMAV_HOST: 'x',
   CLAMAV_PORT: '3310',
+  ML_SERVICES_URL: 'http://x',
 };
 
 describe('validate (env)', () => {

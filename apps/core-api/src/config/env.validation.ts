@@ -84,6 +84,9 @@ class EnvironmentVariables {
 
   @IsInt()
   CLAMAV_PORT: number;
+
+  @IsString()
+  ML_SERVICES_URL: string;
 }
 
 export function validate(

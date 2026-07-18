@@ -135,6 +135,8 @@
       "category": "Category",
       "categoryPlaceholder": "Select a category",
       "categoryGroupFirst": "Select a category group first",
+      "categorySuggestion": "Suggested categories based on the name and description:",
+      "categorySuggestionDismiss": "Pick manually instead",
       "name": "Product name",
       "description": "Description",
       "unit": "Unit",

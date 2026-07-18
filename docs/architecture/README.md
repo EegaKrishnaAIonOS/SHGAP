@@ -21,40 +21,46 @@ npx -p @mermaid-js/mermaid-cli mmdc -i docs/architecture/src/<name>.mmd -o docs/
 ```
 
 ### 2.1 System Context — [`01-c4-system-context`](rendered/01-c4-system-context.png)
+
 Six user roles (SHG member, buyer, ULB/district/state official, admin) and seven external systems (MEPMA, ONDC, GeM, Agmarknet, WhatsApp Business API, Bhashini/AI4Bharat, SMS/IVR/Email gateways) around the platform. Establishes the integration boundary from ADRs 0006, 0011, 0013.
 
 ### 2.2 Container Diagram — [`02-c4-container`](rendered/02-c4-container.png)
+
 Five deployable containers — Web/PWA (React), Core API (NestJS), ML Services (FastAPI), Voice Service (FastAPI/WebSocket), Notification Service (NestJS/BullMQ) — plus three data stores: PostgreSQL 16 (PostGIS + pgvector), Redis, and S3/MinIO object storage. Matches the module boundaries used throughout the sprint plan (T06-T21).
 
 ### 2.3 Voice Data-Flow — [`03-dataflow-voice`](rendered/03-dataflow-voice.png)
+
 Mic capture → ASR (Bhashini/IndicASR) → NLU (intent + entity extraction) → dialogue manager (Redis session state) → either RAG scheme-guidance or action dispatch to Core API → TTS → playback, with a fallback/clarification loop. Backs T10-T12.
 
 ### 2.4 Recommendation Data-Flow — [`04-dataflow-recommendation`](rendered/04-dataflow-recommendation.png)
+
 Sales/enquiry/price/catalogue/buyer data → feature pipeline → embeddings + forecasting models → hybrid recommender → match score → learning-to-rank → SHAP explainability → `/recommendations/{shgId}` API → UI → accept/reject feedback loop back into the recommender. Backs T14-T17.
 
 ### 2.5 Deployment Diagram — [`05-deployment-diagram`](rendered/05-deployment-diagram.png)
+
 India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway with TLS termination; a Kubernetes/Compose cluster running all five service containers with HPA; managed PostgreSQL and Redis; KMS-backed secrets manager; Prometheus/Grafana/Loki observability. Backs T03, T13, T21-T24.
 
 ## 3. Architecture Decision Records
 
-| ADR | Decision |
-|---|---|
-| [0001](../adr/0001-frontend-react-pwa.md) | React + TypeScript as an installable PWA |
-| [0002](../adr/0002-core-api-nestjs.md) | Core API on Node.js + NestJS |
-| [0003](../adr/0003-ml-voice-services-python-fastapi.md) | ML & Voice Services as separate Python/FastAPI services |
-| [0004](../adr/0004-database-postgres-postgis-pgvector.md) | Single PostgreSQL 16 engine with PostGIS + pgvector |
-| [0005](../adr/0005-cache-queue-redis-bullmq.md) | Redis + BullMQ for cache, sessions and async jobs |
-| [0006](../adr/0006-speech-bhashini-ai4bharat.md) | Bhashini / AI4Bharat for Telugu + English ASR & TTS |
-| [0007](../adr/0007-telugu-nlp-stack.md) | IndicBERT / IndicNLP / spaCy for intent & entity extraction |
-| [0008](../adr/0008-forecasting-stack.md) | Prophet / XGBoost / Darts for demand & price forecasting |
-| [0009](../adr/0009-recommendation-stack.md) | Embeddings + pgvector/FAISS + LightFM + LightGBM + SHAP for buyer matching |
-| [0010](../adr/0010-llm-rag-assistant.md) | LLM + pgvector RAG for scheme guidance and assistant replies |
-| [0011](../adr/0011-notification-providers.md) | MSG91 + WhatsApp Business API + Exotel + Amazon SES |
-| [0012](../adr/0012-monorepo-tooling.md) | Nx/Turborepo mono-repo for all services |
-| [0013](../adr/0013-infra-india-region-hosting.md) | India-region hosting on Docker/Kubernetes with Terraform |
-| [0014](../adr/0014-observability-stack.md) | Prometheus + Grafana + Loki for observability |
-| [0015](../adr/0015-security-dpdp-baseline.md) | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline |
-| [0016](../adr/0016-orm-prisma.md) | Prisma as the ORM/migration tool for Core API (T02) |
+| ADR                                                       | Decision                                                                                                           |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| [0001](../adr/0001-frontend-react-pwa.md)                 | React + TypeScript as an installable PWA                                                                           |
+| [0002](../adr/0002-core-api-nestjs.md)                    | Core API on Node.js + NestJS                                                                                       |
+| [0003](../adr/0003-ml-voice-services-python-fastapi.md)   | ML & Voice Services as separate Python/FastAPI services                                                            |
+| [0004](../adr/0004-database-postgres-postgis-pgvector.md) | Single PostgreSQL 16 engine with PostGIS + pgvector                                                                |
+| [0005](../adr/0005-cache-queue-redis-bullmq.md)           | Redis + BullMQ for cache, sessions and async jobs                                                                  |
+| [0006](../adr/0006-speech-bhashini-ai4bharat.md)          | Bhashini / AI4Bharat for Telugu + English ASR & TTS                                                                |
+| [0007](../adr/0007-telugu-nlp-stack.md)                   | IndicBERT / IndicNLP / spaCy for intent & entity extraction                                                        |
+| [0008](../adr/0008-forecasting-stack.md)                  | Prophet / XGBoost / Darts for demand & price forecasting                                                           |
+| [0009](../adr/0009-recommendation-stack.md)               | Embeddings + pgvector/FAISS + LightFM + LightGBM + SHAP for buyer matching                                         |
+| [0010](../adr/0010-llm-rag-assistant.md)                  | LLM + pgvector RAG for scheme guidance and assistant replies                                                       |
+| [0011](../adr/0011-notification-providers.md)             | MSG91 + WhatsApp Business API + Exotel + Amazon SES                                                                |
+| [0012](../adr/0012-monorepo-tooling.md)                   | Nx/Turborepo mono-repo for all services                                                                            |
+| [0013](../adr/0013-infra-india-region-hosting.md)         | India-region hosting on Docker/Kubernetes with Terraform                                                           |
+| [0014](../adr/0014-observability-stack.md)                | Prometheus + Grafana + Loki for observability                                                                      |
+| [0015](../adr/0015-security-dpdp-baseline.md)             | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline                                                     |
+| [0016](../adr/0016-orm-prisma.md)                         | Prisma as the ORM/migration tool for Core API (T02)                                                                |
+| [0017](../adr/0017-product-categorization-approach.md)    | Zero-shot embedding similarity (multilingual sentence-transformer, not IndicBERT) for product categorization (T08) |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 

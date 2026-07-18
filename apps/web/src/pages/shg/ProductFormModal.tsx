@@ -5,9 +5,15 @@ import { Modal } from "../../components/ui/Modal";
 import { Button } from "../../components/ui/Button";
 import { Input, Select } from "../../components/ui/Input";
 import { ProductImageCapture } from "../../components/ProductImageCapture";
+import { suggestCategories } from "../../lib/api/categorization";
 import { createProduct, updateProduct } from "../../lib/api/products";
 import { ApiError } from "../../lib/api/httpClient";
-import type { Category, Product } from "../../lib/api/types";
+import type { Category, CategorySuggestion, Product } from "../../lib/api/types";
+
+// Wait for the SHG member to stop typing before asking ml-services for
+// category suggestions (T08) — avoids firing a request on every keystroke.
+const CATEGORY_SUGGESTION_DEBOUNCE_MS = 600;
+const CATEGORY_SUGGESTION_MIN_NAME_LENGTH = 3;
 
 export interface ProductFormModalProps {
   open: boolean;
@@ -64,6 +70,10 @@ export function ProductFormModal({
   const [notice, setNotice] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [suggestionsDismissed, setSuggestionsDismissed] = useState(false);
+
   // Reset the form whenever the modal is (re)opened for a different product (or a fresh "add").
   useEffect(() => {
     if (!open) return;
@@ -81,8 +91,50 @@ export function ProductFormModal({
     setErrors({});
     setNotice(null);
     setSubmitError(null);
+    setCategorySuggestions([]);
+    setSuggestionsDismissed(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, product?.id]);
+
+  // Best-effort category suggestions (T08) — only while the SHG member
+  // hasn't chosen a category yet, so this never fights with a human
+  // decision (theirs or a suggestion they've already applied/dismissed).
+  useEffect(() => {
+    if (!open || categoryId || suggestionsDismissed) {
+      setCategorySuggestions([]);
+      return;
+    }
+    if (name.trim().length < CATEGORY_SUGGESTION_MIN_NAME_LENGTH) {
+      setCategorySuggestions([]);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setSuggestionsLoading(true);
+      suggestCategories(name.trim(), description.trim() || undefined)
+        .then((result) => {
+          if (!cancelled) setCategorySuggestions(result);
+        })
+        .catch(() => {
+          if (!cancelled) setCategorySuggestions([]);
+        })
+        .finally(() => {
+          if (!cancelled) setSuggestionsLoading(false);
+        });
+    }, CATEGORY_SUGGESTION_DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [open, name, description, categoryId, suggestionsDismissed]);
+
+  function applySuggestion(suggestion: CategorySuggestion) {
+    setParentCategoryId(findParentCategoryId(categories, suggestion.categoryId));
+    setCategoryId(suggestion.categoryId);
+    setCategorySuggestions([]);
+  }
 
   const parentOptions = useMemo(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
@@ -200,6 +252,39 @@ export function ProductFormModal({
           disabled={!parentCategoryId}
           required
         />
+        {(suggestionsLoading || categorySuggestions.length > 0) && (
+          <div className="rounded-md border border-brand-200 bg-brand-50 p-3 text-sm text-brand-700">
+            <p className="mb-2">{t("catalogue.form.categorySuggestion")}</p>
+            {suggestionsLoading ? (
+              <p className="text-neutral-500">{t("common.loading")}</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {categorySuggestions.map((suggestion) => (
+                    <Button
+                      key={suggestion.categoryId}
+                      type="button"
+                      size="sm"
+                      onClick={() => applySuggestion(suggestion)}
+                    >
+                      {suggestion.parentCategoryName
+                        ? `${suggestion.categoryName} (${suggestion.parentCategoryName})`
+                        : suggestion.categoryName}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSuggestionsDismissed(true)}
+                >
+                  {t("catalogue.form.categorySuggestionDismiss")}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         <Input
           label={t("catalogue.form.name")}
           fieldSize="touch"

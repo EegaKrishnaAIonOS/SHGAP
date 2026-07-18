@@ -1,3 +1,11 @@
+# CPU-only torch (sentence-transformers' dependency): installed from the
+# PyTorch CPU wheel index, not PyPI's default, to avoid pulling in the much
+# larger CUDA-bundled build neither this service nor its Docker image needs.
+# `pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu`
 fastapi>=0.115,<0.116
 uvicorn[standard]>=0.31,<0.32
 pydantic>=2.9,<3.0
+python-dotenv>=1.0,<2.0
+sentence-transformers>=3.0,<4.0
+scikit-learn>=1.5,<2.0
+psycopg[binary]>=3.2,<4.0

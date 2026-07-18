@@ -103,6 +103,13 @@ export interface ReverseGeocodeResult {
   rawAddress: Record<string, string>;
 }
 
+export interface CategorySuggestion {
+  categoryId: string;
+  categoryName: string;
+  parentCategoryName: string | null;
+  score: number;
+}
+
 export interface UserProfile {
   id: string;
   phone: string;

@@ -135,6 +135,8 @@
       "category": "వర్గం",
       "categoryPlaceholder": "వర్గాన్ని ఎంచుకోండి",
       "categoryGroupFirst": "ముందుగా వర్గ సమూహాన్ని ఎంచుకోండి",
+      "categorySuggestion": "పేరు మరియు వివరణ ఆధారంగా సూచించిన వర్గాలు:",
+      "categorySuggestionDismiss": "బదులుగా మానవీయంగా ఎంచుకోండి",
       "name": "ఉత్పత్తి పేరు",
       "description": "వివరణ",
       "unit": "యూనిట్",
