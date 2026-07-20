@@ -42,28 +42,29 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 
 ## 3. Architecture Decision Records
 
-| ADR                                                       | Decision                                                                                                                     |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [0001](../adr/0001-frontend-react-pwa.md)                 | React + TypeScript as an installable PWA                                                                                     |
-| [0002](../adr/0002-core-api-nestjs.md)                    | Core API on Node.js + NestJS                                                                                                 |
-| [0003](../adr/0003-ml-voice-services-python-fastapi.md)   | ML & Voice Services as separate Python/FastAPI services                                                                      |
-| [0004](../adr/0004-database-postgres-postgis-pgvector.md) | Single PostgreSQL 16 engine with PostGIS + pgvector                                                                          |
-| [0005](../adr/0005-cache-queue-redis-bullmq.md)           | Redis + BullMQ for cache, sessions and async jobs                                                                            |
-| [0006](../adr/0006-speech-bhashini-ai4bharat.md)          | Bhashini / AI4Bharat for Telugu + English ASR & TTS                                                                          |
-| [0007](../adr/0007-telugu-nlp-stack.md)                   | IndicBERT / IndicNLP / spaCy for intent & entity extraction                                                                  |
-| [0008](../adr/0008-forecasting-stack.md)                  | Prophet / XGBoost / Darts for demand & price forecasting                                                                     |
-| [0009](../adr/0009-recommendation-stack.md)               | Embeddings + pgvector/FAISS + LightFM + LightGBM + SHAP for buyer matching                                                   |
-| [0010](../adr/0010-llm-rag-assistant.md)                  | LLM + pgvector RAG for scheme guidance and assistant replies                                                                 |
-| [0011](../adr/0011-notification-providers.md)             | MSG91 + WhatsApp Business API + Exotel + Amazon SES                                                                          |
-| [0012](../adr/0012-monorepo-tooling.md)                   | Nx/Turborepo mono-repo for all services                                                                                      |
-| [0013](../adr/0013-infra-india-region-hosting.md)         | India-region hosting on Docker/Kubernetes with Terraform                                                                     |
-| [0014](../adr/0014-observability-stack.md)                | Prometheus + Grafana + Loki for observability                                                                                |
-| [0015](../adr/0015-security-dpdp-baseline.md)             | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline                                                               |
-| [0016](../adr/0016-orm-prisma.md)                         | Prisma as the ORM/migration tool for Core API (T02)                                                                          |
-| [0017](../adr/0017-product-categorization-approach.md)    | Zero-shot embedding similarity (multilingual sentence-transformer, not IndicBERT) for product categorization (T08)           |
-| [0018](../adr/0018-admin-portal-design.md)                | Admin portal: moderation via existing status fields, ADMIN-only master data, demo official seed accounts (T09)               |
-| [0019](../adr/0019-voice-pipeline-design.md)              | Voice pipeline: Groq+Sarvam over Pipecat/WebRTC (supersedes ADR-0006), JWT-forwarding dispatcher, narrow action scope (T10)  |
-| [0020](../adr/0020-nlu-dialogue-approach.md)              | NLU/dialogue: LLM tool-calling instead of fine-tuned IndicBERT, LLM-based transliteration instead of IndicXlit/fairseq (T11) |
+| ADR                                                               | Decision                                                                                                                                                                  |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [0001](../adr/0001-frontend-react-pwa.md)                         | React + TypeScript as an installable PWA                                                                                                                                  |
+| [0002](../adr/0002-core-api-nestjs.md)                            | Core API on Node.js + NestJS                                                                                                                                              |
+| [0003](../adr/0003-ml-voice-services-python-fastapi.md)           | ML & Voice Services as separate Python/FastAPI services                                                                                                                   |
+| [0004](../adr/0004-database-postgres-postgis-pgvector.md)         | Single PostgreSQL 16 engine with PostGIS + pgvector                                                                                                                       |
+| [0005](../adr/0005-cache-queue-redis-bullmq.md)                   | Redis + BullMQ for cache, sessions and async jobs                                                                                                                         |
+| [0006](../adr/0006-speech-bhashini-ai4bharat.md)                  | Bhashini / AI4Bharat for Telugu + English ASR & TTS                                                                                                                       |
+| [0007](../adr/0007-telugu-nlp-stack.md)                           | IndicBERT / IndicNLP / spaCy for intent & entity extraction                                                                                                               |
+| [0008](../adr/0008-forecasting-stack.md)                          | Prophet / XGBoost / Darts for demand & price forecasting                                                                                                                  |
+| [0009](../adr/0009-recommendation-stack.md)                       | Embeddings + pgvector/FAISS + LightFM + LightGBM + SHAP for buyer matching                                                                                                |
+| [0010](../adr/0010-llm-rag-assistant.md)                          | LLM + pgvector RAG for scheme guidance and assistant replies                                                                                                              |
+| [0011](../adr/0011-notification-providers.md)                     | MSG91 + WhatsApp Business API + Exotel + Amazon SES                                                                                                                       |
+| [0012](../adr/0012-monorepo-tooling.md)                           | Nx/Turborepo mono-repo for all services                                                                                                                                   |
+| [0013](../adr/0013-infra-india-region-hosting.md)                 | India-region hosting on Docker/Kubernetes with Terraform                                                                                                                  |
+| [0014](../adr/0014-observability-stack.md)                        | Prometheus + Grafana + Loki for observability                                                                                                                             |
+| [0015](../adr/0015-security-dpdp-baseline.md)                     | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline                                                                                                            |
+| [0016](../adr/0016-orm-prisma.md)                                 | Prisma as the ORM/migration tool for Core API (T02)                                                                                                                       |
+| [0017](../adr/0017-product-categorization-approach.md)            | Zero-shot embedding similarity (multilingual sentence-transformer, not IndicBERT) for product categorization (T08)                                                        |
+| [0018](../adr/0018-admin-portal-design.md)                        | Admin portal: moderation via existing status fields, ADMIN-only master data, demo official seed accounts (T09)                                                            |
+| [0019](../adr/0019-voice-pipeline-design.md)                      | Voice pipeline: Groq+Sarvam over Pipecat/WebRTC (supersedes ADR-0006), JWT-forwarding dispatcher, narrow action scope (T10)                                               |
+| [0020](../adr/0020-nlu-dialogue-approach.md)                      | NLU/dialogue: LLM tool-calling instead of fine-tuned IndicBERT, LLM-based transliteration instead of IndicXlit/fairseq (T11)                                              |
+| [0021](../adr/0021-scheme-guidance-rag-and-assistant-frontend.md) | Scheme guidance RAG (ml-services retrieves, voice-service grounds), dedicated text-chat endpoint over RTVI injection, official Pipecat client SDKs for the frontend (T12) |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 
@@ -77,4 +78,4 @@ New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template
 
 - Bhashini/AI4Bharat production API limits and latency are unverified until T11 — a text-input/graceful-degradation path is planned regardless (ADR-0006).
 - ONDC/GeM live API access may not be available during the pilot window; T21 explicitly builds simulated fallbacks per ADR-0013's integration-readiness requirement.
-- LLM choice for the RAG scheme-guidance assistant (ADR-0010) is intentionally left open pending a data-residency/cost review before T12.
+- LLM choice for the RAG scheme-guidance assistant (ADR-0010) is settled: Groq, reusing T10's LLM connection (ADR-0019/ADR-0021) rather than introducing a second provider.

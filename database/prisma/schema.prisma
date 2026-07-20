@@ -522,3 +522,27 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_log")
 }
+
+// ---------------------------------------------------------------------------
+// Voice Assistant — Scheme Guidance RAG (Module 5, T12)
+// ---------------------------------------------------------------------------
+
+/// A chunk of government scheme content (DAY-NULM, SthreeNidhi, PM SVANidhi,
+/// etc.) used to ground the voice assistant's scheme-guidance answers (ADR-0021).
+/// `schemeName`/`sourceUrl`/`sourceTitle` let answers cite where a fact came from.
+model SchemeChunk {
+  id          String   @id @default(uuid()) @db.Uuid
+  schemeName  String   @map("scheme_name")
+  content     String
+  sourceUrl   String   @map("source_url")
+  sourceTitle String   @map("source_title")
+  createdAt   DateTime @default(now()) @map("created_at")
+  /// Embedding dimension is 384 to match ml-services' actual embedding model
+  /// (sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2, ADR-0017) —
+  /// deliberately NOT 768 like the Product/Buyer placeholder columns above,
+  /// which anticipate a different, not-yet-built model.
+  embedding   Unsupported("vector(384)")?
+
+  @@index([schemeName])
+  @@map("scheme_chunks")
+}

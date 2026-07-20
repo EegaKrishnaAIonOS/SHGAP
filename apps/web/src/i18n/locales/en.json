@@ -175,17 +175,29 @@
   },
   "voice": {
     "title": "Voice Assistant",
-    "tapToSpeak": "Tap to speak",
+    "startCall": "Start voice call",
+    "endCall": "End call",
+    "micOn": "Microphone on — tap to mute",
+    "micOff": "Microphone off — tap to unmute",
     "listening": "Listening...",
-    "processing": "Thinking...",
-    "languageLabel": "Speaking in",
-    "quickCommandsLabel": "Try saying",
-    "quickCommand1": "What is the price of turmeric powder?",
-    "quickCommand2": "Add my new product",
-    "quickCommand3": "Show my orders",
+    "connectFailed": "Couldn't start the call. Please try again.",
+    "micUnavailable": "Couldn't access your microphone. Check your browser's microphone permission and try again.",
+    "lowBandwidthOn": "Low-data mode: on",
+    "lowBandwidthOff": "Low-data mode: off",
+    "lowBandwidthHint": "Voice calls are turned off to save data. Type your question below instead.",
     "transcriptEmpty": "Your conversation will appear here.",
-    "sampleUser": "How do I list a new product?",
-    "sampleAssistant": "Tap Add Product on the catalogue screen, then speak the product name, price and quantity."
+    "textInputLabel": "Type a message",
+    "textInputPlaceholder": "Type your question...",
+    "textSendFailed": "Couldn't send your message. Please try again.",
+    "send": "Send",
+    "quickCommandsHint": "Try: \"What is the price of turmeric powder?\", \"Add my new product\", or \"What loans are available for my SHG?\"",
+    "action": {
+      "productRegistered": "Registered \"{{name}}\" under {{category}}.",
+      "priceLine": "{{name}}: Rs {{price}} ({{stock}} in stock)",
+      "priceNotFound": "No matching product found.",
+      "noShgRegistered": "You need to register your SHG in the app before adding products.",
+      "genericError": "Something went wrong with that request."
+    }
   },
   "dashboard": {
     "filters": "Filters",

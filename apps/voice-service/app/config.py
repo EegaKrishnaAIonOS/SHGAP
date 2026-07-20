@@ -31,6 +31,7 @@ class Settings:
     session_ttl_seconds: int = int(os.environ.get("VOICE_SESSION_TTL_SECONDS", "900"))
 
     core_api_base_url: str = os.environ.get("CORE_API_BASE_URL", "http://localhost:3000")
+    ml_services_base_url: str = os.environ.get("ML_SERVICES_BASE_URL", "http://localhost:8001")
 
 
 settings = Settings()

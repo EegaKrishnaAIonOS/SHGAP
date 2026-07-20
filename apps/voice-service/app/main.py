@@ -5,10 +5,11 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from loguru import logger
 from pipecat.transports.smallwebrtc.connection import SmallWebRTCConnection
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.bot import run_bot
 from app.session import SessionStore, build_default_session_store
+from app.text_chat import handle_text_message
 from app.transliteration import TextNormalizer, TransliterationError
 
 session_store: SessionStore = build_default_session_store()
@@ -45,22 +46,29 @@ def health() -> dict:
 
 @app.post("/api/offer")
 async def offer(request: dict[str, Any], background_tasks: BackgroundTasks) -> dict[str, Any]:
-    """WebRTC signaling endpoint. On the *first* offer for a given browser
-    session, the caller must include `sessionId` (a client-generated,
-    persisted id — see `app/session.py`), `accessToken` (their own core-api
+    """WebRTC signaling endpoint, matching `@pipecat-ai/small-webrtc-transport`'s
+    real wire format exactly (verified against its source, not assumed):
+    the connection id is `pc_id` (snake_case) at the top level, and any
+    custom connect params passed via `webrtcRequestParams.requestData` on
+    the client arrive nested under a `requestData` key here — not flat at
+    the top level. On the *first* offer for a given browser session, that
+    nested object must include `sessionId` (a client-generated, persisted
+    id — see `app/session.py`), `accessToken` (the caller's own core-api
     JWT access token), and `language` ("te" or "en"). Renegotiation of an
-    already-connected peer only needs `pcId` (aiortc's connection id,
-    returned in the first response), `sdp` and `type`.
+    already-connected peer only needs the top-level `pc_id`, `sdp` and `type`.
     """
-    pc_id = request.get("pcId")
+    pc_id = request.get("pc_id")
 
     if pc_id and pc_id in peer_connections:
         connection = peer_connections[pc_id]
-        await connection.renegotiate(sdp=request["sdp"], type=request["type"])
+        await connection.renegotiate(
+            sdp=request["sdp"], type=request["type"], restart_pc=request.get("restart_pc", False)
+        )
     else:
-        session_id = request.get("sessionId")
-        access_token = request.get("accessToken")
-        language = request.get("language", "te")
+        custom = request.get("requestData") or {}
+        session_id = custom.get("sessionId")
+        access_token = custom.get("accessToken")
+        language = custom.get("language", "te")
         if not session_id or not access_token:
             raise HTTPException(
                 status_code=400, detail="sessionId and accessToken are required to connect"
@@ -89,6 +97,45 @@ async def offer(request: dict[str, Any], background_tasks: BackgroundTasks) -> d
     answer = connection.get_answer()
     peer_connections[answer["pc_id"]] = connection
     return answer
+
+
+class TextMessageRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    message: str
+    # Only required to start a brand-new session — matches /api/offer's own
+    # fresh-session fields (T12's text-input fallback needs to work even for
+    # a member who has never connected by voice in this session at all).
+    access_token: str | None = Field(default=None, alias="accessToken")
+    language: str = "te"
+
+
+class TextMessageResponse(BaseModel):
+    reply: str
+    tool_results: list[dict[str, Any]]
+
+
+@app.post("/sessions/{session_id}/message", response_model=TextMessageResponse)
+async def send_text_message(session_id: str, request: TextMessageRequest) -> TextMessageResponse:
+    """Text-input fallback (T12) — a stateless HTTP alternative to speaking,
+    sharing the same Redis-backed session, tool set, and system prompt as
+    the live voice pipeline (see ADR-0021 for why this isn't done via RTVI
+    client-message injection, which turned out to be client-side-only).
+    """
+    session = await session_store.get(session_id)
+    if session is None:
+        if not request.access_token:
+            raise HTTPException(
+                status_code=400, detail="accessToken is required to start a new session"
+            )
+        session = await session_store.create(session_id, request.access_token, request.language)
+    elif request.access_token:
+        session.access_token = request.access_token
+        session.language = request.language
+        await session_store.save(session)
+
+    reply, tool_results = await handle_text_message(session, session_store, request.message)
+    return TextMessageResponse(reply=reply, tool_results=tool_results)
 
 
 class TransliterateRequest(BaseModel):

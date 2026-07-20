@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.actions import SESSION_EXPIRED_RESULT, build_tools
 from app.core_api_client import CoreApiAuthError, CoreApiRequestError
+from app.ml_services_client import MlServicesError
 from app.session import SessionStore
 from tests.fake_redis import FakeRedis
 
@@ -189,3 +190,70 @@ async def test_tool_schemas_declare_required_fields():
 
     check = _tool(tools, "check_product_price")
     assert check.required == ["name"]
+
+    scheme = _tool(tools, "scheme_guidance")
+    assert scheme.required == ["question"]
+
+
+async def test_scheme_guidance_returns_ranked_chunks():
+    store = SessionStore(FakeRedis())
+    session = await _seed_session(store)
+
+    mock_client = AsyncMock()
+    mock_client.search_schemes.return_value = [
+        {
+            "scheme_name": "PM SVANidhi",
+            "content": "Loans up to Rs 50,000 in three tranches.",
+            "source_title": "PM SVANidhi — MoHUA",
+            "source_url": "https://pmsvanidhi.mohua.gov.in/",
+            "score": 0.8,
+        }
+    ]
+
+    with patch("app.actions.MlServicesClient", return_value=mock_client):
+        tools = build_tools(session, store)
+        params = _make_params({"question": "How much loan can a street vendor get?"})
+        await _tool(tools, "scheme_guidance").handler(params)
+
+    mock_client.search_schemes.assert_awaited_once_with("How much loan can a street vendor get?")
+    result = params.result_callback.call_args.args[0]
+    assert result["status"] == "found"
+    assert result["chunks"] == [
+        {
+            "scheme_name": "PM SVANidhi",
+            "content": "Loans up to Rs 50,000 in three tranches.",
+            "source_title": "PM SVANidhi — MoHUA",
+        }
+    ]
+
+
+async def test_scheme_guidance_reports_no_match_when_nothing_is_relevant():
+    store = SessionStore(FakeRedis())
+    session = await _seed_session(store)
+
+    mock_client = AsyncMock()
+    mock_client.search_schemes.return_value = []
+
+    with patch("app.actions.MlServicesClient", return_value=mock_client):
+        tools = build_tools(session, store)
+        params = _make_params({"question": "What's the weather today?"})
+        await _tool(tools, "scheme_guidance").handler(params)
+
+    result = params.result_callback.call_args.args[0]
+    assert result["status"] == "no_match"
+
+
+async def test_scheme_guidance_reports_ml_services_errors():
+    store = SessionStore(FakeRedis())
+    session = await _seed_session(store)
+
+    mock_client = AsyncMock()
+    mock_client.search_schemes.side_effect = MlServicesError("ml-services unreachable")
+
+    with patch("app.actions.MlServicesClient", return_value=mock_client):
+        tools = build_tools(session, store)
+        params = _make_params({"question": "Tell me about SthreeNidhi"})
+        await _tool(tools, "scheme_guidance").handler(params)
+
+    result = params.result_callback.call_args.args[0]
+    assert result["error"] == "scheme_guidance_unavailable"

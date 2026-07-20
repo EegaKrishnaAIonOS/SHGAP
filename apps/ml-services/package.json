@@ -8,6 +8,7 @@
     "dev": "python -m uvicorn app.main:app --reload --port 8001",
     "build": "python -m compileall app",
     "lint": "python -m ruff check .",
-    "test": "python -m pytest"
+    "test": "python -m pytest",
+    "ingest:schemes": "python scripts/ingest_scheme_chunks.py"
   }
 }

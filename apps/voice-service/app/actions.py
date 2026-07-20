@@ -2,6 +2,7 @@ from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.services.llm_service import FunctionCallParams
 
 from app.core_api_client import CoreApiAuthError, CoreApiClient, CoreApiError
+from app.ml_services_client import MlServicesClient, MlServicesError
 from app.session import SessionStore, VoiceSession
 
 SESSION_EXPIRED_RESULT = {
@@ -18,6 +19,7 @@ def build_tools(session: VoiceSession, session_store: SessionStore) -> list[Func
     later calls in the same conversation without re-fetching it.
     """
     client = CoreApiClient(access_token=session.access_token)
+    ml_services_client = MlServicesClient()
 
     async def _resolve_shg_id() -> str | None:
         if session.shg_id:
@@ -107,6 +109,41 @@ def build_tools(session: VoiceSession, session_store: SessionStore) -> list[Func
         except CoreApiError as err:
             await params.result_callback({"error": "core_api_error", "message": str(err)})
 
+    async def scheme_guidance(params: FunctionCallParams) -> None:
+        try:
+            results = await ml_services_client.search_schemes(params.arguments["question"])
+            if not results:
+                await params.result_callback(
+                    {
+                        "status": "no_match",
+                        "message": "No scheme content matched this question closely enough "
+                        "to answer confidently. Tell the member this isn't something you "
+                        "have information on, and suggest they ask an MEPMA official.",
+                    }
+                )
+                return
+            await params.result_callback(
+                {
+                    "status": "found",
+                    # Ranked chunks, not a pre-written answer — the LLM composes the
+                    # actual reply from these in its own next turn, so it can phrase
+                    # it naturally in whichever language the member is using (see
+                    # the system prompt's grounding instructions, ADR-0021).
+                    "chunks": [
+                        {
+                            "scheme_name": r["scheme_name"],
+                            "content": r["content"],
+                            "source_title": r["source_title"],
+                        }
+                        for r in results
+                    ],
+                }
+            )
+        except MlServicesError as err:
+            await params.result_callback(
+                {"error": "scheme_guidance_unavailable", "message": str(err)}
+            )
+
     return [
         FunctionSchema(
             name="register_product",
@@ -153,5 +190,23 @@ def build_tools(session: VoiceSession, session_store: SessionStore) -> list[Func
             },
             required=["name"],
             handler=check_product_price,
+        ),
+        FunctionSchema(
+            name="scheme_guidance",
+            description=(
+                "Answer a question about government schemes relevant to SHGs — loans, "
+                "interest subsidies, credit limits, and similar programmes (e.g. DAY-NULM, "
+                "Vaddi Leni Runaalu, PM SVANidhi, SthreeNidhi, PM Mudra Yojana, MEPMA's own "
+                "initiatives). Retrieves the most relevant scheme content; you must then "
+                "answer using only that content, not this tool's output directly."
+            ),
+            properties={
+                "question": {
+                    "type": "string",
+                    "description": "The member's scheme-related question, in their own words",
+                },
+            },
+            required=["question"],
+            handler=scheme_guidance,
         ),
     ]

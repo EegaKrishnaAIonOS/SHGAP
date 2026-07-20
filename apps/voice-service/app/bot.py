@@ -16,28 +16,8 @@ from pipecat.transports.smallwebrtc.transport import SmallWebRTCTransport
 
 from app.actions import build_tools
 from app.config import settings
+from app.prompts import SYSTEM_PROMPT
 from app.session import SessionStore, VoiceSession
-
-# Deliberately narrow: only what's actually backed by a real API today
-# (product registration, price/stock lookup on the member's own listings).
-# Scheme guidance and buyer search are out of scope for T10 — see ADR-0019.
-_SYSTEM_PROMPT = """You are the SHGAP voice assistant, helping a Self Help Group (SHG) \
-member in Andhra Pradesh manage their product listings by voice. Speak the same language \
-the member is using — Telugu or English, switching naturally if they switch.
-
-You can help with exactly two things:
-1. Registering a new product (name, unit, price, and optionally a description, minimum \
-order quantity, and stock) — use the register_product tool. Never ask the member to pick \
-a category; it is determined automatically.
-2. Checking the price or stock of one of their own already-listed products — use the \
-check_product_price tool.
-
-If the member asks about anything else (government schemes, buyer contacts, market \
-prices for other SHGs, or anything you don't have a tool for), say plainly that this \
-isn't available through voice yet and suggest they check the app or ask an official.
-
-Keep responses short — one or two sentences. Your output is converted to speech, so \
-never use special characters, markdown, or bullet points."""
 
 
 def _resolve_tts_language(language: str) -> Language:
@@ -57,7 +37,7 @@ async def run_bot(
     """
     tools = build_tools(session, session_store)
 
-    messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(
         {"role": turn["role"], "content": turn["content"]} for turn in session.history
     )

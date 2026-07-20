@@ -14,6 +14,14 @@ const apiProxy = {
     changeOrigin: true,
     rewrite: (path: string) => path.replace(/^\/api/, ""),
   },
+  // voice-service (T12) — same same-origin-proxy reasoning as core-api above.
+  // WebRTC signaling (`/api/offer`) is a plain HTTP POST, so it proxies fine
+  // even though the resulting media itself is a direct peer connection.
+  "/voice-api": {
+    target: "http://localhost:8002",
+    changeOrigin: true,
+    rewrite: (path: string) => path.replace(/^\/voice-api/, ""),
+  },
 };
 
 // https://vite.dev/config/

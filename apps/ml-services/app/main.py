@@ -12,6 +12,7 @@ if sys.platform == "win32":
 from fastapi import FastAPI  # noqa: E402
 
 from app.categorization.router import router as categorization_router  # noqa: E402
+from app.scheme_guidance.router import router as scheme_guidance_router  # noqa: E402
 
 app = FastAPI(
     title="SHGAP ML Services",
@@ -20,6 +21,7 @@ app = FastAPI(
 )
 
 app.include_router(categorization_router)
+app.include_router(scheme_guidance_router)
 
 
 @app.get("/health")
