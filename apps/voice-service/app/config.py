@@ -18,7 +18,10 @@ class Settings:
     groq_api_key: str = os.environ.get("GROQ_API_KEY", "")
     sarvam_api_key: str = os.environ.get("SARVAM_API_KEY", "")
     groq_llm_model: str = os.environ.get("GROQ_LLM_MODEL", "llama-3.3-70b-versatile")
-    groq_stt_model: str = os.environ.get("GROQ_STT_MODEL", "whisper-large-v3-turbo")
+    # Sarvam, not Groq/Whisper, for STT — see ADR-0019's update: Sarvam's
+    # saaras:v3 is tuned for Indian languages/code-switching and streams over
+    # a WebSocket (lower latency than Whisper's upload-then-transcribe call).
+    sarvam_stt_model: str = os.environ.get("SARVAM_STT_MODEL", "saaras:v3")
     sarvam_tts_model: str = os.environ.get("SARVAM_TTS_MODEL", "bulbul:v2")
 
     redis_url: str = os.environ.get("REDIS_URL", "redis://localhost:6379")

@@ -7,7 +7,7 @@ from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
 from pipecat.services.groq.llm import GroqLLMService
-from pipecat.services.groq.stt import GroqSTTService
+from pipecat.services.sarvam.stt import SarvamSTTService
 from pipecat.services.sarvam.tts import SarvamTTSService
 from pipecat.transcriptions.language import Language
 from pipecat.transports.base_transport import TransportParams
@@ -41,7 +41,7 @@ never use special characters, markdown, or bullet points."""
 
 
 def _resolve_tts_language(language: str) -> Language:
-    return Language.TE if language == "te" else Language.EN
+    return Language.TE_IN if language == "te" else Language.EN_IN
 
 
 async def run_bot(
@@ -76,7 +76,11 @@ async def run_bot(
     )
 
     async with aiohttp.ClientSession() as http_session:
-        stt = GroqSTTService(api_key=settings.groq_api_key, model=settings.groq_stt_model)
+        # Sarvam, not Groq/Whisper, for STT (ADR-0019 update) — left at the
+        # model's own auto-detect ("unknown") rather than pinned to the
+        # session's chosen language, so Telugu/English code-switching
+        # mid-utterance still transcribes correctly either way.
+        stt = SarvamSTTService(api_key=settings.sarvam_api_key, model=settings.sarvam_stt_model)
         llm = GroqLLMService(api_key=settings.groq_api_key, model=settings.groq_llm_model)
         tts = SarvamTTSService(
             api_key=settings.sarvam_api_key,
