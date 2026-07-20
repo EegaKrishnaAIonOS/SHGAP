@@ -5,11 +5,14 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from loguru import logger
 from pipecat.transports.smallwebrtc.connection import SmallWebRTCConnection
+from pydantic import BaseModel
 
 from app.bot import run_bot
 from app.session import SessionStore, build_default_session_store
+from app.transliteration import TextNormalizer, TransliterationError
 
 session_store: SessionStore = build_default_session_store()
+text_normalizer = TextNormalizer()
 
 # aiortc peer connections, keyed by *aiortc's own* pc_id — purely a live,
 # in-process registry for WebRTC renegotiation (a network hiccup within the
@@ -86,3 +89,28 @@ async def offer(request: dict[str, Any], background_tasks: BackgroundTasks) -> d
     answer = connection.get_answer()
     peer_connections[answer["pc_id"]] = connection
     return answer
+
+
+class TransliterateRequest(BaseModel):
+    text: str
+
+
+class TransliterateResponse(BaseModel):
+    text: str
+
+
+@app.post("/transliterate", response_model=TransliterateResponse)
+async def transliterate(request: TransliterateRequest) -> TransliterateResponse:
+    """Normalizes Romanized/mixed-script Telugu text input into proper Telugu
+    script (T11) — for the text-input fallback a future task adds to the
+    assistant UI. See ADR-0020 for why this is LLM-based, not a dedicated
+    transliteration model. Falls back to the original text, unchanged, if
+    the underlying call fails — a text box should never break because a
+    best-effort cleanup step couldn't run.
+    """
+    try:
+        normalized = await text_normalizer.normalize(request.text)
+    except TransliterationError as err:
+        logger.warning(f"Transliteration failed, returning original text: {err}")
+        normalized = request.text
+    return TransliterateResponse(text=normalized)
