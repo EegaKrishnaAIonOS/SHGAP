@@ -1,7 +1,7 @@
 [project]
 name = "voice-service"
 version = "0.1.0"
-description = "Streaming ASR/TTS bridge, Telugu NLP intent/entity extraction, dialogue manager, RAG scheme-guidance"
+description = "Pipecat voice pipeline (Groq STT/LLM + Sarvam TTS over WebRTC) with a core-api action dispatcher"
 requires-python = ">=3.11"
 
 [tool.ruff]
@@ -13,3 +13,4 @@ select = ["E", "F", "I"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+asyncio_mode = "auto"
