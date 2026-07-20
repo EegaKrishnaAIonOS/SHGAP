@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ShgType } from '@shgap/database';
-import { IsIn, IsOptional, IsUUID } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 const SHG_TYPES: ShgType[] = [
@@ -21,4 +21,11 @@ export class QueryShgDto extends PaginationQueryDto {
   @IsOptional()
   @IsIn(SHG_TYPES)
   type?: ShgType;
+
+  @ApiPropertyOptional({
+    description: 'Case-insensitive search over the SHG name',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

@@ -138,5 +138,21 @@ describe('ShgsService', () => {
         }),
       );
     });
+
+    it('adds a case-insensitive name filter when search is provided', async () => {
+      await service.findAllInScope({ kind: 'global' }, {
+        skip: 0,
+        pageSize: 20,
+        page: 1,
+        search: 'lakshmi',
+      } as any);
+      expect(prisma.shg.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            name: { contains: 'lakshmi', mode: 'insensitive' },
+          }),
+        }),
+      );
+    });
   });
 });

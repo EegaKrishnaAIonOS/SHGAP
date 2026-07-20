@@ -101,6 +101,24 @@ describe('ProductsService', () => {
     });
   });
 
+  describe('findAllInScope', () => {
+    it('adds a case-insensitive name filter when search is provided', async () => {
+      await service.findAllInScope({ kind: 'global' }, {
+        skip: 0,
+        pageSize: 20,
+        page: 1,
+        search: 'pickle',
+      } as any);
+      expect(prisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            name: { contains: 'pickle', mode: 'insensitive' },
+          }),
+        }),
+      );
+    });
+  });
+
   describe('findNearby', () => {
     it('returns an empty array when nothing is within range', async () => {
       const result = await service.findNearby({ lat: 14.68, lng: 77.6 }, 25);

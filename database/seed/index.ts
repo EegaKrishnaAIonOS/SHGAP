@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { roles, districts, ulbs, mandals, categories, festivalCalendar } from "./data";
-import { demoUsers, demoShgs, demoProducts } from "./demo-data";
+import { demoUsers, demoOfficials, demoShgs, demoProducts } from "./demo-data";
 
 const prisma = new PrismaClient();
 
@@ -99,6 +99,45 @@ async function seedFestivalCalendar() {
     });
   }
   console.log(`Seeded ${festivalCalendar.length} festival calendar entries`);
+}
+
+/** One demo login per official role, so the admin portal / dashboards are reachable in a fresh environment. */
+async function seedDemoOfficials() {
+  const roleByName = new Map((await prisma.role.findMany()).map((r) => [r.name, r]));
+  const districtByCode = new Map((await prisma.district.findMany()).map((d) => [d.code, d]));
+  const ulbByCode = new Map((await prisma.ulb.findMany()).map((u) => [u.code, u]));
+
+  for (const official of demoOfficials) {
+    const role = roleByName.get(official.role);
+    if (!role) throw new Error(`Role ${official.role} not seeded — run seedRoles first`);
+
+    const district = official.districtCode ? districtByCode.get(official.districtCode) : undefined;
+    const ulb = official.ulbCode ? ulbByCode.get(official.ulbCode) : undefined;
+    if (official.districtCode && !district) {
+      throw new Error(
+        `Unknown district code ${official.districtCode} for official ${official.name}`,
+      );
+    }
+    if (official.ulbCode && !ulb) {
+      throw new Error(`Unknown ULB code ${official.ulbCode} for official ${official.name}`);
+    }
+
+    const user = await prisma.user.upsert({
+      where: { phone: official.phone },
+      update: { name: official.name, status: "ACTIVE" },
+      create: { phone: official.phone, name: official.name, status: "ACTIVE" },
+    });
+
+    const existingRole = await prisma.userRole.findFirst({
+      where: { userId: user.id, roleId: role.id },
+    });
+    if (!existingRole) {
+      await prisma.userRole.create({
+        data: { userId: user.id, roleId: role.id, districtId: district?.id, ulbId: ulb?.id },
+      });
+    }
+  }
+  console.log(`Seeded ${demoOfficials.length} demo official accounts`);
 }
 
 async function seedDemoShgsAndProducts() {
@@ -216,6 +255,7 @@ async function main() {
   await seedMandals();
   await seedCategories();
   await seedFestivalCalendar();
+  await seedDemoOfficials();
   await seedDemoShgsAndProducts();
 }
 

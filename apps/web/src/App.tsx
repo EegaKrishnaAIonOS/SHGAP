@@ -5,6 +5,7 @@ import { DashboardShell } from "./layouts/DashboardShell";
 import { useHtmlLangSync } from "./i18n/useHtmlLangSync";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { RequireRole } from "./components/RequireRole";
 import { initOfflineSync } from "./lib/offlineQueue/sync";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/auth/LoginPage";
@@ -17,7 +18,14 @@ import { ShgDashboardPage } from "./pages/dashboards/ShgDashboardPage";
 import { ProductDashboardPage } from "./pages/dashboards/ProductDashboardPage";
 import { BuyerDashboardPage } from "./pages/dashboards/BuyerDashboardPage";
 import { GovernmentDashboardPage } from "./pages/dashboards/GovernmentDashboardPage";
-import { AdminPage } from "./pages/admin/AdminPage";
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { AdminOverviewPage } from "./pages/admin/AdminOverviewPage";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminShgsPage } from "./pages/admin/AdminShgsPage";
+import { AdminProductsPage } from "./pages/admin/AdminProductsPage";
+import { AdminMasterDataPage } from "./pages/admin/AdminMasterDataPage";
+
+const ADMIN_PORTAL_ROLES = ["ADMIN", "STATE_OFFICIAL", "DISTRICT_OFFICIAL", "ULB_OFFICIAL"];
 
 function App() {
   // Keeps <html lang> (and therefore the Telugu font-stack CSS rule) in
@@ -54,7 +62,21 @@ function App() {
             <Route path="/dashboards/product" element={<ProductDashboardPage />} />
             <Route path="/dashboards/buyer" element={<BuyerDashboardPage />} />
             <Route path="/dashboards/government" element={<GovernmentDashboardPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+
+            {/* Admin portal (T09): auth + role-gated, unlike the still-wireframe dashboards above. */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<RequireRole roles={ADMIN_PORTAL_ROLES} />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminOverviewPage />} />
+                  <Route path="users" element={<AdminUsersPage />} />
+                  <Route path="shgs" element={<AdminShgsPage />} />
+                  <Route path="products" element={<AdminProductsPage />} />
+                  <Route element={<RequireRole roles={["ADMIN"]} />}>
+                    <Route path="master-data" element={<AdminMasterDataPage />} />
+                  </Route>
+                </Route>
+              </Route>
+            </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

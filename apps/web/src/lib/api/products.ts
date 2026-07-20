@@ -34,6 +34,7 @@ export interface ListProductsParams {
   shgId?: string;
   districtId?: string;
   isAvailable?: boolean;
+  search?: string;
 }
 
 export function listProducts(params: ListProductsParams = {}): Promise<PaginatedResult<Product>> {
@@ -44,6 +45,7 @@ export function listProducts(params: ListProductsParams = {}): Promise<Paginated
   if (params.shgId) qs.set("shgId", params.shgId);
   if (params.districtId) qs.set("districtId", params.districtId);
   if (params.isAvailable !== undefined) qs.set("isAvailable", String(params.isAvailable));
+  if (params.search) qs.set("search", params.search);
   const query = qs.toString();
   return authFetch<PaginatedResult<Product>>(`/products${query ? `?${query}` : ""}`);
 }

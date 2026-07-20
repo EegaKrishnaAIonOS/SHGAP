@@ -64,6 +64,9 @@ export class ProductsService {
       ...(query.isAvailable !== undefined
         ? { isAvailable: query.isAvailable }
         : {}),
+      ...(query.search
+        ? { name: { contains: query.search, mode: 'insensitive' } }
+        : {}),
     };
 
     const [total, products] = await this.prisma.$transaction([

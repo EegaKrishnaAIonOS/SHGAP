@@ -61,6 +61,7 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 | [0015](../adr/0015-security-dpdp-baseline.md)             | TLS + KMS + pgcrypto + OWASP ZAP + Snyk security/DPDP baseline                                                     |
 | [0016](../adr/0016-orm-prisma.md)                         | Prisma as the ORM/migration tool for Core API (T02)                                                                |
 | [0017](../adr/0017-product-categorization-approach.md)    | Zero-shot embedding similarity (multilingual sentence-transformer, not IndicBERT) for product categorization (T08) |
+| [0018](../adr/0018-admin-portal-design.md)                | Admin portal: moderation via existing status fields, ADMIN-only master data, demo official seed accounts (T09)     |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 

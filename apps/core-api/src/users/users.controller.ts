@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -22,6 +23,7 @@ import {
 } from '../common/interfaces/jwt-payload.interface';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { QueryUserDto } from './dto/query-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -43,8 +45,8 @@ export class UsersController {
   @ApiOperation({
     summary: "List users visible within the caller's district/ULB scope",
   })
-  findAll(@CurrentScope() scope: RequestScope) {
-    return this.usersService.findAllInScope(scope);
+  findAll(@CurrentScope() scope: RequestScope, @Query() query: QueryUserDto) {
+    return this.usersService.findAllInScope(scope, query);
   }
 
   @Get(':id')

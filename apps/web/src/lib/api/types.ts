@@ -19,6 +19,8 @@ export interface Ulb {
   name: string;
   code: string;
   districtId: string;
+  /** Present on the flat `GET /master-data/ulbs` admin listing, absent on the per-district one. */
+  district?: { name: string };
 }
 
 export interface Mandal {
@@ -26,6 +28,19 @@ export interface Mandal {
   name: string;
   code: string;
   districtId: string;
+  /** Present on the flat `GET /master-data/mandals` admin listing, absent on the per-district one. */
+  district?: { name: string };
+}
+
+export interface FestivalCalendarEntry {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  recurring: boolean;
+  districtId: string | null;
+  district?: { name: string } | null;
+  description: string | null;
 }
 
 export interface Category {
@@ -114,7 +129,22 @@ export interface UserProfile {
   id: string;
   phone: string;
   name: string | null;
-  userRoles: Array<{ id: string; role: { name: string } }>;
+  status?: "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION";
+  createdAt?: string;
+  userRoles: Array<{
+    id: string;
+    districtId?: string | null;
+    ulbId?: string | null;
+    role: { name: string };
+  }>;
+}
+
+export interface AdminSummary {
+  totalShgs: number;
+  activeShgs: number;
+  totalProducts: number;
+  availableProducts: number;
+  totalUsers: number;
 }
 
 /**

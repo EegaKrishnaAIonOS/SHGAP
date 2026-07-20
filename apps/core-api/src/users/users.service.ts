@@ -6,9 +6,11 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@shgap/database';
 import { PrismaService } from '../prisma/prisma.service';
+import { PaginatedResult, paginate } from '../common/dto/pagination-query.dto';
 import { RequestScope } from '../common/interfaces/jwt-payload.interface';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { QueryUserDto } from './dto/query-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 const userWithRoles = Prisma.validator<Prisma.UserDefaultArgs>()({
@@ -19,9 +21,12 @@ const userWithRoles = Prisma.validator<Prisma.UserDefaultArgs>()({
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Lists users visible under the caller's RequestScope (see ScopeGuard). */
-  async findAllInScope(scope: RequestScope) {
-    const where: Prisma.UserWhereInput =
+  /** Lists users visible under the caller's RequestScope (see ScopeGuard), paginated and searchable. */
+  async findAllInScope(
+    scope: RequestScope,
+    query: QueryUserDto,
+  ): Promise<PaginatedResult<unknown>> {
+    const scopeFilter: Prisma.UserWhereInput =
       scope.kind === 'global'
         ? {}
         : scope.kind === 'district'
@@ -30,11 +35,30 @@ export class UsersService {
             ? { userRoles: { some: { ulbId: { in: scope.ulbIds } } } }
             : { id: scope.userId };
 
-    return this.prisma.user.findMany({
-      where,
-      include: userWithRoles.include,
-      orderBy: { createdAt: 'desc' },
-    });
+    const where: Prisma.UserWhereInput = {
+      ...scopeFilter,
+      ...(query.search
+        ? {
+            OR: [
+              { name: { contains: query.search, mode: 'insensitive' } },
+              { phone: { contains: query.search } },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, users] = await this.prisma.$transaction([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        include: userWithRoles.include,
+        orderBy: { createdAt: 'desc' },
+        skip: query.skip,
+        take: query.pageSize,
+      }),
+    ]);
+
+    return paginate(users, total, query);
   }
 
   async findOne(id: string) {

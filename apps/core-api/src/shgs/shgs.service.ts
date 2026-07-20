@@ -55,6 +55,9 @@ export class ShgsService {
       ...scopeWhere(scope),
       ...(query.districtId ? { districtId: query.districtId } : {}),
       ...(query.type ? { type: query.type } : {}),
+      ...(query.search
+        ? { name: { contains: query.search, mode: 'insensitive' } }
+        : {}),
     };
 
     const [total, shgs] = await this.prisma.$transaction([

@@ -23,6 +23,7 @@ export interface ListShgsParams {
   pageSize?: number;
   districtId?: string;
   type?: ShgType;
+  search?: string;
 }
 
 export function listShgs(params: ListShgsParams = {}): Promise<PaginatedResult<Shg>> {
@@ -31,6 +32,7 @@ export function listShgs(params: ListShgsParams = {}): Promise<PaginatedResult<S
   if (params.pageSize) qs.set("pageSize", String(params.pageSize));
   if (params.districtId) qs.set("districtId", params.districtId);
   if (params.type) qs.set("type", params.type);
+  if (params.search) qs.set("search", params.search);
   const query = qs.toString();
   return authFetch<PaginatedResult<Shg>>(`/shgs${query ? `?${query}` : ""}`);
 }

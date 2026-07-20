@@ -12,6 +12,37 @@ export const demoUsers: { phone: string; name: string }[] = [
   { phone: "9000000003", name: "Sita Mahalakshmi" },
 ];
 
+/**
+ * One demo account per official role (T09 Admin Portal) — without these,
+ * nobody can log in and demo the admin portal or the officials-facing
+ * dashboards in a fresh environment. District/ULB officials are scoped to
+ * Anantapur specifically so their scoped views have real data to show
+ * (Anantapur is the district demoShgs/demoProducts below are seeded into).
+ */
+export const demoOfficials: {
+  phone: string;
+  name: string;
+  role: "ADMIN" | "STATE_OFFICIAL" | "DISTRICT_OFFICIAL" | "ULB_OFFICIAL";
+  districtCode?: string;
+  ulbCode?: string;
+}[] = [
+  { phone: "9000000010", name: "Admin User", role: "ADMIN" },
+  { phone: "9000000011", name: "State Official", role: "STATE_OFFICIAL" },
+  {
+    phone: "9000000012",
+    name: "District Official (Anantapur)",
+    role: "DISTRICT_OFFICIAL",
+    districtCode: "ATP",
+  },
+  {
+    phone: "9000000013",
+    name: "ULB Official (Anantapur Municipal Corporation)",
+    role: "ULB_OFFICIAL",
+    districtCode: "ATP",
+    ulbCode: "ATP-MC",
+  },
+];
+
 export const demoShgs: {
   userPhone: string;
   name: string;
