@@ -65,6 +65,7 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 | [0019](../adr/0019-voice-pipeline-design.md)                      | Voice pipeline: Groq+Sarvam over Pipecat/WebRTC (supersedes ADR-0006), JWT-forwarding dispatcher, narrow action scope (T10)                                               |
 | [0020](../adr/0020-nlu-dialogue-approach.md)                      | NLU/dialogue: LLM tool-calling instead of fine-tuned IndicBERT, LLM-based transliteration instead of IndicXlit/fairseq (T11)                                              |
 | [0021](../adr/0021-scheme-guidance-rag-and-assistant-frontend.md) | Scheme guidance RAG (ml-services retrieves, voice-service grounds), dedicated text-chat endpoint over RTVI injection, official Pipecat client SDKs for the frontend (T12) |
+| [0022](../adr/0022-notification-engine-architecture.md)           | Notification Engine: one BullMQ queue, DI-swappable real/console providers per channel, DLT/Meta template-id based SMS/WhatsApp, only OTP has a real producer today (T13) |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 

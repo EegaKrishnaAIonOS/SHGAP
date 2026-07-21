@@ -31,8 +31,24 @@ export class AuthService {
   ) {}
 
   async requestOtp(phone: string): Promise<{ message: string }> {
+    // Upserted here too (not just on verify) so a real `User.id` already
+    // exists for notification-service's dispatch call to reference — its
+    // `Notification.userId` is a required FK (T13). A brand-new phone number
+    // gets a PENDING_VERIFICATION row; verifyOtp still owns flipping it to
+    // ACTIVE once the code is actually confirmed.
+    const user = await this.prisma.user.upsert({
+      where: { phone },
+      update: {},
+      create: { phone },
+    });
+
     const otp = await this.otpService.generate(phone);
-    await this.smsProvider.sendOtp(phone, otp);
+    await this.smsProvider.sendOtp(
+      user.id,
+      phone,
+      otp,
+      this.otpService.ttlSeconds,
+    );
     return { message: 'OTP sent' };
   }
 

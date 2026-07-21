@@ -3,16 +3,23 @@ import { SmsProvider } from './sms-provider.interface';
 
 /**
  * Development/POC stand-in for the real SMS gateway. Logs the OTP instead of
- * sending it. Replace with the MSG91/Gupshup DLT-compliant provider built in
- * T13 (Notification Engine) — this class exists so the auth flow (T05) isn't
- * blocked waiting on notification infrastructure that lands three sprints later.
+ * sending it. Superseded by `NotificationServiceProvider` (T13) as the
+ * default binding in auth.module.ts; kept as a dependency-free fallback for
+ * local dev/tests that don't have notification-service running.
  */
 @Injectable()
 export class ConsoleSmsProvider implements SmsProvider {
   private readonly logger = new Logger(ConsoleSmsProvider.name);
 
-  async sendOtp(phone: string, otp: string): Promise<void> {
-    this.logger.log(`[DEV SMS STUB] OTP for ${phone}: ${otp}`);
+  async sendOtp(
+    userId: string,
+    phone: string,
+    otp: string,
+    expiresInSeconds: number,
+  ): Promise<void> {
+    this.logger.log(
+      `[DEV SMS STUB] OTP for ${phone} (user ${userId}): ${otp} (valid ${expiresInSeconds}s)`,
+    );
     return Promise.resolve();
   }
 }

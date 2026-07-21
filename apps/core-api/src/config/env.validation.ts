@@ -87,6 +87,9 @@ class EnvironmentVariables {
 
   @IsString()
   ML_SERVICES_URL: string;
+
+  @IsString()
+  NOTIFICATION_SERVICE_URL: string;
 }
 
 export function validate(

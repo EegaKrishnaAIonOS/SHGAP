@@ -64,6 +64,7 @@ describe('AuthService', () => {
     otpService = {
       generate: jest.fn(),
       verify: jest.fn(),
+      ttlSeconds: 300,
     } as unknown as jest.Mocked<OtpService>;
     smsProvider = { sendOtp: jest.fn().mockResolvedValue(undefined) };
 
@@ -78,12 +79,22 @@ describe('AuthService', () => {
   });
 
   describe('requestOtp', () => {
-    it('generates an OTP and sends it via the SMS provider', async () => {
+    it('upserts the user, generates an OTP, and sends it via the SMS provider', async () => {
       otpService.generate.mockResolvedValueOnce('123456');
       const result = await service.requestOtp('9876543210');
 
+      expect(prisma.user.upsert).toHaveBeenCalledWith({
+        where: { phone: '9876543210' },
+        update: {},
+        create: { phone: '9876543210' },
+      });
       expect(otpService.generate).toHaveBeenCalledWith('9876543210');
-      expect(smsProvider.sendOtp).toHaveBeenCalledWith('9876543210', '123456');
+      expect(smsProvider.sendOtp).toHaveBeenCalledWith(
+        'user-1',
+        '9876543210',
+        '123456',
+        300,
+      );
       expect(result).toEqual({ message: 'OTP sent' });
     });
   });

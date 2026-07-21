@@ -23,6 +23,7 @@ const BASE_ENV: Record<string, unknown> = {
   CLAMAV_HOST: 'x',
   CLAMAV_PORT: '3310',
   ML_SERVICES_URL: 'http://x',
+  NOTIFICATION_SERVICE_URL: 'http://x',
 };
 
 describe('validate (env)', () => {

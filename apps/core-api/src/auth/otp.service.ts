@@ -24,6 +24,12 @@ export class OtpService {
     );
   }
 
+  /** Exposed so callers (AuthService, when telling notification-service how
+   * to phrase the OTP message) don't need their own copy of this config key. */
+  get ttlSeconds(): number {
+    return this.otpTtlSeconds;
+  }
+
   private otpKey(phone: string): string {
     return `otp:code:${phone}`;
   }
