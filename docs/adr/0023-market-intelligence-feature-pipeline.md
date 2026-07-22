@@ -1,0 +1,42 @@
+# ADR-0023: Market-intelligence data & feature pipeline
+
+- **Status:** Accepted
+- **Date:** 2026-07-22
+- **Sprint:** Sprint 3 (T14)
+
+## Context
+
+T14 asks for a reproducible feature pipeline feeding Module 3 (AI Market Intelligence): ingest sales, enquiries, Agmarknet prices and product data; engineer seasonality, festival-calendar, geo (district/H3) and lag features; store as Parquet feature tables on a scheduled refresh. T15 (next sprint task) builds the actual forecasting models on top of what this pipeline produces — T14 is deliberately scoped to ingestion and features only.
+
+## Decision
+
+**New `app/market_intelligence/` module in ml-services**, following the same layered pattern as `categorization`/`scheme_guidance`: `repository.py` (raw-SQL Postgres reads for sales/enquiries/products/festivals, matching T08/T12's psycopg convention), `agmarknet_client.py` (real external ingestion), `feature_engineering.py` (pure, independently-testable transform functions), `price_history_store.py` + `feature_store.py` (Parquet I/O), `pipeline.py` (orchestration). A `POST /market-intelligence/refresh-features` endpoint, a standalone `scripts/run_feature_pipeline.py`, and an in-process APScheduler job (default: every 24h) all call the exact same `run_feature_pipeline()` function — one code path regardless of how it's triggered.
+
+**"cron/Airflow-lite" (per the tech stack) means an in-process APScheduler job, not real Airflow.** Same reasoning as ADR-0005's BullMQ-over-Kafka call: standing up Airflow's scheduler/webserver/metadata-DB stack is disproportionate infrastructure for a single scheduled job in a 90-day pilot. The scheduler's first automatic run fires one interval after boot (not immediately), so a fresh environment gets its first feature table from the manual endpoint/script instead.
+
+**Feature tables are written to local Parquet files**, not MinIO. For a single ml-services instance this is simpler and sufficient; if the pipeline needs to run across multiple instances or survive container replacement, moving the feature store to MinIO (already the project's object store, T06) is the natural next step — not needed for what this task actually had to demonstrate.
+
+**Sales are aggregated to one row per (product, day) before feature engineering** — not left as raw per-transaction rows — matching T15's own framing ("per product x district"). Lag and rolling-mean features are computed per product on that daily series; seasonality (cyclical day-of-week/month encodings) and festival-window proximity (against the real `festival_calendar` table) are computed per row; H3 cell (resolution 7, ~5 km²) is computed from each product's real registered location, since districts don't carry their own coordinates in this schema.
+
+**Agmarknet ingestion uses the real, live data.gov.in "Current Daily Price of Various Commodities from Various Markets (Mandi)" dataset** (Ministry of Agriculture and Farmers Welfare) — verified directly against the live API, not assumed from documentation, and three real, non-obvious findings came out of that verification (see below). The shared public demo credentials (resource id + API key) are used by default; a real deployment should register its own free key at data.gov.in.
+
+### Real findings from verifying against the live API
+
+- **Agmarknet serves only _today's_ snapshot — there is no queryable historical date range.** Passing an `arrival_date` filter for a past date is silently ignored and the API still returns today's data (confirmed by direct testing, not inferred from docs). A real multi-day price history therefore only exists because this pipeline calls the API once per scheduled run and accumulates what it sees (`price_history_store.py`) — on a fresh environment that history is one day deep, and price lag/rolling features are mostly `NaN` until enough daily runs have happened. That's an honest characteristic of a freshly-started ingestion job, not a bug.
+- **The shared demo API key hard-caps each response at 10 records, regardless of the requested `limit`** — the API silently echoes back `"limit": "10"` even when 500 was requested (confirmed directly). `fetch_daily_prices` now pages through `offset` up to `MAX_PAGES_PER_RUN` (20) × `PAGE_SIZE` (10) = 200 records per state per run, rather than silently only ever getting the first 10. A real registered API key might not have this cap; 200/run was chosen as a reasonable bound for a shared demo key, not derived from any documented quota.
+- **data.gov.in's infrastructure silently times out any request whose User-Agent contains the default `python-requests/x.y` signature** — no error response, just a hang until the client's timeout fires. Verified by testing several User-Agent strings directly against the live API: anything other than that one specific default value works, including a plain descriptive one (`SHGAP-ml-services/0.1`, what this client actually sends) — this isn't spoofing a browser or another tool, just avoiding one blocked signature. This cost real debugging time and is recorded here so it isn't rediscovered from scratch later.
+
+**Sales/enquiries tables are genuinely empty in a fresh environment** — Sprint 1 built product registration but no checkout/order flow, and Sprint 2's notification work (ADR-0022) already found buyer/enquiry creation doesn't exist either. An empty `sales` table would make this pipeline technically correct but demonstrate nothing, and would leave T15 with no real series to fit a forecasting model against next sprint. `database/seed/demo-sales.ts` generates ~180 days of clearly-labeled **synthetic** daily sales for the existing demo products, with festival and weekend demand multipliers so the resulting features aren't flat — it explicitly will not run if the `sales` table already has real rows, and its own header and this ADR both say plainly that this is not real transaction data.
+
+## Alternatives Considered
+
+- **Leaving `sales` empty and shipping a technically-correct-but-empty feature pipeline** — rejected; it would give T15 nothing to build a forecasting model against, and "does it work" would be unverifiable without fabricating data at model-build time instead of transparently in a seed script now.
+- **A district-level Agmarknet filter** instead of state-level — considered, but AP's 2022 district reorganization means data.gov.in's district names may not match this project's simplified three-pilot-district seed data one-for-one; state-level filtering avoids a fragile name-matching assumption at the cost of ingesting some non-pilot-district rows too.
+- **Real Airflow** — rejected for the same reason ADR-0005 rejected Kafka/RabbitMQ: correct at scale, disproportionate for one scheduled job in a 90-day pilot.
+- **Storing features in MinIO from the start** — rejected as unnecessary for a single-instance POC; noted as the natural next step if that changes.
+
+## Consequences
+
+- Positive: the full pipeline — Postgres reads, live Agmarknet ingestion (with real pagination and the User-Agent fix), feature engineering, Parquet writes, and both manual and scheduled triggers — was verified end-to-end against real infrastructure (real Postgres, the real live Agmarknet API, a real Docker container running both the existing torch-based categorization endpoint and this pandas-based pipeline together to rule out any runtime conflict between them); three genuine, previously-undocumented quirks of a real government API were found and fixed rather than assumed away.
+- Trade-offs: Agmarknet price history starts shallow (one day per environment) and only grows meaningfully useful after this pipeline has been running for weeks; the synthetic sales seed is honestly labeled but is still synthetic, not a substitute for real transaction volume once the platform has it; the 200-record/run Agmarknet cap means broad multi-commodity coverage builds up gradually across runs rather than being complete from day one.
+- Incidental fixes made while verifying this task, unrelated to feature-pipeline logic itself but necessary to get a real result: the local ml-services dev virtualenv had drifted to Python 3.14 (the project targets 3.11, per the Dockerfile and CI) — recreated with 3.11, since pyarrow has no prebuilt wheel for 3.14 yet; a real bug where `app/main.py` imported `loguru` (voice-service's logging convention) instead of ml-services' actual `logging` usage was caught by a real container boot crash and fixed before commit.

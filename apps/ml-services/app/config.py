@@ -26,5 +26,28 @@ class Settings:
     )
     category_cache_ttl_seconds: int = int(os.environ.get("CATEGORY_CACHE_TTL_SECONDS", "300"))
 
+    # T14 market-intelligence feature pipeline. The resource id/key default to
+    # data.gov.in's own public demo credentials for the real "Current Daily
+    # Price of Various Commodities from Various Markets (Mandi)" dataset
+    # (verified working directly against the live API — see ADR-0023) —
+    # shared, rate-limited, and fine for a POC; a real deployment should
+    # register its own free key at https://data.gov.in/user/register.
+    agmarknet_resource_id: str = os.environ.get(
+        "AGMARKNET_RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070"
+    )
+    agmarknet_api_key: str = os.environ.get(
+        "AGMARKNET_API_KEY", "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b"
+    )
+    agmarknet_state: str = os.environ.get("AGMARKNET_STATE", "Andhra Pradesh")
+    feature_store_dir: str = os.environ.get(
+        "FEATURE_STORE_DIR", os.path.join(os.path.dirname(__file__), "..", "data", "features")
+    )
+    price_history_dir: str = os.environ.get(
+        "PRICE_HISTORY_DIR", os.path.join(os.path.dirname(__file__), "..", "data", "price_history")
+    )
+    feature_pipeline_interval_hours: int = int(
+        os.environ.get("FEATURE_PIPELINE_INTERVAL_HOURS", "24")
+    )
+
 
 settings = Settings()

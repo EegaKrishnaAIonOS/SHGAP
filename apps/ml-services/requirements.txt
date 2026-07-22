@@ -9,3 +9,9 @@ python-dotenv>=1.0,<2.0
 sentence-transformers>=3.0,<4.0
 scikit-learn>=1.5,<2.0
 psycopg[binary]>=3.2,<4.0
+# T14 market-intelligence feature pipeline
+pandas>=2.2,<3.0
+pyarrow>=17.0,<18.0
+h3>=4.1,<5.0
+apscheduler>=3.10,<4.0
+requests>=2.32,<3.0
