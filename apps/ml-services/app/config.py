@@ -49,5 +49,25 @@ class Settings:
         os.environ.get("FEATURE_PIPELINE_INTERVAL_HOURS", "24")
     )
 
+    # T15 forecasting models
+    model_registry_dir: str = os.environ.get(
+        "MODEL_REGISTRY_DIR", os.path.join(os.path.dirname(__file__), "..", "data", "models")
+    )
+    # Retraining runs far less often than the feature refresh above — a
+    # model doesn't meaningfully change day to day the way raw features do,
+    # and Prophet/XGBoost training is the more expensive of the two jobs.
+    training_pipeline_interval_hours: int = int(
+        os.environ.get("TRAINING_PIPELINE_INTERVAL_HOURS", "168")  # 7 days
+    )
+    # Below this many real observation-days, a per-product demand model
+    # isn't trained at all — Prophet can technically fit on fewer, but the
+    # backtest/forecast would be fitting noise, not a signal. See ADR-0024.
+    min_demand_training_days: int = int(os.environ.get("MIN_DEMAND_TRAINING_DAYS", "30"))
+    # Below this many total accumulated price rows (pooled across every
+    # commodity/market), the price model isn't trained at all. Agmarknet's
+    # snapshot-only API means this starts at 0 and grows slowly — see
+    # ADR-0023/ADR-0024.
+    min_price_training_rows: int = int(os.environ.get("MIN_PRICE_TRAINING_ROWS", "30"))
+
 
 settings = Settings()

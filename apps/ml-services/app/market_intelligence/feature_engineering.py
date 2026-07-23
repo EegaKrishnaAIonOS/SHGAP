@@ -123,14 +123,31 @@ def add_lag_features(
     """Per-group (e.g. per product) lag and rolling-mean features — sorted by
     date within each group first, since lag only means something in time
     order. Early rows in a short history will have NaN lags; that's an
-    honest reflection of not having enough history yet, not a bug to hide."""
-    df = df.sort_values(by=[*group_cols, date_col]).copy()
-    grouped = df.groupby(group_cols)[value_col]
+    honest reflection of not having enough history yet, not a bug to hide.
 
+    `group_cols=[]` means "the whole dataframe is already one series" (e.g.
+    price_model.py's recursive forecast, which pre-filters to a single
+    commodity/market before calling this) — `df.groupby([])` itself raises
+    `ValueError: No group keys passed!` in pandas, so that case is handled
+    directly on `df[value_col]` rather than through groupby at all.
+    """
+    def _rolling_mean(s: pd.Series, window: int) -> pd.Series:
+        return s.shift(1).rolling(window=window, min_periods=1).mean()
+
+    df = df.sort_values(by=[*group_cols, date_col]).copy()
+
+    if not group_cols:
+        for lag in lags:
+            df[f"{value_col}_lag_{lag}"] = df[value_col].shift(lag)
+        for window in rolling_windows:
+            df[f"{value_col}_rolling_mean_{window}"] = _rolling_mean(df[value_col], window)
+        return df
+
+    grouped = df.groupby(group_cols)[value_col]
     for lag in lags:
         df[f"{value_col}_lag_{lag}"] = grouped.shift(lag)
     for window in rolling_windows:
         df[f"{value_col}_rolling_mean_{window}"] = grouped.transform(
-            lambda s, w=window: s.shift(1).rolling(window=w, min_periods=1).mean()
+            lambda s, w=window: _rolling_mean(s, w)
         )
     return df

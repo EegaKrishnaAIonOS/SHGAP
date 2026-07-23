@@ -48,3 +48,19 @@ def read_manifest() -> dict | None:
         return None
     with open(path) as f:
         return json.load(f)
+
+
+def read_features() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Reads back the two feature tables the pipeline wrote — used by T15's
+    training pipeline, which trains on whatever T14's pipeline last
+    produced rather than re-deriving features itself. Returns two empty
+    frames if the feature pipeline has never run yet, so a caller can
+    still proceed (and correctly find "not enough data") instead of
+    crashing on a missing file."""
+    store_dir = _store_dir()
+    sales_path = os.path.join(store_dir, SALES_FEATURES_FILE)
+    price_path = os.path.join(store_dir, PRICE_FEATURES_FILE)
+
+    sales = pd.read_parquet(sales_path) if os.path.exists(sales_path) else pd.DataFrame()
+    price = pd.read_parquet(price_path) if os.path.exists(price_path) else pd.DataFrame()
+    return sales, price

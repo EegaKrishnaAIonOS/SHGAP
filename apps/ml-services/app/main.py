@@ -18,8 +18,10 @@ from fastapi import FastAPI  # noqa: E402
 
 from app.categorization.router import router as categorization_router  # noqa: E402
 from app.config import settings  # noqa: E402
+from app.market_intelligence.forecast_router import router as forecast_router  # noqa: E402
 from app.market_intelligence.pipeline import run_feature_pipeline  # noqa: E402
 from app.market_intelligence.router import router as market_intelligence_router  # noqa: E402
+from app.market_intelligence.training_pipeline import run_training_pipeline  # noqa: E402
 from app.scheme_guidance.router import router as scheme_guidance_router  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -47,6 +49,22 @@ async def lifespan(_app: FastAPI):
         trigger=IntervalTrigger(hours=settings.feature_pipeline_interval_hours),
         id="feature_pipeline",
     )
+
+    # T15 model training — a much longer interval than the feature refresh
+    # since retraining is more expensive and models don't meaningfully
+    # change day-to-day the way raw features do; see ADR-0024.
+    async def scheduled_training_run() -> None:
+        try:
+            await run_training_pipeline()
+            logger.info("Scheduled model training run completed")
+        except Exception as err:  # noqa: BLE001 - a scheduled job must never crash the scheduler
+            logger.error(f"Scheduled model training run failed: {err}")
+
+    scheduler.add_job(
+        scheduled_training_run,
+        trigger=IntervalTrigger(hours=settings.training_pipeline_interval_hours),
+        id="model_training",
+    )
     scheduler.start()
     yield
     scheduler.shutdown(wait=False)
@@ -62,6 +80,7 @@ app = FastAPI(
 app.include_router(categorization_router)
 app.include_router(scheme_guidance_router)
 app.include_router(market_intelligence_router)
+app.include_router(forecast_router)
 
 
 @app.get("/health")

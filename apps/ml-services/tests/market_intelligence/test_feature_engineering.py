@@ -133,3 +133,27 @@ class TestLagFeatures:
         )
         # Day 4's rolling mean of the prior 2 days (day2=20, day3=30) = 25.
         assert result["quantity_rolling_mean_2"].iloc[3] == pytest.approx(25.0)
+
+    def test_empty_group_cols_treats_the_whole_frame_as_one_series(self):
+        # df.groupby([]) itself raises "ValueError: No group keys passed!"
+        # in pandas — group_cols=[] must be handled as its own branch
+        # (already-single-series data, e.g. price_model.py's recursive
+        # per-commodity forecast) rather than going through groupby at all.
+        df = pd.DataFrame(
+            {
+                "date": ["2026-01-01", "2026-01-02", "2026-01-03"],
+                "quantity": [10, 20, 30],
+            }
+        )
+        result = add_lag_features(
+            df,
+            group_cols=[],
+            date_col="date",
+            value_col="quantity",
+            lags=(1,),
+            rolling_windows=(2,),
+        )
+        assert result["quantity_lag_1"].isna().tolist() == [True, False, False]
+        assert result["quantity_lag_1"].iloc[1:].tolist() == [10, 20]
+        # Day 3's rolling mean of the prior 2 days (day1=10, day2=20) = 15.
+        assert result["quantity_rolling_mean_2"].iloc[2] == pytest.approx(15.0)

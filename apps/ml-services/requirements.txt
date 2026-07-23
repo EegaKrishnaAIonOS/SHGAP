@@ -15,3 +15,7 @@ pyarrow>=17.0,<18.0
 h3>=4.1,<5.0
 apscheduler>=3.10,<4.0
 requests>=2.32,<3.0
+# T15 forecasting models — prophet ships a bundled, prebuilt cmdstan binary
+# for common platforms (verified: fits/predicts with no extra setup step)
+prophet>=1.1,<2.0
+xgboost>=2.0,<4.0
