@@ -79,6 +79,15 @@ enum RecommendationStatus {
   @@map("recommendation_status")
 }
 
+enum GemOpportunityStatus {
+  OPEN
+  CLOSED
+  AWARDED
+  CANCELLED
+
+  @@map("gem_opportunity_status")
+}
+
 enum NotificationChannel {
   SMS
   WHATSAPP
@@ -234,6 +243,7 @@ model Category {
   children               Category[]              @relation("CategoryToParent")
   products               Product[]
   buyerCategoryInterests BuyerCategoryInterest[]
+  gemOpportunities       GemOpportunity[]
 
   @@index([parentId])
   @@map("categories")
@@ -369,6 +379,7 @@ model Buyer {
   sales             Sale[]
   enquiries         Enquiry[]
   recommendations   Recommendation[]
+  gemOpportunities  GemOpportunity[]
 
   @@index([districtId])
   @@map("buyers")
@@ -454,6 +465,38 @@ model Recommendation {
   @@index([productId])
   @@index([status])
   @@map("recommendations")
+}
+
+/// Simulated GeM (Government e-Marketplace) procurement opportunities (T16).
+/// Real GeM API access is T21's "integration readiness" scope (ADR-0013) —
+/// this table lets government-procurement buyers surface open demand today
+/// via seeded/imported data, distinct from `Buyer.demandProfile` (a buyer's
+/// general typical-volume profile, not a specific time-bound tender).
+model GemOpportunity {
+  id                 String               @id @default(uuid()) @db.Uuid
+  buyerId            String               @map("buyer_id") @db.Uuid
+  categoryId         String?              @map("category_id") @db.Uuid
+  referenceNumber    String               @unique @map("reference_number")
+  title              String
+  description        String?
+  quantityRequired   Decimal?             @map("quantity_required") @db.Decimal(12, 2)
+  unit               String?              @db.VarChar(20)
+  estimatedValue     Decimal?             @map("estimated_value") @db.Decimal(14, 2)
+  submissionDeadline DateTime             @map("submission_deadline") @db.Date
+  status             GemOpportunityStatus @default(OPEN)
+  /// True for every row today (no real GeM feed yet) — kept so imported real
+  /// opportunities can coexist with seeded ones once T21 lands.
+  isSimulated        Boolean              @default(true) @map("is_simulated")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+
+  buyer    Buyer     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([buyerId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("gem_opportunities")
 }
 
 // ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@ import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { BuyersModule } from './buyers/buyers.module';
 import { CategorizationModule } from './categorization/categorization.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ShgsModule,
     ProductsModule,
+    BuyersModule,
     MasterDataModule,
     CategorizationModule,
     AdminModule,

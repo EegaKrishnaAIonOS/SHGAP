@@ -1,4 +1,4 @@
-import { ShgType } from "@prisma/client";
+import { BuyerType, GemOpportunityStatus, ShgType } from "@prisma/client";
 
 /**
  * Demo/sample records for local dev and the POC demo environment — distinct
@@ -158,5 +158,142 @@ export const demoProducts: {
     price: 180,
     moq: 10,
     stock: 200,
+  },
+];
+
+/**
+ * Buyer registry demo data (T16, Module 4) — one buyer per BuyerType, each
+ * interested in categories the demoProducts above actually cover, so T17's
+ * recommender has real product<->buyer overlap to match against.
+ * districtCode is omitted for the state-level government procurement buyer.
+ */
+export const demoBuyers: {
+  name: string;
+  type: BuyerType;
+  organization?: string;
+  districtCode?: string;
+  categorySlugs: string[];
+  demandProfile?: {
+    typicalVolume?: number;
+    volumeUnit?: string;
+    frequency?: "WEEKLY" | "MONTHLY" | "QUARTERLY" | "SEASONAL" | "ONE_OFF";
+    priceBandMin?: number;
+    priceBandMax?: number;
+  };
+  lat: number;
+  lng: number;
+}[] = [
+  {
+    name: "AP State Handicrafts Emporium",
+    type: "INSTITUTIONAL",
+    organization: "AP State Handicrafts Development Corporation",
+    districtCode: "VSP",
+    categorySlugs: ["bamboo-craft", "terracotta-pottery", "handloom-bed-linen", "ikat-textiles"],
+    demandProfile: {
+      typicalVolume: 200,
+      volumeUnit: "pieces",
+      frequency: "MONTHLY",
+      priceBandMin: 150,
+      priceBandMax: 2000,
+    },
+    lat: 17.6868,
+    lng: 83.2185,
+  },
+  {
+    name: "Vijayawada Retail Mart",
+    type: "RETAIL",
+    districtCode: "KRI",
+    categorySlugs: ["pickles", "snacks-namkeen", "spices-masala-powders"],
+    demandProfile: {
+      typicalVolume: 50,
+      volumeUnit: "jars",
+      frequency: "WEEKLY",
+      priceBandMin: 100,
+      priceBandMax: 300,
+    },
+    lat: 16.5062,
+    lng: 80.648,
+  },
+  {
+    name: "Anantapur Wholesale Foods",
+    type: "BULK",
+    organization: "Anantapur Wholesale Traders Association",
+    districtCode: "ATP",
+    categorySlugs: ["pickles", "millet-products", "organic-vegetables"],
+    demandProfile: {
+      typicalVolume: 1000,
+      volumeUnit: "kg",
+      frequency: "MONTHLY",
+      priceBandMin: 80,
+      priceBandMax: 250,
+    },
+    lat: 14.6819,
+    lng: 77.6006,
+  },
+  {
+    name: "MEPMA Government Procurement Cell",
+    type: "GOVERNMENT_PROCUREMENT",
+    organization: "Ministry of Panchayat Raj & Rural Development, Government of AP",
+    categorySlugs: ["pickles", "bamboo-craft", "ikat-textiles", "handloom-bed-linen"],
+    demandProfile: { typicalVolume: 500, volumeUnit: "units", frequency: "QUARTERLY" },
+    lat: 16.5062,
+    lng: 80.648,
+  },
+];
+
+/**
+ * Simulated GeM procurement opportunities (T16/ADR-0025) — real GeM API
+ * ingestion is T21's scope; these seed rows let the buyer registry and any
+ * dashboard consuming it show real-shaped procurement demand today.
+ * One entry has a past deadline + non-OPEN status for realistic variety.
+ */
+export const demoGemOpportunities: {
+  buyerName: string;
+  categorySlug?: string;
+  referenceNumber: string;
+  title: string;
+  description: string;
+  quantityRequired?: number;
+  unit?: string;
+  estimatedValue?: number;
+  submissionDeadline: string;
+  status: GemOpportunityStatus;
+}[] = [
+  {
+    buyerName: "MEPMA Government Procurement Cell",
+    categorySlug: "pickles",
+    referenceNumber: "GEM/2026/B/SIM-0001",
+    title: "Supply of Andhra-style pickles for Anganwadi supplementary nutrition program",
+    description:
+      "Bulk supply of mango/tomato pickle jars for distribution across Anantapur district Anganwadi centres.",
+    quantityRequired: 5000,
+    unit: "jar",
+    estimatedValue: 600000,
+    submissionDeadline: "2026-09-15",
+    status: "OPEN",
+  },
+  {
+    buyerName: "MEPMA Government Procurement Cell",
+    categorySlug: "bamboo-craft",
+    referenceNumber: "GEM/2026/B/SIM-0002",
+    title: "Bamboo craft gift hampers for state government felicitation events",
+    description: "Festival-season bamboo craft gift sets for official government events.",
+    quantityRequired: 1000,
+    unit: "piece",
+    estimatedValue: 250000,
+    submissionDeadline: "2026-10-20",
+    status: "OPEN",
+  },
+  {
+    buyerName: "MEPMA Government Procurement Cell",
+    categorySlug: "handloom-bed-linen",
+    referenceNumber: "GEM/2026/B/SIM-0003",
+    title: "Handloom bed linen for government hostel welfare scheme",
+    description: "Cotton bedsheets and pillow covers for SC/ST welfare hostels, Krishna district.",
+    quantityRequired: 800,
+    unit: "set",
+    estimatedValue: 720000,
+    submissionDeadline: "2026-06-30",
+    status: "AWARDED",
   },
 ];

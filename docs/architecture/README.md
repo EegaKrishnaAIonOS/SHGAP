@@ -68,6 +68,7 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 | [0022](../adr/0022-notification-engine-architecture.md)           | Notification Engine: one BullMQ queue, DI-swappable real/console providers per channel, DLT/Meta template-id based SMS/WhatsApp, only OTP has a real producer today (T13)                                                              |
 | [0023](../adr/0023-market-intelligence-feature-pipeline.md)       | Market-intelligence feature pipeline: real Agmarknet ingestion (snapshot-only, paginated, UA-blocked by default), seasonality/festival/H3/lag features, APScheduler over Airflow, synthetic seed sales for a real feature series (T14) |
 | [0024](../adr/0024-forecasting-models-and-mi-apis.md)             | Forecasting models: Prophet per product+district for demand, one pooled (not per-commodity) XGBoost for price, Darts dropped in favor of a hand-written backtest, H3-binning-as-clustering for hotspots (T15)                          |
+| [0025](../adr/0025-buyer-registry-and-gem-opportunities.md)       | Buyer registry: admin-write/open-read (master-data pattern, not ownership-scoped), new `GemOpportunity` table (not JSON) for simulated procurement tenders, JSON bulk import over CSV (T16)                                            |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 

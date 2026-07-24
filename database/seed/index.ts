@@ -1,6 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { roles, districts, ulbs, mandals, categories, festivalCalendar } from "./data";
-import { demoUsers, demoOfficials, demoShgs, demoProducts } from "./demo-data";
+import {
+  demoUsers,
+  demoOfficials,
+  demoShgs,
+  demoProducts,
+  demoBuyers,
+  demoGemOpportunities,
+} from "./demo-data";
 
 const prisma = new PrismaClient();
 
@@ -248,6 +255,101 @@ async function seedDemoShgsAndProducts() {
   console.log(`Seeded ${demoProducts.length} demo products`);
 }
 
+async function seedDemoBuyers() {
+  const districtByCode = new Map((await prisma.district.findMany()).map((d) => [d.code, d]));
+  const categoryBySlug = new Map((await prisma.category.findMany()).map((c) => [c.slug, c]));
+  const buyerByName = new Map<string, { id: string }>();
+
+  for (const buyer of demoBuyers) {
+    const district = buyer.districtCode ? districtByCode.get(buyer.districtCode) : undefined;
+    if (buyer.districtCode && !district) {
+      throw new Error(`Unknown district code ${buyer.districtCode} for buyer ${buyer.name}`);
+    }
+    const categoryIds = buyer.categorySlugs.map((slug) => {
+      const category = categoryBySlug.get(slug);
+      if (!category) throw new Error(`Unknown category slug ${slug} for buyer ${buyer.name}`);
+      return category.id;
+    });
+
+    const existing = await prisma.buyer.findFirst({ where: { name: buyer.name } });
+    const data = {
+      name: buyer.name,
+      type: buyer.type,
+      organization: buyer.organization,
+      districtId: district?.id,
+      demandProfile: buyer.demandProfile,
+    };
+    const record = existing
+      ? await prisma.buyer.update({
+          where: { id: existing.id },
+          data: {
+            ...data,
+            categoryInterests: {
+              deleteMany: {},
+              create: categoryIds.map((categoryId) => ({ categoryId })),
+            },
+          },
+        })
+      : await prisma.buyer.create({
+          data: {
+            ...data,
+            categoryInterests: { create: categoryIds.map((categoryId) => ({ categoryId })) },
+          },
+        });
+    buyerByName.set(buyer.name, record);
+
+    await prisma.$executeRaw`
+      UPDATE buyers SET location = ST_SetSRID(ST_MakePoint(${buyer.lng}, ${buyer.lat}), 4326)
+      WHERE id = ${record.id}::uuid
+    `;
+  }
+  console.log(`Seeded ${demoBuyers.length} demo buyers`);
+
+  for (const opportunity of demoGemOpportunities) {
+    const buyer = buyerByName.get(opportunity.buyerName);
+    const category = opportunity.categorySlug
+      ? categoryBySlug.get(opportunity.categorySlug)
+      : undefined;
+    if (!buyer)
+      throw new Error(
+        `Unknown buyer ${opportunity.buyerName} for opportunity ${opportunity.referenceNumber}`,
+      );
+    if (opportunity.categorySlug && !category) {
+      throw new Error(
+        `Unknown category slug ${opportunity.categorySlug} for opportunity ${opportunity.referenceNumber}`,
+      );
+    }
+
+    await prisma.gemOpportunity.upsert({
+      where: { referenceNumber: opportunity.referenceNumber },
+      update: {
+        buyerId: buyer.id,
+        categoryId: category?.id,
+        title: opportunity.title,
+        description: opportunity.description,
+        quantityRequired: opportunity.quantityRequired,
+        unit: opportunity.unit,
+        estimatedValue: opportunity.estimatedValue,
+        submissionDeadline: new Date(opportunity.submissionDeadline),
+        status: opportunity.status,
+      },
+      create: {
+        buyerId: buyer.id,
+        categoryId: category?.id,
+        referenceNumber: opportunity.referenceNumber,
+        title: opportunity.title,
+        description: opportunity.description,
+        quantityRequired: opportunity.quantityRequired,
+        unit: opportunity.unit,
+        estimatedValue: opportunity.estimatedValue,
+        submissionDeadline: new Date(opportunity.submissionDeadline),
+        status: opportunity.status,
+      },
+    });
+  }
+  console.log(`Seeded ${demoGemOpportunities.length} demo GeM opportunities`);
+}
+
 async function main() {
   await seedRoles();
   await seedDistricts();
@@ -257,6 +359,7 @@ async function main() {
   await seedFestivalCalendar();
   await seedDemoOfficials();
   await seedDemoShgsAndProducts();
+  await seedDemoBuyers();
 }
 
 main()
