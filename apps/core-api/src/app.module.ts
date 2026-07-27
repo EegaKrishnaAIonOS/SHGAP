@@ -15,6 +15,7 @@ import { HealthController } from './health.controller';
 import { MasterDataModule } from './master-data/master-data.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 import { RedisModule } from './redis/redis.module';
 import { ShgsModule } from './shgs/shgs.module';
 import { StorageModule } from './storage/storage.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
     ShgsModule,
     ProductsModule,
     BuyersModule,
+    RecommendationsModule,
     MasterDataModule,
     CategorizationModule,
     AdminModule,

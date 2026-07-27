@@ -69,5 +69,21 @@ class Settings:
     # ADR-0023/ADR-0024.
     min_price_training_rows: int = int(os.environ.get("MIN_PRICE_TRAINING_ROWS", "30"))
 
+    # T17 buyer matching / recommendations
+    # Below this many real accept/reject responses (across every
+    # recommendation ever served), the LightGBM re-ranker isn't trained —
+    # a ranker fit on a handful of labels would be memorizing noise, not
+    # learning a real preference signal. Until then, recommendations are
+    # ranked by the heuristic weighted score directly. See ADR-0026.
+    min_feedback_rows_for_ranker: int = int(
+        os.environ.get("MIN_FEEDBACK_ROWS_FOR_RANKER", "30")
+    )
+    # How many days ahead of demand to sum into a recommendation's
+    # `expectedDemand` figure (reuses T15's trained per-product Prophet
+    # model — see matching/demand_estimate.py).
+    expected_demand_horizon_days: int = int(
+        os.environ.get("EXPECTED_DEMAND_HORIZON_DAYS", "30")
+    )
+
 
 settings = Settings()

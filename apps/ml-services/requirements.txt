@@ -19,3 +19,10 @@ requests>=2.32,<3.0
 # for common platforms (verified: fits/predicts with no extra setup step)
 prophet>=1.1,<2.0
 xgboost>=2.0,<4.0
+# T17 buyer matching: LightGBM re-ranker (gated behind real accept/reject
+# feedback, see matching/ranking.py). SHAP is deliberately NOT listed here —
+# with zero trained rankers today (no real feedback yet), there's no model
+# for SHAP to explain; template-based explanations (matching/explanations.py)
+# are the real, working explainability path until a ranker actually trains.
+# See ADR-0026.
+lightgbm>=4.0,<5.0

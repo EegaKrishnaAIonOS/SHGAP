@@ -3,6 +3,13 @@ FROM python:3.11-slim AS base
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
+# LightGBM's Linux wheel (T17) dynamically links against libgomp at runtime
+# rather than bundling it — python:3.11-slim doesn't ship it, so importing
+# lightgbm fails with "OSError: libgomp.so.1: cannot open shared object
+# file" without this (verified directly via a real container boot crash).
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt ./
 # --extra-index-url pulls torch's CPU-only build (sentence-transformers'
 # dependency) instead of PyPI default's much larger CUDA-bundled wheel.

@@ -321,9 +321,10 @@ model Product {
   isAvailable Boolean                               @default(true) @map("is_available")
   /// Geo-tagged location (defaults to SHG location; overridable per product), SRID 4326.
   location    Unsupported("geometry(Point, 4326)")?
-  /// Embedding for content-based buyer matching (ADR-0009); dimension fixed at
-  /// build time to match the embedding model in use.
-  embedding   Unsupported("vector(768)")?
+  /// Embedding for content-based buyer matching (ADR-0009/ADR-0026) — 384-dim,
+  /// same sentence-transformer model already used for categorization/scheme
+  /// guidance (see SchemeChunk.embedding below), not a separate model.
+  embedding   Unsupported("vector(384)")?
   createdAt   DateTime                              @default(now()) @map("created_at")
   updatedAt   DateTime                              @updatedAt @map("updated_at")
 
@@ -368,8 +369,9 @@ model Buyer {
   location      Unsupported("geometry(Point, 4326)")?
   /// Structured demand profile (typical volumes, frequency, price bands).
   demandProfile Json?                                 @map("demand_profile")
-  /// Embedding for content-based buyer matching (ADR-0009).
-  embedding     Unsupported("vector(768)")?
+  /// Embedding for content-based buyer matching (ADR-0009/ADR-0026) — 384-dim,
+  /// same sentence-transformer model already used elsewhere in ml-services.
+  embedding     Unsupported("vector(384)")?
   createdAt     DateTime                              @default(now()) @map("created_at")
   updatedAt     DateTime                              @updatedAt @map("updated_at")
 
@@ -582,8 +584,8 @@ model SchemeChunk {
   createdAt   DateTime @default(now()) @map("created_at")
   /// Embedding dimension is 384 to match ml-services' actual embedding model
   /// (sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2, ADR-0017) —
-  /// deliberately NOT 768 like the Product/Buyer placeholder columns above,
-  /// which anticipate a different, not-yet-built model.
+  /// Product/Buyer below now reuse this same model/dimension too (T17/ADR-0026),
+  /// rather than the separate not-yet-built model this comment used to anticipate.
   embedding   Unsupported("vector(384)")?
 
   @@index([schemeName])
