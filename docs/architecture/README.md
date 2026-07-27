@@ -70,6 +70,7 @@ India-region, MeitY-empanelled cloud; CDN for static PWA assets; WAF/API gateway
 | [0024](../adr/0024-forecasting-models-and-mi-apis.md)             | Forecasting models: Prophet per product+district for demand, one pooled (not per-commodity) XGBoost for price, Darts dropped in favor of a hand-written backtest, H3-binning-as-clustering for hotspots (T15)                                                          |
 | [0025](../adr/0025-buyer-registry-and-gem-opportunities.md)       | Buyer registry: admin-write/open-read (master-data pattern, not ownership-scoped), new `GemOpportunity` table (not JSON) for simulated procurement tenders, JSON bulk import over CSV (T16)                                                                            |
 | [0026](../adr/0026-buyer-matching-recommender.md)                 | Buyer matching: content-similarity-only today (LightFM/FAISS deferred — zero real interaction data), heuristic match score + real T15 demand-forecast reuse, LightGBM/SHAP gated behind a real-feedback threshold, ml-services computes/core-api persists+serves (T17) |
+| [0027](../adr/0027-analytics-aggregation-backend.md)              | Analytics: 3 fact-level materialized views (not per-dashboard, not per-dimension), hand-written cache-aside (no new caching dependency), first scheduled job in core-api (`@nestjs/schedule`), no fabricated "members" metric (T18)                                    |
 
 New decisions should be added as `NNNN-title.md` in `/docs/adr` using [`template.md`](../adr/template.md), numbered sequentially.
 
