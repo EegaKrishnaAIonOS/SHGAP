@@ -50,7 +50,41 @@ describe('AnalyticsService', () => {
     });
   });
 
+  describe('categorySales', () => {
+    it('applies the districtId/ulbId query filters, not just JWT scope (T19 regression)', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([]);
+
+      await service.categorySales(globalScope, {
+        ...emptyFilters,
+        districtId: 'd1',
+        ulbId: 'u1',
+      });
+
+      const sql = prisma.$queryRaw.mock.calls[0][0];
+      const text = sql.strings.join('?');
+      expect(text).toContain('district_id = ');
+      expect(text).toContain('ulb_id = ');
+      expect(sql.values).toEqual(expect.arrayContaining(['d1', 'u1']));
+    });
+  });
+
   describe('recommendationSummary', () => {
+    it('applies the districtId/ulbId query filters, not just JWT scope (T19 regression)', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([]);
+
+      await service.recommendationSummary(globalScope, {
+        ...emptyFilters,
+        districtId: 'd1',
+        ulbId: 'u1',
+      });
+
+      const sql = prisma.$queryRaw.mock.calls[0][0];
+      const text = sql.strings.join('?');
+      expect(text).toContain('district_id = ');
+      expect(text).toContain('ulb_id = ');
+      expect(sql.values).toEqual(expect.arrayContaining(['d1', 'u1']));
+    });
+
     it('computes acceptance rate from accepted/rejected only, excluding pending', async () => {
       prisma.$queryRaw.mockResolvedValueOnce([
         { status: 'PENDING', count: 3n },
@@ -170,6 +204,61 @@ describe('AnalyticsService', () => {
       expect(result.total).toBe(1);
       expect(result.items).toHaveLength(1);
       expect((result.items[0] as any).productCount).toBe(3);
+    });
+  });
+
+  describe('geoActivity', () => {
+    it('maps SHG and buyer points to camelCase with numeric conversions', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: 'shg-1',
+            name: 'Sri Lakshmi Pickles SHG',
+            district_name: 'Anantapur',
+            lat: 14.6819,
+            lng: 77.6006,
+            total_sales_amount: '216319.00',
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            id: 'buyer-1',
+            name: 'Anantapur Wholesale Foods',
+            type: 'BULK',
+            lat: 14.68,
+            lng: 77.6,
+            recommendations_received: 1n,
+          },
+        ]);
+
+      const result = await service.geoActivity(globalScope, emptyFilters);
+
+      expect(result.shgPoints).toEqual([
+        {
+          id: 'shg-1',
+          name: 'Sri Lakshmi Pickles SHG',
+          districtName: 'Anantapur',
+          lat: 14.6819,
+          lng: 77.6006,
+          totalSalesAmount: 216319,
+        },
+      ]);
+      expect(result.buyerPoints).toEqual([
+        {
+          id: 'buyer-1',
+          name: 'Anantapur Wholesale Foods',
+          type: 'BULK',
+          lat: 14.68,
+          lng: 77.6,
+          recommendationsReceived: 1,
+        },
+      ]);
+    });
+
+    it('runs the SHG and buyer queries concurrently, not sequentially', async () => {
+      prisma.$queryRaw.mockResolvedValue([]);
+      await service.geoActivity(globalScope, emptyFilters);
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
     });
   });
 

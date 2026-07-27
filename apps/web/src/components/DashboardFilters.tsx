@@ -2,24 +2,51 @@ import { useTranslation } from "react-i18next";
 import { Select } from "./ui/Input";
 import { Card } from "./ui/Card";
 
-export interface DashboardFiltersProps {
-  /** Extra filter selects rendered after the common date-range filter. */
-  extra?: { label: string; options: { value: string; label: string }[] }[];
+export const DATE_RANGE_VALUES = ["30d", "90d", "12m"] as const;
+export type DateRangeValue = (typeof DATE_RANGE_VALUES)[number];
+
+export interface DashboardExtraFilter {
+  key: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
 }
 
-const DATE_RANGE_OPTIONS = [
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last quarter" },
-  { value: "12m", label: "Last 12 months" },
-];
+export interface DashboardFiltersProps {
+  dateRange: DateRangeValue;
+  onDateRangeChange: (value: DateRangeValue) => void;
+  /** Extra filter selects rendered after the common date-range filter — each
+   * one fully controlled by the caller (T19: real district/ULB/category
+   * drill-down, not just a layout placeholder). */
+  extra?: DashboardExtraFilter[];
+}
 
-/**
- * Shared filter bar for the dashboard wireframes. Non-functional (no data
- * refetch wired up yet) — it exists to establish the layout slot every
- * dashboard will use once real filtering lands in T06+.
- */
-export function DashboardFilters({ extra = [] }: DashboardFiltersProps) {
+/** Converts a `DateRangeValue` into the `dateFrom` a caller passes to the
+ * T18 analytics endpoints — `dateTo` is left undefined (today, implicitly). */
+export function dateRangeToDateFrom(range: DateRangeValue): Date {
+  const days = range === "30d" ? 30 : range === "90d" ? 90 : 365;
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date;
+}
+
+/** Shared, now-functional filter bar for the officials' dashboards (T19) —
+ * every select here is controlled and drives a real refetch in the page
+ * that renders it. */
+export function DashboardFilters({
+  dateRange,
+  onDateRangeChange,
+  extra = [],
+}: DashboardFiltersProps) {
   const { t } = useTranslation();
+
+  const dateRangeOptions = [
+    { value: "30d", label: t("dashboard.last30Days") },
+    { value: "90d", label: t("dashboard.last90Days") },
+    { value: "12m", label: t("dashboard.last12Months") },
+  ];
 
   return (
     <Card className="mb-5">
@@ -28,13 +55,20 @@ export function DashboardFilters({ extra = [] }: DashboardFiltersProps) {
         <div className="w-48">
           <Select
             label={t("dashboard.dateRange")}
-            options={DATE_RANGE_OPTIONS}
-            defaultValue="30d"
+            options={dateRangeOptions}
+            value={dateRange}
+            onChange={(e) => onDateRangeChange(e.target.value as DateRangeValue)}
           />
         </div>
         {extra.map((filter) => (
-          <div key={filter.label} className="w-48">
-            <Select label={filter.label} options={filter.options} placeholder={filter.label} />
+          <div key={filter.key} className="w-48">
+            <Select
+              label={filter.label}
+              options={filter.options}
+              placeholder={filter.placeholder ?? filter.label}
+              value={filter.value}
+              onChange={(e) => filter.onChange(e.target.value)}
+            />
           </div>
         ))}
       </div>

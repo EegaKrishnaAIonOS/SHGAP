@@ -147,6 +147,151 @@ export interface AdminSummary {
   totalUsers: number;
 }
 
+export const BUYER_TYPES = ["INSTITUTIONAL", "RETAIL", "BULK", "GOVERNMENT_PROCUREMENT"] as const;
+export type BuyerType = (typeof BUYER_TYPES)[number];
+
+export interface Buyer {
+  id: string;
+  name: string;
+  type: BuyerType;
+  organization: string | null;
+  districtId: string | null;
+  location: GeoPoint | null;
+  createdAt: string;
+}
+
+// --- T18/T19 analytics response shapes (GET /analytics/*) ---
+
+export interface DistrictSalesRollup {
+  districtId: string;
+  districtName: string;
+  orderCount: number;
+  totalQuantity: number;
+  totalAmount: number;
+}
+
+export interface UlbSalesRollup {
+  ulbId: string;
+  ulbName: string;
+  districtId: string;
+  districtName: string;
+  orderCount: number;
+  totalQuantity: number;
+  totalAmount: number;
+}
+
+export interface CategorySalesRollup {
+  categoryId: string;
+  categoryName: string;
+  orderCount: number;
+  totalQuantity: number;
+  totalAmount: number;
+}
+
+export interface SalesTrendPoint {
+  bucket: string;
+  orderCount: number;
+  totalQuantity: number;
+  totalAmount: number;
+}
+
+export interface RecommendationSummary {
+  total: number;
+  pending: number;
+  accepted: number;
+  rejected: number;
+  expired: number;
+  /** null (not 0) when nothing has been responded to yet — see ADR-0027. */
+  acceptanceRate: number | null;
+}
+
+export interface ShgRollup {
+  id: string;
+  name: string;
+  type: ShgType;
+  isActive: boolean;
+  districtId: string;
+  districtName: string;
+  ulbId: string | null;
+  ulbName: string | null;
+  productCount: number;
+  totalSalesAmount: number;
+  totalSalesQuantity: number;
+  orderCount: number;
+  enquiryCount: number;
+}
+
+export interface ShgDetailRollup {
+  id: string;
+  name: string;
+  type: ShgType;
+  isActive: boolean;
+  districtId: string;
+  districtName: string;
+  ulbId: string | null;
+  ulbName: string | null;
+  totalSalesAmount: number;
+  totalSalesQuantity: number;
+  orderCount: number;
+  enquiryCount: number;
+  products: {
+    id: string;
+    name: string;
+    categoryName: string;
+    price: number;
+    unitsSold: number;
+    totalRevenue: number;
+  }[];
+}
+
+export interface ProductRollup {
+  id: string;
+  name: string;
+  categoryId: string;
+  categoryName: string;
+  shgId: string;
+  shgName: string;
+  price: number;
+  isAvailable: boolean;
+  unitsSold: number;
+  totalRevenue: number;
+  enquiryCount: number;
+}
+
+export interface BuyerRollup {
+  id: string;
+  name: string;
+  type: BuyerType;
+  organization: string | null;
+  orderCount: number;
+  totalSpend: number;
+  enquiryCount: number;
+  recommendationsReceived: number;
+  recommendationsAccepted: number;
+}
+
+export interface GeoActivityPoint {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+export interface ShgActivityPoint extends GeoActivityPoint {
+  districtName: string;
+  totalSalesAmount: number;
+}
+
+export interface BuyerActivityPoint extends GeoActivityPoint {
+  type: BuyerType;
+  recommendationsReceived: number;
+}
+
+export interface GeoActivity {
+  shgPoints: ShgActivityPoint[];
+  buyerPoints: BuyerActivityPoint[];
+}
+
 /**
  * Common return shape for mutating registry calls (SHG/product create or
  * update). `"queued"` means the request couldn't reach the server (offline

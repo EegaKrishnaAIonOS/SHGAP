@@ -1,54 +1,111 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
-import { DashboardFilters } from "../../components/DashboardFilters";
+import {
+  DashboardFilters,
+  dateRangeToDateFrom,
+  type DateRangeValue,
+} from "../../components/DashboardFilters";
 import { StatCard, Card, CardTitle } from "../../components/ui/Card";
 import { DataTable, type Column } from "../../components/ui/Table";
-import { SimpleBarChart } from "../../components/ui/ChartWrapper";
-import { districts, districtComparison } from "./mockData";
+import { SimpleBarChart, SimplePieChart } from "../../components/ui/ChartWrapper";
+import { ExportButtons } from "../../components/ui/ExportButtons";
+import { ActivityMap } from "../../components/ui/ActivityMap";
+import { useAsyncData } from "../../lib/useAsyncData";
+import {
+  getDistrictSales,
+  getGeoActivity,
+  getRecommendationSummary,
+} from "../../lib/api/analytics";
+import type { DistrictSalesRollup } from "../../lib/api/types";
 
 /**
  * Module-7 government dashboard: state (MEPMA HQ) level roll-up across all
- * districts. The district heat-map is a placeholder box — a real mapping
- * library (e.g. Leaflet/Mapbox with AP district GeoJSON) is out of scope
- * for this wireframe sprint.
+ * districts, plus a real geo-activity map (ADR-0028) — discrete, value-scaled
+ * markers over the platform's actual geo-tagged SHGs/buyers rather than a
+ * smoothed heat-density layer, since the pilot only has a handful of real
+ * geo-tagged points today.
  */
 export function GovernmentDashboardPage() {
   const { t } = useTranslation();
+  const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
+  const [districtId, setDistrictId] = useState("");
+  const dateFrom = useMemo(() => dateRangeToDateFrom(dateRange), [dateRange]);
 
-  const totalSales = districts.reduce((sum, d) => sum + d.sales, 0);
-  const totalShgs = districts.reduce((sum, d) => sum + d.shgs, 0);
-  const totalMembers = districts.reduce((sum, d) => sum + d.members, 0);
+  const {
+    data: districts,
+    loading: districtsLoading,
+    error: districtsError,
+  } = useAsyncData(
+    () => getDistrictSales({ dateFrom }),
+    [dateFrom],
+    t("governmentDashboard.loadError"),
+  );
 
-  const columns: Column<(typeof districts)[number]>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "shgs", header: t("dashboard.activeShgs"), render: (row) => row.shgs },
+  const { data: recommendations } = useAsyncData(
+    () => getRecommendationSummary({ dateFrom, districtId: districtId || undefined }),
+    [dateFrom, districtId],
+  );
+
+  const { data: geoActivity } = useAsyncData(
+    () => getGeoActivity({ dateFrom, districtId: districtId || undefined }),
+    [dateFrom, districtId],
+  );
+
+  const visibleDistricts = districtId
+    ? (districts ?? []).filter((d) => d.districtId === districtId)
+    : (districts ?? []);
+  const totalSales = visibleDistricts.reduce((sum, d) => sum + d.totalAmount, 0);
+  const totalOrders = visibleDistricts.reduce((sum, d) => sum + d.orderCount, 0);
+
+  const columns: Column<DistrictSalesRollup>[] = [
+    { key: "name", header: t("dashboard.name"), render: (row) => row.districtName },
     {
-      key: "members",
-      header: t("dashboard.members"),
-      render: (row) => row.members.toLocaleString(),
+      key: "orders",
+      header: t("dashboard.orders"),
+      render: (row) => row.orderCount.toLocaleString(),
     },
     {
       key: "sales",
       header: t("dashboard.sales"),
-      render: (row) => `₹${row.sales.toLocaleString()}`,
+      render: (row) => `₹${row.totalAmount.toLocaleString()}`,
     },
-    { key: "growth", header: t("dashboard.growth"), render: (row) => row.growth },
   ];
+
+  const recommendationBreakdown = recommendations
+    ? [
+        { status: t("dashboard.pending"), value: recommendations.pending },
+        { status: t("dashboard.accepted"), value: recommendations.accepted },
+        { status: t("dashboard.rejected"), value: recommendations.rejected },
+        { status: t("dashboard.expired"), value: recommendations.expired },
+      ]
+    : [];
 
   return (
     <div>
       <PageHeader
         title={t("governmentDashboard.title")}
         subtitle={t("governmentDashboard.subtitle")}
+        wireframe={false}
       />
       <DashboardFilters
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
         extra={[
           {
+            key: "district",
             label: t("dashboard.district"),
-            options: districts.map((d) => ({ value: d.id, label: d.name })),
+            value: districtId,
+            onChange: setDistrictId,
+            options: [
+              { value: "", label: t("dashboard.allDistricts") },
+              ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
+            ],
           },
         ]}
       />
+
+      {districtsError && <p className="mb-3 text-sm text-danger-500">{districtsError}</p>}
 
       <h2 className="mb-3 text-lg font-semibold text-neutral-900">
         {t("governmentDashboard.stateOverview")}
@@ -58,37 +115,80 @@ export function GovernmentDashboardPage() {
           label={t("dashboard.totalSales")}
           value={`₹${(totalSales / 10000000).toFixed(2)} Cr`}
         />
-        <StatCard label={t("dashboard.activeShgs")} value={totalShgs.toLocaleString()} />
-        <StatCard label={t("dashboard.activeMembers")} value={totalMembers.toLocaleString()} />
-        <StatCard label={t("districtDashboard.title")} value={districts.length} />
+        <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
+        <StatCard label={t("districtDashboard.title")} value={visibleDistricts.length} />
+        <StatCard
+          label={t("dashboard.acceptanceRate")}
+          value={
+            recommendations?.acceptanceRate == null
+              ? "—"
+              : `${(recommendations.acceptanceRate * 100).toFixed(0)}%`
+          }
+        />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimpleBarChart
           title={t("governmentDashboard.districtComparison")}
-          data={districtComparison}
+          data={visibleDistricts.map((d) => ({ district: d.districtName, sales: d.totalAmount }))}
           xKey="district"
           series={[{ key: "sales", label: t("dashboard.sales") }]}
         />
+        <SimplePieChart
+          title={t("governmentDashboard.recommendationSummary")}
+          data={recommendationBreakdown}
+          nameKey="status"
+          valueKey="value"
+        />
+      </div>
+
+      <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardTitle className="mb-3">{t("governmentDashboard.districtComparison")}</CardTitle>
-          <div
-            className="flex h-[280px] items-center justify-center rounded-md border border-dashed border-neutral-300 bg-neutral-50 text-center text-sm text-neutral-400"
-            role="img"
-            aria-label={t("governmentDashboard.mapPlaceholder")}
-          >
-            🗺️
-            <span className="sr-only">{t("governmentDashboard.mapPlaceholder")}</span>
-          </div>
-          <p className="mt-2 text-xs text-neutral-400">{t("governmentDashboard.mapPlaceholder")}</p>
+          <CardTitle className="mb-3">{t("governmentDashboard.shgActivityMap")}</CardTitle>
+          <ActivityMap
+            color="#aa3bff"
+            points={(geoActivity?.shgPoints ?? []).map((p) => ({
+              id: p.id,
+              lat: p.lat,
+              lng: p.lng,
+              label: `${p.name} (${p.districtName})`,
+              value: p.totalSalesAmount,
+              valueLabel: `₹${p.totalSalesAmount.toLocaleString()} ${t("dashboard.sales").toLowerCase()}`,
+            }))}
+          />
+        </Card>
+        <Card>
+          <CardTitle className="mb-3">{t("governmentDashboard.buyerActivityMap")}</CardTitle>
+          <ActivityMap
+            color="#0ea5e9"
+            points={(geoActivity?.buyerPoints ?? []).map((p) => ({
+              id: p.id,
+              lat: p.lat,
+              lng: p.lng,
+              label: `${p.name} (${p.type})`,
+              value: p.recommendationsReceived,
+              valueLabel: `${p.recommendationsReceived} ${t("dashboard.recommendations").toLowerCase()}`,
+            }))}
+          />
         </Card>
       </div>
 
+      <ExportButtons
+        title={t("dashboard.districtBreakdown")}
+        columns={[
+          { header: t("dashboard.name"), value: (r: DistrictSalesRollup) => r.districtName },
+          { header: t("dashboard.orders"), value: (r: DistrictSalesRollup) => r.orderCount },
+          { header: t("dashboard.sales"), value: (r: DistrictSalesRollup) => r.totalAmount },
+        ]}
+        rows={visibleDistricts}
+        filename="district-breakdown"
+      />
       <DataTable
         columns={columns}
-        rows={districts}
-        rowKey={(row) => row.id}
+        rows={visibleDistricts}
+        rowKey={(row) => row.districtId}
         caption={t("dashboard.districtBreakdown")}
+        emptyMessage={districtsLoading ? t("common.loading") : t("dashboard.noData")}
       />
     </div>
   );

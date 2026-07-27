@@ -202,14 +202,26 @@
   "dashboard": {
     "filters": "Filters",
     "dateRange": "Date range",
+    "last30Days": "Last 30 days",
+    "last90Days": "Last 90 days",
+    "last12Months": "Last 12 months",
     "district": "District",
     "allDistricts": "All districts",
+    "allUlbs": "All ULBs",
+    "allCategories": "All categories",
     "totalSales": "Total sales",
     "totalOrders": "Total orders",
     "activeShgs": "Active SHGs",
     "activeMembers": "Active members",
     "registeredBuyers": "Registered buyers",
     "productsListed": "Products listed",
+    "enquiries": "Enquiries",
+    "recommendations": "Recommendations",
+    "acceptanceRate": "Acceptance rate",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "expired": "Expired",
     "salesTrend": "Sales trend",
     "topCategories": "Top categories",
     "topProducts": "Top products",
@@ -217,6 +229,11 @@
     "shgBreakdown": "SHG-wise breakdown",
     "districtBreakdown": "District-wise breakdown",
     "recentOrders": "Recent orders",
+    "backToList": "← Back to list",
+    "noData": "No data for the selected filters yet.",
+    "noUlbData": "No ULB data for the selected filters yet.",
+    "exportPdf": "Export PDF",
+    "exportExcel": "Export Excel",
     "name": "Name",
     "sales": "Sales",
     "orders": "Orders",
@@ -225,30 +242,38 @@
   },
   "districtDashboard": {
     "title": "District Dashboard",
-    "subtitle": "MEPMA district officer view — SHG performance across ULBs and mandals."
+    "subtitle": "MEPMA district officer view — SHG performance across ULBs and mandals.",
+    "loadError": "Couldn't load district sales data. Please try again."
   },
   "ulbDashboard": {
     "title": "ULB Dashboard",
-    "subtitle": "Urban Local Body officer view — SHG and product performance within the ULB."
+    "subtitle": "Urban Local Body officer view — SHG and product performance within the ULB.",
+    "loadError": "Couldn't load ULB sales data. Please try again."
   },
   "shgDashboard": {
     "title": "SHG Dashboard",
-    "subtitle": "Per-SHG monitoring view — membership, product mix and sales for a single group."
+    "subtitle": "Per-SHG monitoring view — membership, product mix and sales for a single group.",
+    "loadError": "Couldn't load SHG data. Please try again."
   },
   "productDashboard": {
     "title": "Product Dashboard",
-    "subtitle": "Catalogue-wide view — category performance, pricing and inventory signals."
+    "subtitle": "Catalogue-wide view — category performance, pricing and inventory signals.",
+    "loadError": "Couldn't load product data. Please try again."
   },
   "buyerDashboard": {
     "title": "Buyer Dashboard",
-    "subtitle": "Buyer engagement view — registered buyers, repeat orders and demand trends."
+    "subtitle": "Buyer engagement view — registered buyers, repeat orders and demand trends.",
+    "loadError": "Couldn't load buyer data. Please try again."
   },
   "governmentDashboard": {
     "title": "Government Dashboard",
     "subtitle": "State-level (MEPMA HQ) view across all districts — Module 7 policy & monitoring dashboard.",
     "stateOverview": "State overview",
     "districtComparison": "District comparison",
-    "mapPlaceholder": "Map visualisation placeholder — district heat-map lands with the mapping library in a later sprint."
+    "recommendationSummary": "Recommendation outcomes",
+    "shgActivityMap": "SHG sales activity",
+    "buyerActivityMap": "Buyer recommendation activity",
+    "loadError": "Couldn't load state overview data. Please try again."
   },
   "admin": {
     "title": "Admin overview",

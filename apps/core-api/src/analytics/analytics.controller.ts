@@ -117,6 +117,18 @@ export class AnalyticsController {
     return this.analyticsService.buyers(scope, filters);
   }
 
+  @Get('geo/activity')
+  @ApiOperation({
+    summary:
+      'Geo-tagged SHG/buyer activity points for the heat map (SHGs weighted by sales, buyers by recommendations received)',
+  })
+  geoActivity(
+    @CurrentScope() scope: RequestScope,
+    @Query() filters: AnalyticsFilterDto,
+  ) {
+    return this.analyticsService.geoActivity(scope, filters);
+  }
+
   @Post('refresh-views')
   @Roles('ADMIN')
   @ApiOperation({

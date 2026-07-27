@@ -37,7 +37,7 @@ export class AnalyticsService {
             Prisma.sql`district_id`,
             Prisma.sql`ulb_id`,
           ),
-          ...this.dateAndCategoryConditions(filters, Prisma.sql`sale_date`),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`sale_date`),
         ];
         const rows = await this.prisma.$queryRaw<
           {
@@ -81,7 +81,7 @@ export class AnalyticsService {
             Prisma.sql`ulb_id`,
           ),
           Prisma.sql`ulb_id IS NOT NULL`,
-          ...this.dateAndCategoryConditions(filters, Prisma.sql`sale_date`),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`sale_date`),
         ];
         const rows = await this.prisma.$queryRaw<
           {
@@ -128,7 +128,7 @@ export class AnalyticsService {
             Prisma.sql`district_id`,
             Prisma.sql`ulb_id`,
           ),
-          ...this.dateConditions(filters, Prisma.sql`sale_date`),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`sale_date`),
         ];
         const rows = await this.prisma.$queryRaw<
           {
@@ -171,7 +171,7 @@ export class AnalyticsService {
             Prisma.sql`district_id`,
             Prisma.sql`ulb_id`,
           ),
-          ...this.dateAndCategoryConditions(filters, Prisma.sql`sale_date`),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`sale_date`),
         ];
         // date_trunc's unit argument is an ordinary text parameter in
         // Postgres (not DDL/identifier syntax), so binding it via Prisma.sql
@@ -219,7 +219,7 @@ export class AnalyticsService {
             Prisma.sql`district_id`,
             Prisma.sql`ulb_id`,
           ),
-          ...this.dateConditions(filters, Prisma.sql`created_at`),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`created_at`),
         ];
         const rows = await this.prisma.$queryRaw<
           { status: string; count: bigint }[]
@@ -610,6 +610,119 @@ export class AnalyticsService {
     );
   }
 
+  /**
+   * Real geo-tagged activity points for T19's heat map — SHGs weighted by
+   * sales amount, buyers weighted by recommendations received. Reads
+   * location straight off `shg`/`buyers` (`ST_X`/`ST_Y`, matching
+   * GeoService's own convention for PostGIS columns Prisma can't model)
+   * rather than adding a new materialized view: at pilot scale (single-digit
+   * geo-tagged rows) a live join is cheap, same reasoning ADR-0027 already
+   * gave for not materializing the SHG/product/buyer dimension tables.
+   * Rows with no location at all are skipped — a map has nothing useful to
+   * plot for them anyway.
+   */
+  async geoActivity(scope: RequestScope, filters: AnalyticsFilterDto) {
+    return cacheAside(
+      this.redis,
+      cacheKey('geo-activity', { scope, filters }),
+      CACHE_TTL_SECONDS,
+      async () => {
+        const shgConditions = [
+          ...scopeConditions(
+            scope,
+            Prisma.sql`shg.district_id`,
+            Prisma.sql`shg.ulb_id`,
+          ),
+          Prisma.sql`shg.location IS NOT NULL`,
+        ];
+        if (filters.districtId) {
+          shgConditions.push(
+            Prisma.sql`shg.district_id = ${filters.districtId}::uuid`,
+          );
+        }
+        if (filters.ulbId) {
+          shgConditions.push(Prisma.sql`shg.ulb_id = ${filters.ulbId}::uuid`);
+        }
+
+        const buyerConditions = [
+          ...scopeConditions(
+            scope,
+            Prisma.sql`b.district_id`,
+            Prisma.sql`b.district_id`,
+          ),
+          Prisma.sql`b.location IS NOT NULL`,
+        ];
+        if (filters.districtId) {
+          buyerConditions.push(
+            Prisma.sql`b.district_id = ${filters.districtId}::uuid`,
+          );
+        }
+
+        const [shgRows, buyerRows] = await Promise.all([
+          this.prisma.$queryRaw<
+            {
+              id: string;
+              name: string;
+              district_name: string;
+              lat: number;
+              lng: number;
+              total_sales_amount: string;
+            }[]
+          >(Prisma.sql`
+            SELECT shg.id, shg.name, d.name AS district_name,
+                   ST_Y(shg.location::geometry) AS lat, ST_X(shg.location::geometry) AS lng,
+                   COALESCE(sales.total_amount, 0) AS total_sales_amount
+            FROM shg
+            JOIN districts d ON d.id = shg.district_id
+            LEFT JOIN (
+              SELECT shg_id, sum(total_amount) AS total_amount FROM mv_sales_facts GROUP BY shg_id
+            ) sales ON sales.shg_id = shg.id
+            ${combineWhere(shgConditions)}
+          `),
+          this.prisma.$queryRaw<
+            {
+              id: string;
+              name: string;
+              type: string;
+              lat: number;
+              lng: number;
+              recommendations_received: bigint;
+            }[]
+          >(Prisma.sql`
+            SELECT b.id, b.name, b.type,
+                   ST_Y(b.location::geometry) AS lat, ST_X(b.location::geometry) AS lng,
+                   COALESCE(rec.recommendations_received, 0) AS recommendations_received
+            FROM buyers b
+            LEFT JOIN (
+              SELECT buyer_id, count(*) AS recommendations_received
+              FROM mv_recommendation_facts GROUP BY buyer_id
+            ) rec ON rec.buyer_id = b.id
+            ${combineWhere(buyerConditions)}
+          `),
+        ]);
+
+        return {
+          shgPoints: shgRows.map((r) => ({
+            id: r.id,
+            name: r.name,
+            districtName: r.district_name,
+            lat: r.lat,
+            lng: r.lng,
+            totalSalesAmount: toNumber(r.total_sales_amount),
+          })),
+          buyerPoints: buyerRows.map((r) => ({
+            id: r.id,
+            name: r.name,
+            type: r.type,
+            lat: r.lat,
+            lng: r.lng,
+            recommendationsReceived: toNumber(r.recommendations_received),
+          })),
+        };
+      },
+    );
+  }
+
   /** Manually refreshes all three materialized views — the same function
    * the scheduled job (app.module.ts) calls automatically. Concurrent
    * refresh requires each view's own unique index (added in the T18
@@ -645,11 +758,25 @@ export class AnalyticsService {
     return conditions;
   }
 
-  private dateAndCategoryConditions(
+  /**
+   * Date + district/ULB/category conditions against one of the denormalized
+   * fact views — every view (mv_sales_facts/mv_enquiry_facts/
+   * mv_recommendation_facts) carries all three columns directly, so a caller
+   * drilling into a district/ULB (T19) gets the same explicit filter
+   * `scopeConditions` already applies for a district/ULB *official's*
+   * jurisdiction, just driven by the query string instead of the JWT scope.
+   */
+  private dateAndScopeConditions(
     filters: AnalyticsFilterDto,
     dateColumn: Prisma.Sql,
   ): Prisma.Sql[] {
     const conditions = this.dateConditions(filters, dateColumn);
+    if (filters.districtId) {
+      conditions.push(Prisma.sql`district_id = ${filters.districtId}::uuid`);
+    }
+    if (filters.ulbId) {
+      conditions.push(Prisma.sql`ulb_id = ${filters.ulbId}::uuid`);
+    }
     if (filters.categoryId) {
       conditions.push(Prisma.sql`category_id = ${filters.categoryId}::uuid`);
     }
