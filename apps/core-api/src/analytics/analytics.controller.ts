@@ -7,7 +7,9 @@ import { ScopeGuard } from '../common/guards/scope.guard';
 import { RequestScope } from '../common/interfaces/jwt-payload.interface';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsFilterDto } from './dto/analytics-filter.dto';
+import { MarketPricesQueryDto } from './dto/market-prices-query.dto';
 import { SalesTrendQueryDto } from './dto/sales-trend-query.dto';
+import { MarketPricesService } from './market-prices.service';
 
 /**
  * T18 — every endpoint here is officials-only (district/ULB dashboards,
@@ -21,7 +23,10 @@ import { SalesTrendQueryDto } from './dto/sales-trend-query.dto';
 @Roles('ADMIN', 'STATE_OFFICIAL', 'DISTRICT_OFFICIAL', 'ULB_OFFICIAL')
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    private readonly analyticsService: AnalyticsService,
+    private readonly marketPricesService: MarketPricesService,
+  ) {}
 
   @Get('sales/districts')
   @ApiOperation({
@@ -137,6 +142,15 @@ export class AnalyticsController {
     @Query() filters: AnalyticsFilterDto,
   ) {
     return this.analyticsService.geoActivity(scope, filters);
+  }
+
+  @Get('market-prices')
+  @ApiOperation({
+    summary:
+      'Real Agmarknet mandi prices (T14 ingestion, first surfaced to a dashboard in T21), optionally filtered by district/commodity',
+  })
+  marketPrices(@Query() query: MarketPricesQueryDto) {
+    return this.marketPricesService.getPrices(query);
   }
 
   @Post('refresh-views')

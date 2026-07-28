@@ -310,6 +310,20 @@ export interface GeoActivity {
   buyerPoints: BuyerActivityPoint[];
 }
 
+/** Real Agmarknet mandi prices (T14 ingestion, first surfaced to a
+ * dashboard in T21) — see ADR-0030. */
+export interface MarketPriceRecord {
+  state: string;
+  district: string;
+  market: string;
+  commodity: string;
+  variety: string;
+  arrivalDate: string;
+  minPrice: number;
+  maxPrice: number;
+  modalPrice: number;
+}
+
 /**
  * Common return shape for mutating registry calls (SHG/product create or
  * update). `"queued"` means the request couldn't reach the server (offline

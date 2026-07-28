@@ -15,6 +15,8 @@ import { validate } from './config/env.validation';
 import { GeoModule } from './geo/geo.module';
 import { HealthController } from './health.controller';
 import { MasterDataModule } from './master-data/master-data.module';
+import { MepmaModule } from './mepma/mepma.module';
+import { OndcModule } from './ondc/ondc.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
@@ -41,6 +43,8 @@ import { UsersModule } from './users/users.module';
     CategorizationModule,
     AdminModule,
     AnalyticsModule,
+    MepmaModule,
+    OndcModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

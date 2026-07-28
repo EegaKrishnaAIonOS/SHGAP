@@ -287,6 +287,13 @@
     "districtRanking": "District ranking",
     "shgActivityMap": "SHG sales activity",
     "buyerActivityMap": "Buyer recommendation activity",
+    "marketPrices": "Market prices (Agmarknet)",
+    "marketPricesNote": "Real government mandi prices, ingested since Sprint 3 — shown here for the first time.",
+    "marketPricesEmpty": "No Agmarknet price data ingested yet.",
+    "commodity": "Commodity",
+    "arrivalDate": "Date",
+    "modalPrice": "Modal price",
+    "priceRange": "Price range",
     "loadError": "Couldn't load state overview data. Please try again."
   },
   "admin": {

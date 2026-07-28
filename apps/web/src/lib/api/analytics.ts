@@ -5,6 +5,7 @@ import type {
   DistrictSalesRollup,
   EnquirySummary,
   GeoActivity,
+  MarketPriceRecord,
   PaginatedResult,
   ProductRollup,
   RecommendationSummary,
@@ -91,6 +92,21 @@ export function getGeoActivity(filters: AnalyticsFilters = {}): Promise<GeoActiv
 
 export function getEnquirySummary(filters: AnalyticsFilters = {}): Promise<EnquirySummary> {
   return authFetch(`/analytics/enquiries/summary${buildQuery(filters)}`);
+}
+
+export interface MarketPricesFilters {
+  district?: string;
+  commodity?: string;
+  limit?: number;
+}
+
+export function getMarketPrices(filters: MarketPricesFilters = {}): Promise<MarketPriceRecord[]> {
+  const qs = new URLSearchParams();
+  if (filters.district) qs.set("district", filters.district);
+  if (filters.commodity) qs.set("commodity", filters.commodity);
+  if (filters.limit) qs.set("limit", String(filters.limit));
+  const query = qs.toString();
+  return authFetch(`/analytics/market-prices${query ? `?${query}` : ""}`);
 }
 
 export function refreshAnalyticsViews(): Promise<{ refreshedAt: string; views: string[] }> {

@@ -1,0 +1,200 @@
+{
+  "info": {
+    "name": "SHGAP T21 — External Integrations",
+    "description": "Runnable (Newman-compatible) integration checks for T21's four external-system integrations against a live core-api + ml-services. Complements the Jest/pytest unit tests (which cover simulated-fallback behavior in isolation) with real end-to-end HTTP checks against a running stack — see ADR-0030.\n\nPublic Integration Checks need no setup and can run in CI unauthenticated. Admin-Gated Integrations need `adminToken` set as a collection/environment variable first: obtain one via POST /auth/request-otp + POST /auth/verify-otp for the seeded demo admin phone (see the project's own auth flow / ADR docs) — Newman/Postman cannot read the OTP out of Redis itself, so this one step stays manual/scripted outside the collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminToken", "value": "" },
+    {
+      "key": "gemBuyerId",
+      "value": "",
+      "description": "A real buyer id — GET {{baseUrl}}/buyers to find one"
+    },
+    {
+      "key": "gemCategoryId",
+      "value": "",
+      "description": "A real category id — GET {{baseUrl}}/master-data/categories to find one"
+    },
+    { "key": "createdOpportunityId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Public Integration Checks (no auth)",
+      "item": [
+        {
+          "name": "ONDC readiness",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/ondc/readiness"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('reports the real signing algorithm', () => pm.expect(body.signingAlgorithm).to.eql('ed25519'));",
+                  "pm.test('honest about not being registered with the real ONDC network', () => pm.expect(body.registeredWithOndcNetwork).to.eql(false));",
+                  "pm.test('reports non-negative real catalog counts', () => {",
+                  "  pm.expect(body.publishableProviderCount).to.be.at.least(0);",
+                  "  pm.expect(body.publishableItemCount).to.be.at.least(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ONDC on_search (Beckn catalogue, signed)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/ondc/on_search",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bapId\": \"newman-test-bap.example\",\n  \"bapUri\": \"https://newman-test-bap.example\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('response is Ed25519-signed', () => {",
+                  "  const auth = pm.response.headers.get('Authorization');",
+                  "  pm.expect(auth).to.include('algorithm=\"ed25519\"');",
+                  "  pm.expect(auth).to.include('signature=\"');",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('real Beckn context shape', () => {",
+                  "  pm.expect(body.context.action).to.eql('on_search');",
+                  "  pm.expect(body.context.bap_id).to.eql('newman-test-bap.example');",
+                  "});",
+                  "pm.test('catalog providers, if any, carry real priced items', () => {",
+                  "  const providers = body.message.catalog['bpp/providers'];",
+                  "  providers.forEach((p) => p.items.forEach((item) => {",
+                  "    pm.expect(Number(item.price.value)).to.be.above(0);",
+                  "  }));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin-Gated Integrations (requires {{adminToken}})",
+      "item": [
+        {
+          "name": "MEPMA SHG registry sync",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/mepma/sync"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200 or 201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const body = pm.response.json();",
+                  "pm.test('reports a coherent sync summary', () => {",
+                  "  pm.expect(body.totalFromRegistry).to.be.above(0);",
+                  "  pm.expect(body.linkedExisting + body.backfilledRegistrationNumber + body.unmatched.length).to.eql(body.totalFromRegistry);",
+                  "});",
+                  "pm.test('never fabricates a phantom SHG — unmatched records stay records, not created SHGs', () => {",
+                  "  body.unmatched.forEach((r) => pm.expect(r).to.have.property('mepmaRegistrationNumber'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GeM opportunity create (triggers tender alert)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/gem-opportunities",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buyerId\": \"{{gemBuyerId}}\",\n  \"categoryId\": \"{{gemCategoryId}}\",\n  \"referenceNumber\": \"GEM/NEWMAN/{{$timestamp}}\",\n  \"title\": \"Newman integration test tender\",\n  \"submissionDeadline\": \"2027-01-01\",\n  \"isSimulated\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 201 or 200', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const body = pm.response.json();",
+                  "pm.test('opportunity persisted with a real id', () => pm.expect(body.id).to.be.a('string'));",
+                  "pm.collectionVariables.set('createdOpportunityId', body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GeM opportunity list includes the created one",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/gem-opportunities?pageSize=50"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "const createdId = pm.collectionVariables.get('createdOpportunityId');",
+                  "pm.test('created opportunity is present in the list', () => {",
+                  "  pm.expect(body.items.map((o) => o.id)).to.include(createdId);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agmarknet market prices (T14 ingestion, first dashboard surface)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/analytics/market-prices?limit=10"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200 even when the local price history is still shallow', () => pm.response.to.have.status(200));",
+                  "const prices = pm.response.json();",
+                  "pm.test('response is an array (possibly empty on a fresh environment)', () => pm.expect(prices).to.be.an('array'));",
+                  "prices.forEach((p) => pm.expect(p.modalPrice).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

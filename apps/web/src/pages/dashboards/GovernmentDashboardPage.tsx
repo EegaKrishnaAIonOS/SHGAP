@@ -16,12 +16,18 @@ import {
   getDistrictSales,
   getEnquirySummary,
   getGeoActivity,
+  getMarketPrices,
   getProducts,
   getRecommendationSummary,
   getShgs,
 } from "../../lib/api/analytics";
 import { getHealth } from "../../lib/api/health";
-import type { BuyerActivityPoint, DistrictSalesRollup, ProductRollup } from "../../lib/api/types";
+import type {
+  BuyerActivityPoint,
+  DistrictSalesRollup,
+  MarketPriceRecord,
+  ProductRollup,
+} from "../../lib/api/types";
 
 const EMPTY_PRODUCTS = {
   items: [] as ProductRollup[],
@@ -94,6 +100,15 @@ export function GovernmentDashboardPage() {
     [dateFrom, districtId],
   );
 
+  const selectedDistrictName = (districts ?? []).find(
+    (d) => d.districtId === districtId,
+  )?.districtName;
+
+  const { data: marketPrices, loading: marketPricesLoading } = useAsyncData(
+    () => getMarketPrices({ district: selectedDistrictName, limit: 20 }),
+    [selectedDistrictName],
+  );
+
   const visibleDistricts = districtId
     ? (districts ?? []).filter((d) => d.districtId === districtId)
     : (districts ?? []);
@@ -134,6 +149,26 @@ export function GovernmentDashboardPage() {
     },
   ];
   const rankedProducts = (products?.items ?? []).map((p, i) => ({ ...p, rank: i + 1 }));
+
+  const marketPriceColumns: Column<MarketPriceRecord>[] = [
+    { key: "district", header: t("dashboard.district"), render: (row) => row.district },
+    {
+      key: "commodity",
+      header: t("governmentDashboard.commodity"),
+      render: (row) => row.commodity,
+    },
+    { key: "date", header: t("governmentDashboard.arrivalDate"), render: (row) => row.arrivalDate },
+    {
+      key: "modalPrice",
+      header: t("governmentDashboard.modalPrice"),
+      render: (row) => `₹${row.modalPrice.toLocaleString()}`,
+    },
+    {
+      key: "range",
+      header: t("governmentDashboard.priceRange"),
+      render: (row) => `₹${row.minPrice.toLocaleString()} – ₹${row.maxPrice.toLocaleString()}`,
+    },
+  ];
 
   const topBuyers = [...(geoActivity?.buyerPoints ?? [])]
     .sort((a, b) => b.recommendationsReceived - a.recommendationsReceived)
@@ -354,6 +389,20 @@ export function GovernmentDashboardPage() {
         rowKey={(row) => row.id}
         caption={t("governmentDashboard.productPerformance")}
         emptyMessage={t("dashboard.noData")}
+      />
+
+      <h2 className="mb-3 mt-5 text-lg font-semibold text-neutral-900">
+        {t("governmentDashboard.marketPrices")}
+      </h2>
+      <p className="mb-3 text-sm text-neutral-500">{t("governmentDashboard.marketPricesNote")}</p>
+      <DataTable
+        columns={marketPriceColumns}
+        rows={marketPrices ?? []}
+        rowKey={(row) => `${row.market}-${row.commodity}-${row.arrivalDate}`}
+        caption={t("governmentDashboard.marketPrices")}
+        emptyMessage={
+          marketPricesLoading ? t("common.loading") : t("governmentDashboard.marketPricesEmpty")
+        }
       />
     </div>
   );
