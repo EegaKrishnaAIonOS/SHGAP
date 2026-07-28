@@ -69,8 +69,14 @@ describe('AnalyticsService', () => {
   });
 
   describe('recommendationSummary', () => {
+    const emptyLinkageRow = [
+      { avg_match_score: null, shgs_linked: 0n, buyers_linked: 0n },
+    ];
+
     it('applies the districtId/ulbId query filters, not just JWT scope (T19 regression)', async () => {
-      prisma.$queryRaw.mockResolvedValueOnce([]);
+      prisma.$queryRaw
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(emptyLinkageRow);
 
       await service.recommendationSummary(globalScope, {
         ...emptyFilters,
@@ -86,11 +92,13 @@ describe('AnalyticsService', () => {
     });
 
     it('computes acceptance rate from accepted/rejected only, excluding pending', async () => {
-      prisma.$queryRaw.mockResolvedValueOnce([
-        { status: 'PENDING', count: 3n },
-        { status: 'ACCEPTED', count: 6n },
-        { status: 'REJECTED', count: 4n },
-      ]);
+      prisma.$queryRaw
+        .mockResolvedValueOnce([
+          { status: 'PENDING', count: 3n },
+          { status: 'ACCEPTED', count: 6n },
+          { status: 'REJECTED', count: 4n },
+        ])
+        .mockResolvedValueOnce(emptyLinkageRow);
 
       const result = await service.recommendationSummary(
         globalScope,
@@ -106,9 +114,9 @@ describe('AnalyticsService', () => {
     });
 
     it('returns null (not 0) acceptance rate when nothing has been responded to yet', async () => {
-      prisma.$queryRaw.mockResolvedValueOnce([
-        { status: 'PENDING', count: 4n },
-      ]);
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ status: 'PENDING', count: 4n }])
+        .mockResolvedValueOnce(emptyLinkageRow);
 
       const result = await service.recommendationSummary(
         globalScope,
@@ -116,6 +124,66 @@ describe('AnalyticsService', () => {
       );
 
       expect(result.acceptanceRate).toBeNull();
+    });
+
+    it('surfaces avg match score and SHG/buyer market-linkage coverage (T20)', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ status: 'ACCEPTED', count: 5n }])
+        .mockResolvedValueOnce([
+          { avg_match_score: '0.7834', shgs_linked: 3n, buyers_linked: 2n },
+        ]);
+
+      const result = await service.recommendationSummary(
+        globalScope,
+        emptyFilters,
+      );
+
+      expect(result.avgMatchScore).toBeCloseTo(0.7834);
+      expect(result.shgsLinked).toBe(3);
+      expect(result.buyersLinked).toBe(2);
+    });
+
+    it('returns null (not 0) avg match score when there are no recommendations', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(emptyLinkageRow);
+
+      const result = await service.recommendationSummary(
+        globalScope,
+        emptyFilters,
+      );
+
+      expect(result.avgMatchScore).toBeNull();
+    });
+  });
+
+  describe('enquirySummary', () => {
+    it('applies the districtId/ulbId query filters, not just JWT scope', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([]);
+
+      await service.enquirySummary(globalScope, {
+        ...emptyFilters,
+        districtId: 'd1',
+        ulbId: 'u1',
+      });
+
+      const sql = prisma.$queryRaw.mock.calls[0][0];
+      const text = sql.strings.join('?');
+      expect(text).toContain('district_id = ');
+      expect(text).toContain('ulb_id = ');
+      expect(sql.values).toEqual(expect.arrayContaining(['d1', 'u1']));
+    });
+
+    it('maps status counts and computes the total', async () => {
+      prisma.$queryRaw.mockResolvedValueOnce([
+        { status: 'OPEN', count: 2n },
+        { status: 'RESPONDED', count: 5n },
+        { status: 'CLOSED', count: 3n },
+      ]);
+
+      const result = await service.enquirySummary(globalScope, emptyFilters);
+
+      expect(result).toEqual({ total: 10, open: 2, responded: 5, closed: 3 });
     });
   });
 

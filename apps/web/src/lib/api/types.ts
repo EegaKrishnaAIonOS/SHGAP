@@ -203,6 +203,24 @@ export interface RecommendationSummary {
   expired: number;
   /** null (not 0) when nothing has been responded to yet — see ADR-0027. */
   acceptanceRate: number | null;
+  /** 0-1 average match score across every recommendation in scope; null when there are none. */
+  avgMatchScore: number | null;
+  /** Distinct SHGs/buyers with at least one ACCEPTED recommendation — T20's market-linkage coverage. */
+  shgsLinked: number;
+  buyersLinked: number;
+}
+
+export interface EnquirySummary {
+  total: number;
+  open: number;
+  responded: number;
+  closed: number;
+}
+
+export interface HealthStatus {
+  status: string;
+  service: string;
+  uptimeSeconds: number;
 }
 
 export interface ShgRollup {

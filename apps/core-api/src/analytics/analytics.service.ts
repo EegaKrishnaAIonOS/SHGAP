@@ -221,14 +221,33 @@ export class AnalyticsService {
           ),
           ...this.dateAndScopeConditions(filters, Prisma.sql`created_at`),
         ];
-        const rows = await this.prisma.$queryRaw<
-          { status: string; count: bigint }[]
-        >(Prisma.sql`
-          SELECT status, count(*) AS count
-          FROM mv_recommendation_facts
-          ${combineWhere(conditions)}
-          GROUP BY status
-        `);
+        const where = combineWhere(conditions);
+        const [rows, [linkage]] = await Promise.all([
+          this.prisma.$queryRaw<{ status: string; count: bigint }[]>(Prisma.sql`
+            SELECT status, count(*) AS count
+            FROM mv_recommendation_facts
+            ${where}
+            GROUP BY status
+          `),
+          // T20's "market linkage" panel: how many distinct SHGs/buyers have
+          // at least one ACCEPTED match (coverage), plus the average match
+          // score across every recommendation in scope (quality) — both real
+          // fields already on the view, just not surfaced until now.
+          this.prisma.$queryRaw<
+            {
+              avg_match_score: string | null;
+              shgs_linked: bigint;
+              buyers_linked: bigint;
+            }[]
+          >(Prisma.sql`
+            SELECT
+              avg(match_score) AS avg_match_score,
+              count(DISTINCT shg_id) FILTER (WHERE status = 'ACCEPTED') AS shgs_linked,
+              count(DISTINCT buyer_id) FILTER (WHERE status = 'ACCEPTED') AS buyers_linked
+            FROM mv_recommendation_facts
+            ${where}
+          `),
+        ]);
         const byStatus = Object.fromEntries(
           rows.map((r) => [r.status, toNumber(r.count)]),
         );
@@ -243,6 +262,50 @@ export class AnalyticsService {
           // null (not 0) when nothing has been responded to yet — an honest
           // "no data" rather than a misleading 0% acceptance rate.
           acceptanceRate: responded > 0 ? byStatus.ACCEPTED! / responded : null,
+          avgMatchScore:
+            linkage?.avg_match_score != null
+              ? Number(linkage.avg_match_score)
+              : null,
+          shgsLinked: toNumber(linkage?.shgs_linked),
+          buyersLinked: toNumber(linkage?.buyers_linked),
+        };
+      },
+    );
+  }
+
+  /** T20's "enquiries generated" KPI tile — total buyer enquiries in scope,
+   * broken down by status, from mv_enquiry_facts (already built for T18,
+   * never surfaced as an aggregate until now). */
+  async enquirySummary(scope: RequestScope, filters: AnalyticsFilterDto) {
+    return cacheAside(
+      this.redis,
+      cacheKey('enquiry-summary', { scope, filters }),
+      CACHE_TTL_SECONDS,
+      async () => {
+        const conditions = [
+          ...scopeConditions(
+            scope,
+            Prisma.sql`district_id`,
+            Prisma.sql`ulb_id`,
+          ),
+          ...this.dateAndScopeConditions(filters, Prisma.sql`created_at`),
+        ];
+        const rows = await this.prisma.$queryRaw<
+          { status: string; count: bigint }[]
+        >(Prisma.sql`
+          SELECT status, count(*) AS count
+          FROM mv_enquiry_facts
+          ${combineWhere(conditions)}
+          GROUP BY status
+        `);
+        const byStatus = Object.fromEntries(
+          rows.map((r) => [r.status, toNumber(r.count)]),
+        );
+        return {
+          total: Object.values(byStatus).reduce((sum, n) => sum + n, 0),
+          open: byStatus.OPEN ?? 0,
+          responded: byStatus.RESPONDED ?? 0,
+          closed: byStatus.CLOSED ?? 0,
         };
       },
     );

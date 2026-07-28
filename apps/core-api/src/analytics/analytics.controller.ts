@@ -69,13 +69,23 @@ export class AnalyticsController {
 
   @Get('recommendations/summary')
   @ApiOperation({
-    summary: 'Recommendation counts by status and acceptance rate',
+    summary:
+      'Recommendation counts by status, acceptance rate, average match score, and SHG/buyer market-linkage coverage',
   })
   recommendationSummary(
     @CurrentScope() scope: RequestScope,
     @Query() filters: AnalyticsFilterDto,
   ) {
     return this.analyticsService.recommendationSummary(scope, filters);
+  }
+
+  @Get('enquiries/summary')
+  @ApiOperation({ summary: 'Buyer enquiry counts by status' })
+  enquirySummary(
+    @CurrentScope() scope: RequestScope,
+    @Query() filters: AnalyticsFilterDto,
+  ) {
+    return this.analyticsService.enquirySummary(scope, filters);
   }
 
   @Get('shgs')

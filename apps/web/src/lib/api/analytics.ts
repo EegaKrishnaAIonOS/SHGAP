@@ -3,6 +3,7 @@ import type {
   BuyerRollup,
   CategorySalesRollup,
   DistrictSalesRollup,
+  EnquirySummary,
   GeoActivity,
   PaginatedResult,
   ProductRollup,
@@ -86,6 +87,10 @@ export function getBuyers(filters: AnalyticsFilters = {}): Promise<PaginatedResu
 
 export function getGeoActivity(filters: AnalyticsFilters = {}): Promise<GeoActivity> {
   return authFetch(`/analytics/geo/activity${buildQuery(filters)}`);
+}
+
+export function getEnquirySummary(filters: AnalyticsFilters = {}): Promise<EnquirySummary> {
+  return authFetch(`/analytics/enquiries/summary${buildQuery(filters)}`);
 }
 
 export function refreshAnalyticsViews(): Promise<{ refreshedAt: string; views: string[] }> {

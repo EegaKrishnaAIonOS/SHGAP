@@ -14,17 +14,39 @@ import { ActivityMap } from "../../components/ui/ActivityMap";
 import { useAsyncData } from "../../lib/useAsyncData";
 import {
   getDistrictSales,
+  getEnquirySummary,
   getGeoActivity,
+  getProducts,
   getRecommendationSummary,
+  getShgs,
 } from "../../lib/api/analytics";
-import type { DistrictSalesRollup } from "../../lib/api/types";
+import { getHealth } from "../../lib/api/health";
+import type { BuyerActivityPoint, DistrictSalesRollup, ProductRollup } from "../../lib/api/types";
+
+const EMPTY_PRODUCTS = {
+  items: [] as ProductRollup[],
+  page: 1,
+  pageSize: 10,
+  total: 0,
+  totalPages: 0,
+};
+
+function formatUptime(seconds: number): string {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
 
 /**
- * Module-7 government dashboard: state (MEPMA HQ) level roll-up across all
- * districts, plus a real geo-activity map (ADR-0028) — discrete, value-scaled
- * markers over the platform's actual geo-tagged SHGs/buyers rather than a
- * smoothed heat-density layer, since the pilot only has a handful of real
- * geo-tagged points today.
+ * Module-7 government dashboard (T19/T20): state (MEPMA HQ) level roll-up
+ * across all districts — platform KPIs, district/product rankings, market
+ * linkage + recommendation-quality panels, and a real geo-activity map
+ * (ADR-0028/0029) — discrete, value-scaled markers over the platform's
+ * actual geo-tagged SHGs/buyers rather than a smoothed heat-density layer,
+ * since the pilot only has a handful of real geo-tagged points today.
  */
 export function GovernmentDashboardPage() {
   const { t } = useTranslation();
@@ -47,6 +69,26 @@ export function GovernmentDashboardPage() {
     [dateFrom, districtId],
   );
 
+  const { data: enquiries } = useAsyncData(
+    () => getEnquirySummary({ dateFrom, districtId: districtId || undefined }),
+    [dateFrom, districtId],
+  );
+
+  const { data: shgs } = useAsyncData(
+    () => getShgs({ dateFrom, districtId: districtId || undefined, page: 1, pageSize: 1 }),
+    [dateFrom, districtId],
+  );
+
+  const { data: products } = useAsyncData(
+    () =>
+      getProducts({ dateFrom, districtId: districtId || undefined, page: 1, pageSize: 10 }).catch(
+        () => EMPTY_PRODUCTS,
+      ),
+    [dateFrom, districtId],
+  );
+
+  const { data: health } = useAsyncData(() => getHealth(), []);
+
   const { data: geoActivity } = useAsyncData(
     () => getGeoActivity({ dateFrom, districtId: districtId || undefined }),
     [dateFrom, districtId],
@@ -58,7 +100,8 @@ export function GovernmentDashboardPage() {
   const totalSales = visibleDistricts.reduce((sum, d) => sum + d.totalAmount, 0);
   const totalOrders = visibleDistricts.reduce((sum, d) => sum + d.orderCount, 0);
 
-  const columns: Column<DistrictSalesRollup>[] = [
+  const districtColumns: Column<DistrictSalesRollup & { rank: number }>[] = [
+    { key: "rank", header: "#", render: (row) => row.rank },
     { key: "name", header: t("dashboard.name"), render: (row) => row.districtName },
     {
       key: "orders",
@@ -71,6 +114,30 @@ export function GovernmentDashboardPage() {
       render: (row) => `₹${row.totalAmount.toLocaleString()}`,
     },
   ];
+  // Districts already arrive sorted by total_amount DESC from the backend
+  // (analytics.service.ts), so the rank is just the row's position.
+  const rankedDistricts = visibleDistricts.map((d, i) => ({ ...d, rank: i + 1 }));
+
+  const productColumns: Column<ProductRollup & { rank: number }>[] = [
+    { key: "rank", header: "#", render: (row) => row.rank },
+    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
+    { key: "shg", header: "SHG", render: (row) => row.shgName },
+    {
+      key: "unitsSold",
+      header: t("dashboard.sales"),
+      render: (row) => row.unitsSold.toLocaleString(),
+    },
+    {
+      key: "revenue",
+      header: t("dashboard.totalSales"),
+      render: (row) => `₹${row.totalRevenue.toLocaleString()}`,
+    },
+  ];
+  const rankedProducts = (products?.items ?? []).map((p, i) => ({ ...p, rank: i + 1 }));
+
+  const topBuyers = [...(geoActivity?.buyerPoints ?? [])]
+    .sort((a, b) => b.recommendationsReceived - a.recommendationsReceived)
+    .slice(0, 5);
 
   const recommendationBreakdown = recommendations
     ? [
@@ -108,23 +175,37 @@ export function GovernmentDashboardPage() {
       {districtsError && <p className="mb-3 text-sm text-danger-500">{districtsError}</p>}
 
       <h2 className="mb-3 text-lg font-semibold text-neutral-900">
+        {t("governmentDashboard.platformKpis")}
+      </h2>
+      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <StatCard label={t("governmentDashboard.registeredShgs")} value={shgs?.total ?? 0} />
+        <StatCard label={t("dashboard.productsListed")} value={products?.total ?? 0} />
+        <StatCard
+          label={t("governmentDashboard.enquiriesGenerated")}
+          value={enquiries?.total ?? 0}
+        />
+        <StatCard
+          label={t("governmentDashboard.apiUptime")}
+          value={health ? formatUptime(health.uptimeSeconds) : "—"}
+          delta={t("governmentDashboard.uptimeCaveat")}
+        />
+        <StatCard
+          label={t("governmentDashboard.satisfaction")}
+          value="—"
+          delta={t("governmentDashboard.satisfactionCaveat")}
+        />
+      </div>
+
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
         {t("governmentDashboard.stateOverview")}
       </h2>
-      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard
           label={t("dashboard.totalSales")}
           value={`₹${(totalSales / 10000000).toFixed(2)} Cr`}
         />
         <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
         <StatCard label={t("districtDashboard.title")} value={visibleDistricts.length} />
-        <StatCard
-          label={t("dashboard.acceptanceRate")}
-          value={
-            recommendations?.acceptanceRate == null
-              ? "—"
-              : `${(recommendations.acceptanceRate * 100).toFixed(0)}%`
-          }
-        />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
@@ -134,12 +215,67 @@ export function GovernmentDashboardPage() {
           xKey="district"
           series={[{ key: "sales", label: t("dashboard.sales") }]}
         />
+        <SimpleBarChart
+          title={t("governmentDashboard.productPerformance")}
+          data={rankedProducts.map((p) => ({ name: p.name, revenue: p.totalRevenue }))}
+          xKey="name"
+          series={[{ key: "revenue", label: t("dashboard.totalSales") }]}
+        />
+      </div>
+
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
+        {t("governmentDashboard.marketLinkage")}
+      </h2>
+      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          label={t("governmentDashboard.shgsLinked")}
+          value={recommendations?.shgsLinked ?? 0}
+        />
+        <StatCard
+          label={t("governmentDashboard.buyersLinked")}
+          value={recommendations?.buyersLinked ?? 0}
+        />
+        <StatCard
+          label={t("dashboard.acceptanceRate")}
+          value={
+            recommendations?.acceptanceRate == null
+              ? "—"
+              : `${(recommendations.acceptanceRate * 100).toFixed(0)}%`
+          }
+        />
+        <StatCard
+          label={t("governmentDashboard.avgMatchScore")}
+          value={
+            recommendations?.avgMatchScore == null
+              ? "—"
+              : `${(recommendations.avgMatchScore * 100).toFixed(0)}%`
+          }
+        />
+      </div>
+
+      <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimplePieChart
           title={t("governmentDashboard.recommendationSummary")}
           data={recommendationBreakdown}
           nameKey="status"
           valueKey="value"
         />
+        <Card>
+          <CardTitle className="mb-3">{t("governmentDashboard.topBuyers")}</CardTitle>
+          <ul className="divide-y divide-neutral-100 text-sm">
+            {topBuyers.length === 0 && (
+              <li className="py-3 text-neutral-400">{t("dashboard.noData")}</li>
+            )}
+            {topBuyers.map((b: BuyerActivityPoint) => (
+              <li key={b.id} className="flex items-center justify-between py-2">
+                <span className="font-medium text-neutral-800">{b.name}</span>
+                <span className="text-neutral-500">
+                  {b.recommendationsReceived} {t("dashboard.recommendations").toLowerCase()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
@@ -173,22 +309,51 @@ export function GovernmentDashboardPage() {
         </Card>
       </div>
 
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
+        {t("governmentDashboard.districtRanking")}
+      </h2>
       <ExportButtons
-        title={t("dashboard.districtBreakdown")}
+        title={t("governmentDashboard.districtRanking")}
         columns={[
+          { header: "#", value: (r: DistrictSalesRollup & { rank: number }) => r.rank },
           { header: t("dashboard.name"), value: (r: DistrictSalesRollup) => r.districtName },
           { header: t("dashboard.orders"), value: (r: DistrictSalesRollup) => r.orderCount },
           { header: t("dashboard.sales"), value: (r: DistrictSalesRollup) => r.totalAmount },
         ]}
-        rows={visibleDistricts}
-        filename="district-breakdown"
+        rows={rankedDistricts}
+        filename="district-ranking"
+      />
+      <div className="mb-5">
+        <DataTable
+          columns={districtColumns}
+          rows={rankedDistricts}
+          rowKey={(row) => row.districtId}
+          caption={t("governmentDashboard.districtRanking")}
+          emptyMessage={districtsLoading ? t("common.loading") : t("dashboard.noData")}
+        />
+      </div>
+
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
+        {t("governmentDashboard.productPerformance")}
+      </h2>
+      <ExportButtons
+        title={t("governmentDashboard.productPerformance")}
+        columns={[
+          { header: "#", value: (r: ProductRollup & { rank: number }) => r.rank },
+          { header: t("dashboard.name"), value: (r: ProductRollup) => r.name },
+          { header: "SHG", value: (r: ProductRollup) => r.shgName },
+          { header: t("dashboard.sales"), value: (r: ProductRollup) => r.unitsSold },
+          { header: t("dashboard.totalSales"), value: (r: ProductRollup) => r.totalRevenue },
+        ]}
+        rows={rankedProducts}
+        filename="product-performance"
       />
       <DataTable
-        columns={columns}
-        rows={visibleDistricts}
-        rowKey={(row) => row.districtId}
-        caption={t("dashboard.districtBreakdown")}
-        emptyMessage={districtsLoading ? t("common.loading") : t("dashboard.noData")}
+        columns={productColumns}
+        rows={rankedProducts}
+        rowKey={(row) => row.id}
+        caption={t("governmentDashboard.productPerformance")}
+        emptyMessage={t("dashboard.noData")}
       />
     </div>
   );
