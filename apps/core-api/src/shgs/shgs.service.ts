@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@shgap/database';
 import { GeoService } from '../geo/geo.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PiiEncryptionService } from '../security/pii-encryption.service';
 import { PaginatedResult, paginate } from '../common/dto/pagination-query.dto';
 import { RequestScope } from '../common/interfaces/jwt-payload.interface';
 import { CreateShgDto } from './dto/create-shg.dto';
@@ -18,6 +19,7 @@ export class ShgsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geo: GeoService,
+    private readonly pii: PiiEncryptionService,
   ) {}
 
   async create(contactUserId: string, dto: CreateShgDto) {
@@ -29,8 +31,12 @@ export class ShgsService {
         mepmaRegistrationNumber: dto.mepmaRegistrationNumber,
         type: dto.type,
         productionCapacityNote: dto.productionCapacityNote,
-        bankAccountNumber: dto.bankAccountNumber,
-        bankIfsc: dto.bankIfsc,
+        bankAccountNumber: dto.bankAccountNumber
+          ? await this.pii.encrypt(dto.bankAccountNumber)
+          : dto.bankAccountNumber,
+        bankIfsc: dto.bankIfsc
+          ? await this.pii.encrypt(dto.bankIfsc)
+          : dto.bankIfsc,
         districtId: dto.districtId,
         ulbId: dto.ulbId,
         mandalId: dto.mandalId,
@@ -103,8 +109,12 @@ export class ShgsService {
         mepmaRegistrationNumber: dto.mepmaRegistrationNumber,
         type: dto.type,
         productionCapacityNote: dto.productionCapacityNote,
-        bankAccountNumber: dto.bankAccountNumber,
-        bankIfsc: dto.bankIfsc,
+        bankAccountNumber: dto.bankAccountNumber
+          ? await this.pii.encrypt(dto.bankAccountNumber)
+          : dto.bankAccountNumber,
+        bankIfsc: dto.bankIfsc
+          ? await this.pii.encrypt(dto.bankIfsc)
+          : dto.bankIfsc,
         districtId: dto.districtId,
         ulbId: dto.ulbId,
         mandalId: dto.mandalId,
@@ -159,12 +169,20 @@ export class ShgsService {
     }
   }
 
-  private async attachLocations<T extends { id: string }>(
+  private async attachLocations<
+    T extends {
+      id: string;
+      bankAccountNumber: string | null;
+      bankIfsc: string | null;
+    },
+  >(
     shgs: T[],
   ): Promise<(T & { location: { lat: number; lng: number } | null })[]> {
     return Promise.all(
       shgs.map(async (shg) => ({
         ...shg,
+        bankAccountNumber: await this.pii.decrypt(shg.bankAccountNumber),
+        bankIfsc: await this.pii.decrypt(shg.bankIfsc),
         location: await this.geo.getLocation('shg', shg.id),
       })),
     );

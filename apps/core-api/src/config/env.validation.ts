@@ -8,6 +8,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -90,6 +91,14 @@ class EnvironmentVariables {
 
   @IsString()
   NOTIFICATION_SERVICE_URL: string;
+
+  // No real KMS access exists for this pilot (see ADR-0031, same gap as
+  // ADR-0030's ONDC signing key) — optional, not a required secret like
+  // JWT_ACCESS_SECRET above, because PiiEncryptionService generates a
+  // random dev-only key at boot when this is unset.
+  @IsOptional()
+  @IsString()
+  PII_ENCRYPTION_KEY?: string;
 }
 
 export function validate(

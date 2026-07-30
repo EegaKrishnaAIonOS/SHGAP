@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { NotificationEvent, Prisma } from '@shgap/database';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationDispatchClient } from '../../common/notifications/notification-dispatch.client';
+import { ConsentService } from '../../consent/consent.service';
 import {
   PaginatedResult,
   paginate,
@@ -24,6 +25,7 @@ export class GemOpportunitiesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationDispatchClient,
+    private readonly consent: ConsentService,
   ) {}
 
   async create(dto: CreateGemOpportunityDto) {
@@ -83,6 +85,12 @@ export class GemOpportunitiesService {
    * this event already existed, unused, since ADR-0022; this is the first
    * real caller. An opportunity with no `categoryId` matches nothing —
    * honest, not an error, since GeM tenders aren't always category-tagged.
+   *
+   * T22/DPDP: a tender alert is a MARKETING_NOTIFICATIONS-purpose message
+   * (it's opportunity/marketing content, not a transactional receipt like
+   * OTP), so it's only sent to contacts with real, currently-active
+   * consent for that purpose — skipped, not sent-anyway, for anyone who
+   * withdrew it or never granted it.
    */
   private async notifyMatchingShgs(opportunity: {
     id: string;
@@ -107,6 +115,17 @@ export class GemOpportunitiesService {
     };
 
     for (const shg of matchingShgs) {
+      const consented = await this.consent.hasActiveConsent(
+        shg.contactUserId,
+        'MARKETING_NOTIFICATIONS',
+      );
+      if (!consented) {
+        this.logger.log(
+          `Skipping tender-opportunity alert to user ${shg.contactUserId} for opportunity ${opportunity.id} — no active MARKETING_NOTIFICATIONS consent`,
+        );
+        continue;
+      }
+
       const delivered = await this.notifications.dispatch(
         shg.contactUserId,
         NotificationEvent.TENDER_OPPORTUNITY,

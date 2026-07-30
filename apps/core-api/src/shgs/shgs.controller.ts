@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Audited } from '../audit/audited.decorator';
 import { CurrentScope } from '../common/decorators/current-scope.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ScopeGuard } from '../common/guards/scope.guard';
@@ -31,6 +32,7 @@ export class ShgsController {
   constructor(private readonly shgsService: ShgsService) {}
 
   @Post()
+  @Audited('Shg')
   @ApiOperation({
     summary:
       'Register a new SHG for the authenticated user (auto-assigns the SHG role)',
@@ -56,6 +58,7 @@ export class ShgsController {
   }
 
   @Patch(':id')
+  @Audited('Shg')
   @ApiOperation({ summary: 'Update an SHG (owner or admin only)' })
   update(
     @CurrentUser() user: JwtAccessPayload,
@@ -67,6 +70,7 @@ export class ShgsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Audited('Shg')
   @ApiOperation({ summary: 'Delete an SHG (owner or admin only)' })
   async remove(
     @CurrentUser() user: JwtAccessPayload,

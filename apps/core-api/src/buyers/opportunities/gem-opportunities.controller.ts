@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Audited } from '../../audit/audited.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { GemOpportunitiesService } from './gem-opportunities.service';
@@ -30,6 +31,7 @@ export class GemOpportunitiesController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
+  @Audited('GemOpportunity')
   @ApiOperation({
     summary:
       'Record a GeM procurement opportunity (admin only) — triggers a tender-opportunity alert to every SHG with a matching-category product',

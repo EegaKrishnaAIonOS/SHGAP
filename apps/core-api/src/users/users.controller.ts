@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Ip,
   Param,
   Patch,
   Post,
@@ -21,6 +22,7 @@ import {
   JwtAccessPayload,
   RequestScope,
 } from '../common/interfaces/jwt-payload.interface';
+import { DataRightsService } from './data-rights/data-rights.service';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUserDto } from './dto/query-user.dto';
@@ -31,12 +33,33 @@ import { UsersService } from './users.service';
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly dataRightsService: DataRightsService,
+  ) {}
 
   @Get('me')
   @ApiOperation({ summary: "Get the authenticated user's own profile" })
   me(@CurrentUser() user: JwtAccessPayload) {
     return this.usersService.findOne(user.sub);
+  }
+
+  @Get('me/data-export')
+  @ApiOperation({
+    summary:
+      "DPDP right to access — a real, complete export of the caller's own profile, owned SHG(s) and their products, and consent history",
+  })
+  exportMyData(@CurrentUser() user: JwtAccessPayload) {
+    return this.dataRightsService.exportUserData(user.sub);
+  }
+
+  @Post('me/erasure-request')
+  @ApiOperation({
+    summary:
+      "DPDP right to erasure — anonymizes the caller's own profile (name/email/phone) and withdraws all active consents; SHG registration/sales/product records the caller owns are retained (legal/legitimate-business exception) and reported back, not silently kept",
+  })
+  requestMyErasure(@CurrentUser() user: JwtAccessPayload, @Ip() ip: string) {
+    return this.dataRightsService.requestErasure(user.sub, ip);
   }
 
   @Get()

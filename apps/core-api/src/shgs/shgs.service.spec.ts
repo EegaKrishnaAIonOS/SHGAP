@@ -12,6 +12,7 @@ describe('ShgsService', () => {
     getLocation: jest.Mock;
     findNearbyIds: jest.Mock;
   };
+  let pii: { encrypt: jest.Mock; decrypt: jest.Mock };
   let service: ShgsService;
 
   const shgRow = {
@@ -19,6 +20,8 @@ describe('ShgsService', () => {
     contactUserId: 'user-1',
     districtId: 'dist-1',
     ulbId: null,
+    bankAccountNumber: null,
+    bankIfsc: null,
   };
 
   beforeEach(() => {
@@ -47,7 +50,15 @@ describe('ShgsService', () => {
       getLocation: jest.fn().mockResolvedValue(null),
       findNearbyIds: jest.fn(),
     };
-    service = new ShgsService(prisma, geo as any);
+    pii = {
+      encrypt: jest.fn((plaintext: string) =>
+        Promise.resolve(`encrypted:${plaintext}`),
+      ),
+      decrypt: jest.fn((ciphertext: string | null) =>
+        Promise.resolve(ciphertext),
+      ),
+    };
+    service = new ShgsService(prisma, geo as any, pii as any);
   });
 
   describe('create', () => {
@@ -84,6 +95,29 @@ describe('ShgsService', () => {
         service.create('user-1', { ...dto, lat: 14.68 }),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('encrypts bank account/IFSC before writing, never storing them as plaintext (T22)', async () => {
+      await service.create('user-1', {
+        ...dto,
+        bankAccountNumber: '1234567890',
+        bankIfsc: 'SBIN0001234',
+      });
+      expect(pii.encrypt).toHaveBeenCalledWith('1234567890');
+      expect(pii.encrypt).toHaveBeenCalledWith('SBIN0001234');
+      expect(prisma.shg.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            bankAccountNumber: 'encrypted:1234567890',
+            bankIfsc: 'encrypted:SBIN0001234',
+          }),
+        }),
+      );
+    });
+
+    it('does not attempt to encrypt bank fields that were not provided', async () => {
+      await service.create('user-1', dto);
+      expect(pii.encrypt).not.toHaveBeenCalled();
+    });
   });
 
   describe('update / remove — ownership', () => {
@@ -110,6 +144,36 @@ describe('ShgsService', () => {
       await expect(service.remove('missing', 'user-1', false)).rejects.toThrow(
         NotFoundException,
       );
+    });
+
+    it('encrypts a newly-set bank account number on update', async () => {
+      await service.update('shg-1', 'user-1', false, {
+        bankAccountNumber: '9999999999',
+      } as any);
+      expect(pii.encrypt).toHaveBeenCalledWith('9999999999');
+      expect(prisma.shg.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            bankAccountNumber: 'encrypted:9999999999',
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    it('decrypts bank account/IFSC before returning the SHG (T22)', async () => {
+      prisma.shg.findUnique.mockResolvedValueOnce({
+        ...shgRow,
+        bankAccountNumber: 'ciphertext-account',
+        bankIfsc: 'ciphertext-ifsc',
+      });
+
+      const result = await service.findOne('shg-1');
+
+      expect(pii.decrypt).toHaveBeenCalledWith('ciphertext-account');
+      expect(pii.decrypt).toHaveBeenCalledWith('ciphertext-ifsc');
+      expect(result.bankAccountNumber).toBe('ciphertext-account');
     });
   });
 

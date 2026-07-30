@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Audited } from '../audit/audited.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BuyersService } from './buyers.service';
@@ -35,6 +36,7 @@ export class BuyersController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
+  @Audited('Buyer')
   @ApiOperation({ summary: 'Register a buyer (admin only)' })
   create(@Body() dto: CreateBuyerDto) {
     return this.buyersService.create(dto);
@@ -68,6 +70,7 @@ export class BuyersController {
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
+  @Audited('Buyer')
   @ApiOperation({ summary: 'Update a buyer (admin only)' })
   update(@Param('id') id: string, @Body() dto: UpdateBuyerDto) {
     return this.buyersService.update(id, dto);

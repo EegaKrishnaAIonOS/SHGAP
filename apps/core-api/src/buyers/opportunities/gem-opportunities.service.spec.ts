@@ -4,6 +4,7 @@ import { GemOpportunitiesService } from './gem-opportunities.service';
 describe('GemOpportunitiesService', () => {
   let prisma: any;
   let notifications: { dispatch: jest.Mock };
+  let consent: { hasActiveConsent: jest.Mock };
   let service: GemOpportunitiesService;
 
   const opportunityRow = { id: 'opp-1', buyerId: 'buyer-1', status: 'OPEN' };
@@ -22,7 +23,12 @@ describe('GemOpportunitiesService', () => {
       $transaction: jest.fn((ops: Promise<unknown>[]) => Promise.all(ops)),
     };
     notifications = { dispatch: jest.fn().mockResolvedValue(true) };
-    service = new GemOpportunitiesService(prisma, notifications as any);
+    consent = { hasActiveConsent: jest.fn().mockResolvedValue(true) };
+    service = new GemOpportunitiesService(
+      prisma,
+      notifications as any,
+      consent as any,
+    );
   });
 
   const createDto = {
@@ -85,6 +91,31 @@ describe('GemOpportunitiesService', () => {
 
       expect(prisma.shg.findMany).not.toHaveBeenCalled();
       expect(notifications.dispatch).not.toHaveBeenCalled();
+    });
+
+    it('skips the alert (does not dispatch) for an SHG contact with no active MARKETING_NOTIFICATIONS consent (T22)', async () => {
+      prisma.gemOpportunity.create.mockResolvedValue({
+        id: 'opp-1',
+        categoryId: 'cat-1',
+        title: 'Supply of pickles',
+        submissionDeadline: new Date('2026-09-30'),
+      });
+      prisma.shg.findMany.mockResolvedValue([
+        { contactUserId: 'consented-user' },
+        { contactUserId: 'withdrawn-user' },
+      ]);
+      consent.hasActiveConsent.mockImplementation((userId: string) =>
+        Promise.resolve(userId === 'consented-user'),
+      );
+
+      await service.create(createDto);
+
+      expect(notifications.dispatch).toHaveBeenCalledTimes(1);
+      expect(notifications.dispatch).toHaveBeenCalledWith(
+        'consented-user',
+        'TENDER_OPPORTUNITY',
+        expect.anything(),
+      );
     });
 
     it('does not fail the write when alert dispatch is unreachable (best-effort)', async () => {

@@ -11,7 +11,9 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [postgis, vector]
+  // pgcrypto (T22/ADR-0031): column-level encryption for PII fields
+  // (pgp_sym_encrypt/pgp_sym_decrypt) — see PiiEncryptionService.
+  extensions = [postgis, vector, pgcrypto]
 }
 
 // ---------------------------------------------------------------------------
@@ -32,6 +34,10 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   PENDING_VERIFICATION
+  /// Right-to-erasure (T22/ADR-0031) — PII fields have been anonymized;
+  /// the row itself is kept (not hard-deleted) only where other real rows
+  /// still reference it via a required FK (e.g. `Shg.contactUserId`).
+  ERASED
 
   @@map("user_status")
 }
@@ -278,7 +284,10 @@ model Shg {
   type                    ShgType
   productionCapacityNote  String?                               @map("production_capacity_note")
   bankAccountNumber       String?                               @map("bank_account_number")
-  bankIfsc                String?                               @map("bank_ifsc") @db.VarChar(11)
+  /// Was VarChar(11) — exactly a real IFSC code's length — until T22
+  /// started storing pgp_sym_encrypt+base64 ciphertext here instead of
+  /// plaintext (~10x longer for an 11-character input; see ADR-0031).
+  bankIfsc                String?                               @map("bank_ifsc") @db.VarChar(255)
   districtId              String                                @map("district_id") @db.Uuid
   ulbId                   String?                               @map("ulb_id") @db.Uuid
   mandalId                String?                               @map("mandal_id") @db.Uuid
@@ -547,18 +556,24 @@ model Consent {
   @@map("consents")
 }
 
-/// Append-only audit trail. Tamper-evidence (hash chaining) is added in T22;
-/// this table already carries the fields that chain will be computed over.
+/// Append-only, tamper-evident audit trail (T22/ADR-0031). `hash` is
+/// sha256(previousHash + canonical JSON of this row's own fields);
+/// `previousHash` is null only for the very first row ever written. Any
+/// edit to a historical row (including editing `beforeState`/`afterState`
+/// directly in the DB) breaks the chain from that row forward — detectable
+/// by `AuditService.verifyChain()`, not just asserted.
 model AuditLog {
-  id          String   @id @default(uuid()) @db.Uuid
-  actorUserId String?  @map("actor_user_id") @db.Uuid
-  action      String
-  entityType  String   @map("entity_type")
-  entityId    String   @map("entity_id") @db.Uuid
-  beforeState Json?    @map("before_state")
-  afterState  Json?    @map("after_state")
-  ipAddress   String?  @map("ip_address") @db.VarChar(45)
-  createdAt   DateTime @default(now()) @map("created_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  actorUserId   String?  @map("actor_user_id") @db.Uuid
+  action        String
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  beforeState   Json?    @map("before_state")
+  afterState    Json?    @map("after_state")
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  previousHash  String?  @map("previous_hash") @db.VarChar(64)
+  hash          String   @db.VarChar(64)
+  createdAt     DateTime @default(now()) @map("created_at")
 
   actor User? @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
 

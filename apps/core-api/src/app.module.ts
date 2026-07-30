@@ -1,17 +1,21 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { BuyersModule } from './buyers/buyers.module';
 import { CategorizationModule } from './categorization/categorization.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { AccessLogMiddleware } from './common/middleware/access-log.middleware';
 import { validate } from './config/env.validation';
+import { ConsentModule } from './consent/consent.module';
 import { GeoModule } from './geo/geo.module';
 import { HealthController } from './health.controller';
 import { MasterDataModule } from './master-data/master-data.module';
@@ -21,6 +25,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { RedisModule } from './redis/redis.module';
+import { SecurityModule } from './security/security.module';
 import { ShgsModule } from './shgs/shgs.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
@@ -29,11 +34,18 @@ import { UsersModule } from './users/users.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate }),
     ScheduleModule.forRoot(),
+    // Global anti-abuse ceiling (T22/ADR-0031) — separate from, and on top
+    // of, OTP's own purpose-built per-phone-number rate limit (OtpService);
+    // this one caps raw request volume per IP across every endpoint.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     PrismaModule,
     RedisModule,
     StorageModule,
     GeoModule,
+    SecurityModule,
+    AuditModule,
     AuthModule,
+    ConsentModule,
     UsersModule,
     ShgsModule,
     ProductsModule,
@@ -50,7 +62,12 @@ import { UsersModule } from './users/users.module';
   providers: [
     AppService,
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AccessLogMiddleware).forRoutes('*');
+  }
+}
