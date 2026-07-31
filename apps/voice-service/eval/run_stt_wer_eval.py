@@ -19,13 +19,19 @@ import re
 import sys
 from pathlib import Path
 
+# Windows' console/redirected-output default (cp1252) can't encode Telugu —
+# every utterance/transcript row this script prints crashes without this.
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import jiwer  # noqa: E402
 from sarvamai import AsyncSarvamAI  # noqa: E402
 
 from app.config import settings  # noqa: E402
-from eval.test_utterances import TEST_UTTERANCES  # noqa: E402
+from eval.holdout_utterances import TEST_UTTERANCES as HOLDOUT_SET  # noqa: E402
+from eval.test_utterances import TEST_UTTERANCES as TUNING_SET  # noqa: E402
 
 LANGUAGE_CODES = {"te": "te-IN", "en": "en-IN"}
 
@@ -56,10 +62,16 @@ async def round_trip_wer(client: AsyncSarvamAI, text: str, language: str) -> tup
 
 
 async def main() -> None:
+    # T23/ADR-0032: "holdout" re-validates against eval/holdout_utterances.py
+    # (never used while tuning T11) instead of just re-running the same set.
+    dataset_name = sys.argv[1] if len(sys.argv) > 1 else "tuning"
+    dataset = HOLDOUT_SET if dataset_name == "holdout" else TUNING_SET
+    print(f"(dataset={dataset_name})\n")
+
     client = AsyncSarvamAI(api_subscription_key=settings.sarvam_api_key, timeout=60.0)
 
     results = []
-    for case in TEST_UTTERANCES:
+    for case in dataset:
         raw_wer, normalized_wer = await round_trip_wer(client, case["text"], case["language"])
         results.append({**case, "raw_wer": raw_wer, "wer": normalized_wer})
 

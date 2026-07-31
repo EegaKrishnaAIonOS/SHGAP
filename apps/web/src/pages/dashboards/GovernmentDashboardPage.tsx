@@ -240,7 +240,10 @@ export function GovernmentDashboardPage() {
           value={`₹${(totalSales / 10000000).toFixed(2)} Cr`}
         />
         <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard label={t("districtDashboard.title")} value={visibleDistricts.length} />
+        <StatCard
+          label={t("governmentDashboard.districtsCovered")}
+          value={visibleDistricts.length}
+        />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">

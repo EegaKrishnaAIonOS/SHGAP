@@ -109,7 +109,7 @@ export function UlbDashboardPage() {
         </Link>
       ),
     },
-    { key: "products", header: t("shgDashboard.products"), render: (row) => row.productCount },
+    { key: "products", header: t("dashboard.productsListed"), render: (row) => row.productCount },
     {
       key: "orders",
       header: t("dashboard.orders"),
@@ -172,7 +172,7 @@ export function UlbDashboardPage() {
         />
         <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
         <StatCard
-          label={ulbId ? t("shgDashboard.title") : t("nav.ulbDashboard")}
+          label={ulbId ? t("shgDashboard.totalShgs") : t("ulbDashboard.totalUlbs")}
           value={ulbId ? (shgs?.total ?? 0) : (ulbs ?? []).length}
         />
         <StatCard label={t("dashboard.topCategories")} value={(categories ?? []).length} />
@@ -205,7 +205,7 @@ export function UlbDashboardPage() {
             title={t("shgDashboard.title")}
             columns={[
               { header: t("dashboard.name"), value: (r: ShgRollup) => r.name },
-              { header: t("shgDashboard.products"), value: (r: ShgRollup) => r.productCount },
+              { header: t("dashboard.productsListed"), value: (r: ShgRollup) => r.productCount },
               { header: t("dashboard.orders"), value: (r: ShgRollup) => r.orderCount },
               { header: t("dashboard.sales"), value: (r: ShgRollup) => r.totalSalesAmount },
             ]}
@@ -216,7 +216,7 @@ export function UlbDashboardPage() {
             columns={shgColumns}
             rows={shgs?.items ?? []}
             rowKey={(row) => row.id}
-            caption={t("shgDashboard.title")}
+            caption={t("shgDashboard.listCaption")}
             emptyMessage={shgsLoading ? t("common.loading") : t("dashboard.noData")}
           />
         </>
@@ -237,7 +237,7 @@ export function UlbDashboardPage() {
             columns={ulbColumns}
             rows={ulbs ?? []}
             rowKey={(row) => row.ulbId}
-            caption={t("ulbDashboard.title")}
+            caption={t("ulbDashboard.listCaption")}
             emptyMessage={ulbsLoading ? t("common.loading") : t("dashboard.noData")}
           />
         </>

@@ -11,15 +11,21 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+# Windows' console/redirected-output default (cp1252) can't encode Telugu —
+# every utterance/prediction row this script prints crashes without this.
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from groq import AsyncGroq, BadRequestError  # noqa: E402
 
 from app.actions import build_tools  # noqa: E402
-from app.bot import _SYSTEM_PROMPT  # noqa: E402
 from app.config import settings  # noqa: E402
+from app.prompts import SYSTEM_PROMPT  # noqa: E402
 from app.session import SessionStore, VoiceSession  # noqa: E402
-from eval.test_utterances import TEST_UTTERANCES  # noqa: E402
+from eval.holdout_utterances import TEST_UTTERANCES as HOLDOUT_SET  # noqa: E402
+from eval.test_utterances import TEST_UTTERANCES as TUNING_SET  # noqa: E402
 
 
 class _InertRedis:
@@ -47,7 +53,7 @@ async def _classify_once(client: AsyncGroq, tools, utterance: str) -> str | None
         response = await client.chat.completions.create(
             model=settings.groq_llm_model,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": utterance},
             ],
             tools=[{"type": "function", "function": t.to_default_dict()} for t in tools],
@@ -85,7 +91,13 @@ def _prf1(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
 
 async def main() -> None:
     retries = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    print(f"(retries={retries})\n")
+    # T23/ADR-0032: "holdout" re-validates against eval/holdout_utterances.py
+    # — utterances never used while writing app/bot.py's system prompt or
+    # T11's own test_utterances.py — instead of just re-running the same set
+    # T11 was tuned against.
+    dataset_name = sys.argv[2] if len(sys.argv) > 2 else "tuning"
+    dataset = HOLDOUT_SET if dataset_name == "holdout" else TUNING_SET
+    print(f"(dataset={dataset_name}, retries={retries})\n")
 
     session = VoiceSession(session_id="eval", access_token="unused", language="te")
     store = SessionStore(_InertRedis())
@@ -93,11 +105,11 @@ async def main() -> None:
     client = AsyncGroq(api_key=settings.groq_api_key)
 
     results = []
-    for case in TEST_UTTERANCES:
+    for case in dataset:
         predicted = await classify(client, tools, case["text"], retries=retries)
         results.append({**case, "predicted_tool": predicted})
 
-    labels = {"register_product", "check_product_price", None}
+    labels = {"register_product", "check_product_price", "scheme_guidance", None}
     counts: dict[str | None, dict[str, int]] = defaultdict(lambda: {"tp": 0, "fp": 0, "fn": 0})
     correct = 0
     for r in results:

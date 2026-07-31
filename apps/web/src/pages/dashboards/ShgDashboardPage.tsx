@@ -217,7 +217,7 @@ function ShgListView() {
           value={`₹${(totalSales / 100000).toFixed(1)}L`}
         />
         <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard label={t("shgDashboard.title")} value={shgs?.total ?? 0} />
+        <StatCard label={t("shgDashboard.totalShgs")} value={shgs?.total ?? 0} />
         <StatCard
           label={t("dashboard.productsListed")}
           value={(shgs?.items ?? []).reduce((sum, s) => sum + s.productCount, 0)}
@@ -226,7 +226,7 @@ function ShgListView() {
 
       <div className="mb-5">
         <SimpleBarChart
-          title={t("shgDashboard.title")}
+          title={t("shgDashboard.salesChartTitle")}
           data={(shgs?.items ?? []).map((s) => ({ name: s.name, sales: s.totalSalesAmount }))}
           xKey="name"
           series={[{ key: "sales", label: t("dashboard.sales") }]}
@@ -250,7 +250,7 @@ function ShgListView() {
         columns={columns}
         rows={shgs?.items ?? []}
         rowKey={(row) => row.id}
-        caption={t("shgDashboard.title")}
+        caption={t("shgDashboard.listCaption")}
         emptyMessage={loading ? t("common.loading") : t("dashboard.noData")}
       />
       <Pagination

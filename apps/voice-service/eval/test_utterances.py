@@ -78,16 +78,18 @@ TEST_UTTERANCES = [
         "language": "en",
         "expected_tool": None,
     },
-    # --- out of scope: scheme guidance ---
+    # --- scheme guidance: was out-of-scope at T11 (no tool for it existed
+    # yet); ADR-0021 (Sprint 2) added a real scheme_guidance RAG tool right
+    # after, so this is now the correct expected_tool, not a "decline" case.
     {
         "text": "MEPMA పథకాల గురించి చెప్పండి",
         "language": "te",
-        "expected_tool": None,
+        "expected_tool": "scheme_guidance",
     },
     {
         "text": "What government schemes are available for SHGs?",
         "language": "en",
-        "expected_tool": None,
+        "expected_tool": "scheme_guidance",
     },
     # --- out of scope: general chit-chat ---
     {

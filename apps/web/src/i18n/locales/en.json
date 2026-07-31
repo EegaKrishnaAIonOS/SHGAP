@@ -248,12 +248,17 @@
   "ulbDashboard": {
     "title": "ULB Dashboard",
     "subtitle": "Urban Local Body officer view — SHG and product performance within the ULB.",
-    "loadError": "Couldn't load ULB sales data. Please try again."
+    "loadError": "Couldn't load ULB sales data. Please try again.",
+    "totalUlbs": "Total ULBs",
+    "listCaption": "ULB list"
   },
   "shgDashboard": {
     "title": "SHG Dashboard",
     "subtitle": "Per-SHG monitoring view — membership, product mix and sales for a single group.",
-    "loadError": "Couldn't load SHG data. Please try again."
+    "loadError": "Couldn't load SHG data. Please try again.",
+    "totalShgs": "Total SHGs",
+    "salesChartTitle": "Sales by SHG",
+    "listCaption": "SHG list"
   },
   "productDashboard": {
     "title": "Product Dashboard",
@@ -276,6 +281,7 @@
     "satisfaction": "SHG/buyer satisfaction",
     "satisfactionCaveat": "Not tracked yet — no survey data exists",
     "stateOverview": "State overview",
+    "districtsCovered": "Districts covered",
     "districtComparison": "District comparison",
     "productPerformance": "Product performance",
     "marketLinkage": "Market linkage",
