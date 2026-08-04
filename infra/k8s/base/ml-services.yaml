@@ -1,0 +1,114 @@
+# See core-api.yaml for the full blue/green rationale. No secretRef here —
+# ml-services has no third-party API keys, only DATABASE_URL, which comes
+# from the same core-api-secrets Secret (read-only reuse, not a
+# duplicated/second copy of the same connection string).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-services-blue
+  namespace: shgap
+  labels: { app: ml-services, version: blue }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: ml-services, version: blue }
+  template:
+    metadata:
+      labels: { app: ml-services, version: blue }
+    spec:
+      containers:
+        - name: ml-services
+          image: ghcr.io/eegakrishnaaionos/shgap/ml-services:latest
+          ports: [{ containerPort: 8001 }]
+          env:
+            - { name: PORT, value: "8001" }
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: core-api-secrets, key: DATABASE_URL } }
+            - { name: EMBEDDING_MODEL_NAME, value: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" }
+            - { name: CATEGORY_CACHE_TTL_SECONDS, value: "300" }
+          resources:
+            # Higher than the Node services — this process holds a loaded
+            # sentence-embedding model in memory for the process lifetime
+            # (see app/main.py's own comment on why it's a module-level
+            # singleton, not created per-request).
+            requests: { cpu: "500m", memory: "1Gi" }
+            limits: { cpu: "2", memory: "2Gi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8001 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8001 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-services-green
+  namespace: shgap
+  labels: { app: ml-services, version: green }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: ml-services, version: green }
+  template:
+    metadata:
+      labels: { app: ml-services, version: green }
+    spec:
+      containers:
+        - name: ml-services
+          image: ghcr.io/eegakrishnaaionos/shgap/ml-services:latest
+          ports: [{ containerPort: 8001 }]
+          env:
+            - { name: PORT, value: "8001" }
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: core-api-secrets, key: DATABASE_URL } }
+            - { name: EMBEDDING_MODEL_NAME, value: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" }
+            - { name: CATEGORY_CACHE_TTL_SECONDS, value: "300" }
+          resources:
+            requests: { cpu: "500m", memory: "1Gi" }
+            limits: { cpu: "2", memory: "2Gi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8001 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8001 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-services
+  namespace: shgap
+spec:
+  selector: { app: ml-services, version: blue }
+  ports: [{ port: 8001, targetPort: 8001 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-services-blue
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: ml-services-blue }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-services-green
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: ml-services-green }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

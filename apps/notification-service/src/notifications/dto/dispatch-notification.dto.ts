@@ -1,4 +1,5 @@
 import { NotificationChannel, NotificationEvent } from '@shgap/database';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsObject, IsOptional, IsUUID } from 'class-validator';
 
 /**
@@ -10,17 +11,33 @@ import { IsArray, IsEnum, IsObject, IsOptional, IsUUID } from 'class-validator';
  * `expiresInMinutes`).
  */
 export class DispatchNotificationDto {
+  @ApiProperty({ description: 'The recipient User row id' })
   @IsUUID()
   userId: string;
 
+  @ApiProperty({
+    enum: NotificationEvent,
+    description:
+      'Which template/channel-routing rule to use — see templates/templates.ts',
+  })
   @IsEnum(NotificationEvent)
   event: NotificationEvent;
 
+  @ApiProperty({
+    description:
+      "Template values, event-specific (e.g. OTP needs 'otp' and 'expiresInMinutes') — see templates/templates.ts",
+    type: 'object',
+    additionalProperties: { type: 'string' },
+  })
   @IsObject()
   context: Record<string, string>;
 
-  /** Overrides `channel-routing.ts`'s default fan-out for this one call —
-   * omit to use the event's default channels. */
+  @ApiPropertyOptional({
+    enum: NotificationChannel,
+    isArray: true,
+    description:
+      "Overrides channel-routing.ts's default fan-out for this one call — omit to use the event's default channels",
+  })
   @IsOptional()
   @IsArray()
   @IsEnum(NotificationChannel, { each: true })

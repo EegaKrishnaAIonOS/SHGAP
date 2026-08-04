@@ -1,0 +1,61 @@
+# T24/ADR-0033: automated daily backups in a real cluster, not just a
+# script an operator has to remember to run by hand — the actual
+# in-cluster equivalent of infra/scripts/backup-postgres.sh, uploading to
+# the S3 bucket infra/terraform/modules/storage already provisions
+# (db_backups_bucket). RDS's own automated snapshots (database module's
+# backup_retention_period) run independently of this — see that module's
+# comment for why both exist.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: shgap
+spec:
+  # 02:00 IST daily — outside this pilot's real traffic hours, same window
+  # reasoning as the RDS maintenance/backup windows in
+  # infra/terraform/modules/database.
+  schedule: "30 20 * * *" # UTC — 02:00 IST
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            # postgres:17-alpine has pg_dump but not the AWS CLI; installing
+            # it at run time (rather than building a dedicated image) keeps
+            # this manifest self-contained — real deployment could instead
+            # build infra/scripts/ into a tiny purpose-built image if this
+            # per-run apk install ever becomes a real cost/latency concern,
+            # which it isn't at one run/day.
+            - name: backup
+              image: postgres:17-alpine
+              command:
+                - sh
+                - -c
+                - |
+                  set -euo pipefail
+                  apk add --no-cache aws-cli
+                  FILENAME="shgap-$(date -u +%Y%m%dT%H%M%SZ).dump"
+                  pg_dump --format=custom --file="/tmp/$FILENAME" "$DATABASE_URL"
+                  aws s3 cp "/tmp/$FILENAME" "s3://$BACKUP_S3_BUCKET/$FILENAME"
+                  echo "Backup uploaded: s3://$BACKUP_S3_BUCKET/$FILENAME"
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: core-api-secrets, key: DATABASE_URL } }
+                - name: BACKUP_S3_BUCKET
+                  valueFrom: { configMapKeyRef: { name: backup-config, key: BACKUP_S3_BUCKET } }
+              resources:
+                requests: { cpu: "100m", memory: "128Mi" }
+                limits: { cpu: "500m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: shgap
+data:
+  # Real value: `terraform -chdir=infra/terraform output -raw db_backups_bucket`
+  # — placeholder here for the same reason secrets.example.yaml's values are
+  # placeholders (see that file's own comment).
+  BACKUP_S3_BUCKET: "REPLACE_WITH_TERRAFORM_OUTPUT_db_backups_bucket"

@@ -1,0 +1,176 @@
+# T24/ADR-0033: containerizes all 5 application services on the same Docker
+# network as infra/docker-compose.yml's Postgres/Redis/MinIO/ClamAV — the
+# "production-like local rehearsal" this task's deployment guide is built
+# around, using the exact same images CI already builds and pushes to GHCR
+# (apps/*/Dockerfile), not a dev-mode `npm run start:dev`.
+#
+# Day-to-day development is UNCHANGED: `docker compose -f
+# infra/docker-compose.yml up` alone still starts just the four backing
+# services, exactly as before this file existed. This file is additive,
+# always run combined with the base file:
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.apps.yml \
+#     -f infra/docker-compose.monitoring.yml up --build
+#
+# All DATABASE_URL/REDIS_URL/etc. below point at the *Docker service names*
+# (postgres, redis, minio, clamav), not localhost — these containers share
+# one Docker network, so service-name DNS resolves, but they are not the
+# ports:-mapped host-facing addresses apps/*/.env.example documents for
+# host-run dev.
+
+name: shgap-dev
+
+services:
+  core-api:
+    build:
+      context: ..
+      dockerfile: apps/core-api/Dockerfile
+    container_name: shgap-core-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://shgap:shgap_dev_password@postgres:5432/shgap?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      JWT_ACCESS_SECRET: "dev-access-secret-change-me"
+      JWT_REFRESH_SECRET: "dev-refresh-secret-change-me"
+      JWT_ACCESS_EXPIRES_IN: "15m"
+      JWT_REFRESH_EXPIRES_IN: "7d"
+      OTP_LENGTH: 6
+      OTP_TTL_SECONDS: 300
+      OTP_MAX_REQUESTS_PER_WINDOW: 5
+      OTP_RATE_LIMIT_WINDOW_SECONDS: 3600
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: shgap
+      MINIO_SECRET_KEY: shgap_dev_password
+      MINIO_BUCKET: shgap-product-images
+      # Host-facing URL a browser resolves this from, via the ports: mapping
+      # below — deliberately `localhost`, not a container-internal address.
+      MINIO_PUBLIC_URL: "http://localhost:9000/shgap-product-images"
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
+      ML_SERVICES_URL: "http://ml-services:8001"
+      NOTIFICATION_SERVICE_URL: "http://notification-service:3001"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  notification-service:
+    build:
+      context: ..
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: shgap-notification-service
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://shgap:shgap_dev_password@postgres:5432/shgap"
+      REDIS_URL: "redis://redis:6379"
+      # Provider credentials intentionally left unset — every channel falls
+      # back to its console/dev-stub provider (logs instead of sending),
+      # same as host-run local dev (ADR-0011/ADR-0022). Real credentials for
+      # a real environment are supplied via a deployment-specific secret
+      # store (see the Terraform/K8s Secret objects), never committed here.
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  ml-services:
+    build:
+      context: ../apps/ml-services
+      dockerfile: Dockerfile
+    container_name: shgap-ml-services
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8001
+      DATABASE_URL: "postgresql://shgap:shgap_dev_password@postgres:5432/shgap"
+      EMBEDDING_MODEL_NAME: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+      CATEGORY_CACHE_TTL_SECONDS: 300
+    ports:
+      - "8001:8001"
+    healthcheck:
+      # python:3.11-slim has no wget/curl — a stdlib one-liner avoids
+      # installing either just for this.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      # The embedding model downloads/loads on first boot — slower than a
+      # typical Node service's start_period.
+      start_period: 60s
+
+  voice-service:
+    build:
+      context: ../apps/voice-service
+      dockerfile: Dockerfile
+    container_name: shgap-voice-service
+    restart: unless-stopped
+    environment:
+      PORT: 8002
+      REDIS_URL: "redis://redis:6379"
+      VOICE_SESSION_TTL_SECONDS: 900
+      CORE_API_BASE_URL: "http://core-api:3000"
+      ML_SERVICES_BASE_URL: "http://ml-services:8001"
+      # GROQ_API_KEY / SARVAM_API_KEY: real third-party API keys — passed
+      # through from the host shell's own environment (never committed),
+      # same convention as every other secret in this compose file.
+      GROQ_API_KEY: "${GROQ_API_KEY:-}"
+      SARVAM_API_KEY: "${SARVAM_API_KEY:-}"
+      GROQ_LLM_MODEL: "llama-3.3-70b-versatile"
+      SARVAM_STT_MODEL: "saaras:v3"
+      SARVAM_TTS_MODEL: "bulbul:v2"
+    ports:
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    container_name: shgap-web
+    restart: unless-stopped
+    depends_on:
+      - core-api
+      - voice-service
+    ports:
+      - "8080:80"
+    healthcheck:
+      # T24/ADR-0033: `localhost` resolves to `::1` first inside this Alpine
+      # image, but nginx.conf only binds IPv4 unless `listen [::]:80;` is
+      # also present — found by hand (this healthcheck genuinely failed with
+      # "Connection refused" until fixed) rather than assumed. Both the
+      # explicit-IPv4-here and the added IPv6 listen directive fix it.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s

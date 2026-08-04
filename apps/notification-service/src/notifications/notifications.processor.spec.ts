@@ -19,6 +19,7 @@ function makeJob(notificationId: string, overrides: Partial<Job> = {}): Job {
 describe('NotificationsProcessor', () => {
   let prisma: any;
   let templateService: any;
+  let metrics: any;
   let smsProvider: any;
   let whatsappProvider: any;
   let voiceProvider: any;
@@ -41,11 +42,16 @@ describe('NotificationsProcessor', () => {
     prisma = {
       notification: {
         findUnique: jest.fn().mockResolvedValue(baseNotification),
-        update: jest.fn().mockResolvedValue(undefined),
+        update: jest
+          .fn()
+          .mockResolvedValue({ channel: NotificationChannel.SMS }),
       },
     };
     templateService = {
       render: jest.fn().mockReturnValue({ renderedText: 'hi' }),
+    };
+    metrics = {
+      notificationJobsTotal: { inc: jest.fn() },
     };
     smsProvider = {
       send: jest.fn().mockResolvedValue({ providerMessageId: 'sms-123' }),
@@ -63,6 +69,7 @@ describe('NotificationsProcessor', () => {
     processor = new NotificationsProcessor(
       prisma,
       templateService,
+      metrics,
       smsProvider,
       whatsappProvider,
       voiceProvider,
@@ -96,6 +103,10 @@ describe('NotificationsProcessor', () => {
         providerMessageId: 'sms-123',
         failureReason: null,
       },
+    });
+    expect(metrics.notificationJobsTotal.inc).toHaveBeenCalledWith({
+      channel: NotificationChannel.SMS,
+      outcome: 'success',
     });
   });
 
@@ -156,7 +167,7 @@ describe('NotificationsProcessor', () => {
       expect(prisma.notification.update).not.toHaveBeenCalled();
     });
 
-    it('marks the notification FAILED once attempts are exhausted', async () => {
+    it('marks the notification FAILED once attempts are exhausted, and records a terminal-failure metric', async () => {
       const job = makeJob('notif-1', {
         attemptsMade: 3,
         opts: { attempts: 3 },
@@ -168,6 +179,10 @@ describe('NotificationsProcessor', () => {
           status: NotificationStatus.FAILED,
           failureReason: 'final failure',
         },
+      });
+      expect(metrics.notificationJobsTotal.inc).toHaveBeenCalledWith({
+        channel: NotificationChannel.SMS,
+        outcome: 'failure',
       });
     });
 

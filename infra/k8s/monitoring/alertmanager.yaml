@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: shgap
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: alertmanager }
+  template:
+    metadata:
+      labels: { app: alertmanager }
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.28.0
+          args: ["--config.file=/etc/alertmanager/alertmanager.yml"]
+          ports: [{ containerPort: 9093 }]
+          volumeMounts:
+            - { name: config, mountPath: /etc/alertmanager }
+      volumes:
+        - name: config
+          configMap: { name: alertmanager-config }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: shgap
+spec:
+  selector: { app: alertmanager }
+  ports: [{ port: 9093, targetPort: 9093 }]
+---
+# Content identical to infra/monitoring/alertmanager/alertmanager.yml —
+# see that file's own comment for the "no real Slack/PagerDuty account"
+# rationale, and kustomization.yaml's header comment for why this is a
+# duplicated inline copy rather than a generated-from-that-file reference.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: shgap
+data:
+  alertmanager.yml: |
+    route:
+      receiver: default
+      group_by: ["alertname", "job"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - matchers:
+            - severity="critical"
+          receiver: default
+          repeat_interval: 1h
+    receivers:
+      - name: default
+        webhook_configs:
+          - url: "http://alert-log-sink:9095/alert"
+            send_resolved: true
+---
+# T24/ADR-0033: real deployment target — swap the local rehearsal's
+# alert-log-sink webhook for real `slack_configs`/`pagerduty_configs`
+# whose token lives in a Secret sourced from Secrets Manager (see
+# infra/terraform/modules/secrets), same as every other real credential in
+# this platform. Deploying alert-log-sink to a real cluster (see its own
+# Deployment below) is intentionally still here — it's a fine default
+# receiver for alerts a real Slack/PagerDuty integration hasn't been
+# configured to catch yet, not something to delete on the assumption a
+# real one exists.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-log-sink
+  namespace: shgap
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: alert-log-sink }
+  template:
+    metadata:
+      labels: { app: alert-log-sink }
+    spec:
+      containers:
+        - name: alert-log-sink
+          image: ghcr.io/eegakrishnaaionos/shgap/alert-log-sink:latest
+          ports: [{ containerPort: 9095 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-log-sink
+  namespace: shgap
+spec:
+  selector: { app: alert-log-sink }
+  ports: [{ port: 9095, targetPort: 9095 }]

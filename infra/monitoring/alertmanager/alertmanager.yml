@@ -1,0 +1,29 @@
+# T24/ADR-0033: real Alertmanager config, receiving real alerts from
+# prometheus/alert_rules.yml. No real Slack/PagerDuty/email account exists
+# for this pilot (same "no real X" honesty this project has applied to
+# every other external integration — ADR-0030's ONDC identity, ADR-0031's
+# KMS key, etc.) — the local rehearsal's `default` receiver is a real,
+# runnable webhook target (a tiny logging endpoint any of this repo's
+# services could stand up in five lines), not a receiver Alertmanager would
+# silently drop. A real deployment replaces `webhook_configs` with
+# `slack_configs`/`pagerduty_configs`, whose token comes from the same
+# Secret manager (see infra/terraform's secrets module) — never hardcoded
+# here.
+
+route:
+  receiver: default
+  group_by: ["alertname", "job"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: default
+      repeat_interval: 1h
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: "http://alert-log-sink:9095/alert"
+        send_resolved: true

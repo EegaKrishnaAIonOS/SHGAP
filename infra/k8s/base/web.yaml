@@ -1,0 +1,98 @@
+# See core-api.yaml for the full blue/green rationale. No secrets, no DB —
+# this is the static-file + reverse-proxy nginx image (apps/web/Dockerfile),
+# proxying to the `core-api`/`voice-service` Service names exactly as
+# apps/web/nginx.conf itself expects.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-blue
+  namespace: shgap
+  labels: { app: web, version: blue }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: web, version: blue }
+  template:
+    metadata:
+      labels: { app: web, version: blue }
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/eegakrishnaaionos/shgap/web:latest
+          ports: [{ containerPort: 80 }]
+          resources:
+            requests: { cpu: "100m", memory: "64Mi" }
+            limits: { cpu: "500m", memory: "128Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-green
+  namespace: shgap
+  labels: { app: web, version: green }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: web, version: green }
+  template:
+    metadata:
+      labels: { app: web, version: green }
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/eegakrishnaaionos/shgap/web:latest
+          ports: [{ containerPort: 80 }]
+          resources:
+            requests: { cpu: "100m", memory: "64Mi" }
+            limits: { cpu: "500m", memory: "128Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: shgap
+spec:
+  selector: { app: web, version: blue }
+  ports: [{ port: 80, targetPort: 80 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-blue
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: web-blue }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-green
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: web-green }
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

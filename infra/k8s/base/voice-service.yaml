@@ -1,0 +1,115 @@
+# See core-api.yaml for the full blue/green rationale.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voice-service-blue
+  namespace: shgap
+  labels: { app: voice-service, version: blue }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: voice-service, version: blue }
+  template:
+    metadata:
+      labels: { app: voice-service, version: blue }
+    spec:
+      containers:
+        - name: voice-service
+          image: ghcr.io/eegakrishnaaionos/shgap/voice-service:latest
+          ports: [{ containerPort: 8002 }]
+          envFrom:
+            - secretRef: { name: voice-service-secrets }
+          env:
+            - { name: PORT, value: "8002" }
+            - { name: VOICE_SESSION_TTL_SECONDS, value: "900" }
+            - { name: CORE_API_BASE_URL, value: "http://core-api:3000" }
+            - { name: ML_SERVICES_BASE_URL, value: "http://ml-services:8001" }
+            - { name: GROQ_LLM_MODEL, value: "llama-3.3-70b-versatile" }
+            - { name: SARVAM_STT_MODEL, value: "saaras:v3" }
+            - { name: SARVAM_TTS_MODEL, value: "bulbul:v2" }
+          resources:
+            requests: { cpu: "500m", memory: "512Mi" }
+            limits: { cpu: "2", memory: "1Gi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8002 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8002 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voice-service-green
+  namespace: shgap
+  labels: { app: voice-service, version: green }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: voice-service, version: green }
+  template:
+    metadata:
+      labels: { app: voice-service, version: green }
+    spec:
+      containers:
+        - name: voice-service
+          image: ghcr.io/eegakrishnaaionos/shgap/voice-service:latest
+          ports: [{ containerPort: 8002 }]
+          envFrom:
+            - secretRef: { name: voice-service-secrets }
+          env:
+            - { name: PORT, value: "8002" }
+            - { name: VOICE_SESSION_TTL_SECONDS, value: "900" }
+            - { name: CORE_API_BASE_URL, value: "http://core-api:3000" }
+            - { name: ML_SERVICES_BASE_URL, value: "http://ml-services:8001" }
+            - { name: GROQ_LLM_MODEL, value: "llama-3.3-70b-versatile" }
+            - { name: SARVAM_STT_MODEL, value: "saaras:v3" }
+            - { name: SARVAM_TTS_MODEL, value: "bulbul:v2" }
+          resources:
+            requests: { cpu: "500m", memory: "512Mi" }
+            limits: { cpu: "2", memory: "1Gi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8002 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8002 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: voice-service
+  namespace: shgap
+spec:
+  selector: { app: voice-service, version: blue }
+  ports: [{ port: 8002, targetPort: 8002 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: voice-service-blue
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: voice-service-blue }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: voice-service-green
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: voice-service-green }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

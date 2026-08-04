@@ -8,3 +8,7 @@ httpx>=0.27,<1.0
 # transport (aiortc) — see ADR-0019 for why Groq/Sarvam were chosen over
 # ADR-0006's original Bhashini/AI4Bharat pick.
 pipecat-ai[webrtc,silero,groq,sarvam]>=1.5,<1.6
+
+# T24 Prometheus instrumentation (ADR-0014/ADR-0033) - wraps FastAPI/Starlette
+# middleware to record request latency/count with zero per-route code.
+prometheus-fastapi-instrumentator>=7.0,<8.0

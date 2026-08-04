@@ -32,5 +32,10 @@ async def search_schemes(
     service: SchemeGuidanceService = Depends(get_scheme_guidance_service),
     search_chunks_fn=Depends(get_search_chunks_fn),
 ) -> SchemeSearchResponse:
+    """RAG lookup over real MEPMA/government scheme text, chunked and
+    embedded into `SchemeChunk` (pgvector) — returns the top-k most
+    semantically similar chunks to the query, not a generated answer (see
+    ADR-0010/ADR-0021 for why retrieval-only, no answer-generation LLM call,
+    is this task's actual scope)."""
     results = await service.search(request.query, search_chunks_fn, top_k=request.top_k)
     return SchemeSearchResponse(results=results)

@@ -1,0 +1,131 @@
+# T24/ADR-0033: blue/green + rollback (ADR-0013's own pre-committed
+# requirement, not new scope) — two Deployments, `core-api-blue` and
+# `core-api-green`, each a complete real replica set; exactly one is
+# "active" at a time via the Service's own selector, flipped by
+# `infra/k8s/scripts/switch-traffic.sh` (see docs/runbooks/blue-green-deploy.md).
+# A rollback is the same script run in reverse — no redeploy, no new image
+# pull, just a Service selector patch that takes effect for new connections
+# within seconds. Both Deployments always exist; the "inactive" one is where
+# the next release gets deployed and smoke-tested *before* it takes real
+# traffic, not scaled to zero between switches.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-api-blue
+  namespace: shgap
+  labels: { app: core-api, version: blue }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: core-api, version: blue }
+  template:
+    metadata:
+      labels: { app: core-api, version: blue }
+    spec:
+      containers:
+        - name: core-api
+          image: ghcr.io/eegakrishnaaionos/shgap/core-api:latest
+          ports: [{ containerPort: 3000 }]
+          envFrom:
+            - secretRef: { name: core-api-secrets }
+          env:
+            - { name: PORT, value: "3000" }
+            - { name: NODE_ENV, value: "production" }
+            - { name: MINIO_ENDPOINT, value: "minio" }
+            - { name: MINIO_PORT, value: "9000" }
+            - { name: MINIO_BUCKET, value: "shgap-product-images" }
+            - { name: CLAMAV_HOST, value: "clamav" }
+            - { name: CLAMAV_PORT, value: "3310" }
+            - { name: ML_SERVICES_URL, value: "http://ml-services:8001" }
+            - { name: NOTIFICATION_SERVICE_URL, value: "http://notification-service:3001" }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-api-green
+  namespace: shgap
+  labels: { app: core-api, version: green }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: core-api, version: green }
+  template:
+    metadata:
+      labels: { app: core-api, version: green }
+    spec:
+      containers:
+        - name: core-api
+          image: ghcr.io/eegakrishnaaionos/shgap/core-api:latest
+          ports: [{ containerPort: 3000 }]
+          envFrom:
+            - secretRef: { name: core-api-secrets }
+          env:
+            - { name: PORT, value: "3000" }
+            - { name: NODE_ENV, value: "production" }
+            - { name: MINIO_ENDPOINT, value: "minio" }
+            - { name: MINIO_PORT, value: "9000" }
+            - { name: MINIO_BUCKET, value: "shgap-product-images" }
+            - { name: CLAMAV_HOST, value: "clamav" }
+            - { name: CLAMAV_PORT, value: "3310" }
+            - { name: ML_SERVICES_URL, value: "http://ml-services:8001" }
+            - { name: NOTIFICATION_SERVICE_URL, value: "http://notification-service:3001" }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+# The one Service every other manifest/Ingress/nginx.conf points at
+# (`core-api:3000`) — its selector's `version` value is the single source
+# of truth for which color is "live." Starts pointed at blue.
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-api
+  namespace: shgap
+spec:
+  selector: { app: core-api, version: blue }
+  ports: [{ port: 3000, targetPort: 3000 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core-api-blue
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: core-api-blue }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core-api-green
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: core-api-green }
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

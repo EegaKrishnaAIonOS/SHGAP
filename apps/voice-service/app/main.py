@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from loguru import logger
 from pipecat.transports.smallwebrtc.connection import SmallWebRTCConnection
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.bot import run_bot
@@ -38,10 +39,31 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# T24/ADR-0033: real Prometheus instrumentation (ADR-0014 named the stack,
+# deferred building it to T24) — request latency/count by method/handler/
+# status, plus Python/process defaults, exposed at GET /metrics.
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
 
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "voice-service"}
+
+
+@app.get("/health/ready")
+async def ready() -> dict:
+    """T24/ADR-0033: a real readiness check against Redis — this service's
+    hard dependency for session state (both the WebRTC voice pipeline and
+    the text-chat fallback read/write through it on every turn)."""
+    checks = {"redis": False}
+    try:
+        checks["redis"] = await session_store.ping()
+    except Exception:  # noqa: BLE001 - any Redis failure means "not ready", not a 500
+        pass
+
+    if not all(checks.values()):
+        raise HTTPException(status_code=503, detail={"status": "not_ready", "checks": checks})
+    return {"status": "ok", "checks": checks}
 
 
 @app.post("/api/offer")

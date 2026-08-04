@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: shgap
+
+resources:
+  - prometheus.yaml
+  - grafana.yaml
+  - loki.yaml
+  - alertmanager.yaml
+
+# T24/ADR-0033: each file's ConfigMap data is defined inline in that same
+# manifest rather than generated from infra/monitoring/*'s files —
+# Kustomize's `configMapGenerator` refuses to read files outside the
+# kustomization root for path-traversal-safety reasons (a real, deliberate
+# Kustomize security restriction, not a bug worth working around with
+# `--load-restrictor none`). This means the alert rules/dashboard/
+# datasource content is duplicated between infra/monitoring/ (Docker
+# Compose) and here (Kubernetes) rather than shared from one file — a real,
+# named trade-off (drift risk between the two copies), not a silently
+# swallowed inconsistency. See docs/deployment-guide.md.

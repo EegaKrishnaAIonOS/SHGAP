@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: shgap
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: grafana }
+  template:
+    metadata:
+      labels: { app: grafana }
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.3.1
+          ports: [{ containerPort: 3000 }]
+          envFrom:
+            - secretRef: { name: grafana-admin }
+          env:
+            - { name: GF_USERS_ALLOW_SIGN_UP, value: "false" }
+          volumeMounts:
+            - { name: datasources, mountPath: /etc/grafana/provisioning/datasources }
+            - { name: dashboard-provider, mountPath: /etc/grafana/provisioning/dashboards }
+            - { name: dashboards, mountPath: /var/lib/grafana/dashboards }
+            - { name: data, mountPath: /var/lib/grafana }
+      volumes:
+        - name: datasources
+          configMap: { name: grafana-datasources }
+        - name: dashboard-provider
+          configMap: { name: grafana-dashboard-provider }
+        - name: dashboards
+          configMap: { name: grafana-dashboards }
+        - name: data
+          emptyDir: {} # real deployment: PersistentVolumeClaim, so dashboard edits/annotations survive a pod restart.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: shgap
+spec:
+  selector: { app: grafana }
+  ports: [{ port: 3000, targetPort: 3000 }]
+---
+# Real admin credentials — supplied per-environment (e.g. from the same
+# Secrets Manager entry a real deployment's operator provisions), never the
+# Docker Compose rehearsal's dev-only default password.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin
+  namespace: shgap
+type: Opaque
+stringData:
+  GF_SECURITY_ADMIN_USER: admin
+  GF_SECURITY_ADMIN_PASSWORD: "REPLACE_WITH_A_REAL_PASSWORD"
+---
+# Content identical to infra/monitoring/grafana/provisioning/datasources/
+# datasources.yml — see kustomization.yaml's header comment for why this
+# is a duplicated inline copy, not a generated-from-that-file reference.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: shgap
+data:
+  datasources.yml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+        editable: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: shgap
+data:
+  dashboards.yml: |
+    apiVersion: 1
+    providers:
+      - name: shgap
+        folder: SHGAP
+        type: file
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+---
+# Content identical to infra/monitoring/grafana/dashboards/shgap-overview.json.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: shgap
+data:
+  shgap-overview.json: |
+    {
+      "title": "SHGAP Platform Overview",
+      "uid": "shgap-overview",
+      "schemaVersion": 39,
+      "version": 1,
+      "editable": true,
+      "timezone": "browser",
+      "time": { "from": "now-6h", "to": "now" },
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Service up/down",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [{ "expr": "up", "legendFormat": "{{job}}" }],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } },
+                { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } }
+              ],
+              "thresholds": { "mode": "absolute", "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] }
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "Request rate by service (req/s)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [
+            { "expr": "sum(rate(http_requests_total[5m])) by (job)", "legendFormat": "{{job}}" }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "p95 response time by service — 3s target line",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (job, le))",
+              "legendFormat": "{{job}} p95"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "thresholdsStyle": { "mode": "line" }
+              },
+              "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 3, "color": "red" }] }
+            }
+          }
+        },
+        {
+          "id": 4,
+          "title": "5xx error rate by service",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [
+            {
+              "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job)",
+              "legendFormat": "{{job}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "percentunit" } }
+        },
+        {
+          "id": 5,
+          "title": "Notification job outcomes by channel",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "targets": [
+            {
+              "expr": "sum(rate(notification_jobs_total[5m])) by (channel, outcome)",
+              "legendFormat": "{{channel}} — {{outcome}}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Recent logs (Loki)",
+          "type": "logs",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "targets": [{ "expr": "{compose_service=~\".+\"}" }]
+        }
+      ]
+    }

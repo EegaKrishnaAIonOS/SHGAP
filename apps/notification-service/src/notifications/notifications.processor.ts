@@ -2,6 +2,7 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import { NotificationChannel, NotificationStatus, User } from '@shgap/database';
 import { Job } from 'bullmq';
+import { MetricsService } from '../metrics/metrics.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NOTIFICATIONS_QUEUE } from './notifications.service';
 import {
@@ -46,6 +47,7 @@ export class NotificationsProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly templateService: TemplateService,
+    private readonly metrics: MetricsService,
     @Inject(SMS_PROVIDER) private readonly smsProvider: SmsProvider,
     @Inject(WHATSAPP_PROVIDER)
     private readonly whatsappProvider: WhatsappProvider,
@@ -90,6 +92,10 @@ export class NotificationsProcessor extends WorkerHost {
           failureReason: null,
         },
       });
+      this.metrics.notificationJobsTotal.inc({
+        channel: notification.channel,
+        outcome: 'success',
+      });
     } catch (err) {
       // Records the most recent attempt's error for visibility even if a
       // later retry goes on to succeed; `onFailed` below overwrites this
@@ -118,6 +124,12 @@ export class NotificationsProcessor extends WorkerHost {
           status: NotificationStatus.FAILED,
           failureReason: error.message,
         },
+      })
+      .then((updated) => {
+        this.metrics.notificationJobsTotal.inc({
+          channel: updated.channel,
+          outcome: 'failure',
+        });
       })
       .catch((updateErr: Error) => {
         this.logger.error(

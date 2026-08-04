@@ -1,0 +1,173 @@
+# T24/ADR-0033: same alert rules as infra/monitoring/prometheus/alert_rules.yml
+# (duplicated inline — see kustomization.yaml's header comment for why),
+# but a genuinely different scrape config from the Docker Compose local
+# rehearsal's: `kubernetes_sd_configs` pod discovery by label instead of
+# static Docker Compose service-name targets, so newly scaled-out HPA
+# replicas get scraped automatically.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: shgap
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: prometheus }
+  template:
+    metadata:
+      labels: { app: prometheus }
+    spec:
+      serviceAccountName: prometheus
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.55.1
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+          ports: [{ containerPort: 9090 }]
+          volumeMounts:
+            - { name: config, mountPath: /etc/prometheus/prometheus.yml, subPath: prometheus.yml }
+            - { name: alert-rules, mountPath: /etc/prometheus/alert_rules.yml, subPath: alert_rules.yml }
+            - { name: data, mountPath: /prometheus }
+      volumes:
+        - name: config
+          configMap: { name: prometheus-k8s-config }
+        - name: alert-rules
+          configMap: { name: prometheus-alert-rules }
+        - name: data
+          emptyDir: {} # real deployment: a PersistentVolumeClaim, so history survives a pod restart — see docs/deployment-guide.md's "not yet done" list.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: shgap
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: shgap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: shgap
+spec:
+  selector: { app: prometheus }
+  ports: [{ port: 9090, targetPort: 9090 }]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-k8s-config
+  namespace: shgap
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    rule_files:
+      - /etc/prometheus/alert_rules.yml
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ["alertmanager:9093"]
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [shgap]
+        relabel_configs:
+          # Only pods carrying a real `app` label (i.e. this platform's own
+          # Deployments) become scrape targets — not every pod in the
+          # namespace (e.g. Prometheus/Grafana/Loki's own pods, which don't
+          # expose the same /metrics shape and would just be scrape noise).
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: (core-api|notification-service|ml-services|voice-service)
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: job
+          - source_labels: [__meta_kubernetes_pod_label_version]
+            target_label: version
+      - job_name: prometheus
+        static_configs:
+          - targets: ["localhost:9090"]
+---
+# Content identical to infra/monitoring/prometheus/alert_rules.yml — see
+# that file's own comment for why these thresholds were chosen, and
+# kustomization.yaml's header comment for why this is a duplicated inline
+# copy rather than a generated-from-that-file reference.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: shgap
+data:
+  alert_rules.yml: |
+    groups:
+      - name: shgap-availability
+        rules:
+          - alert: ServiceDown
+            expr: up == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.job }} is down"
+              description: "Prometheus has not been able to scrape {{ $labels.job }} for 1 minute. See the runbook: docs/runbooks/service-down.md"
+          - alert: ResponseTimeSLOBreached
+            expr: |
+              histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (job, le)) > 3
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "{{ $labels.job }} p95 response time above the 3s target"
+              description: "p95 request duration for {{ $labels.job }} has exceeded 3s for 5 minutes. See docs/runbooks/slow-responses.md"
+          - alert: HighErrorRate
+            expr: |
+              (
+                sum(rate(http_requests_total{status_code=~"5.."}[5m])) by (job)
+                /
+                sum(rate(http_requests_total[5m])) by (job)
+              ) > 0.05
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.job }} 5xx rate above 5%"
+              description: "More than 5% of {{ $labels.job }}'s requests have returned 5xx over the last 5 minutes. See docs/runbooks/high-error-rate.md"
+      - name: shgap-notifications
+        rules:
+          - alert: NotificationDeliveryFailureRateHigh
+            expr: |
+              (
+                sum(rate(notification_jobs_total{outcome="failure"}[15m]))
+                /
+                sum(rate(notification_jobs_total[15m]))
+              ) > 0.2
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "More than 20% of notification jobs are failing"
+              description: "Real SMS/WhatsApp/voice/email delivery failures over the last 15 minutes exceed 20% of total jobs. See docs/runbooks/notification-failures.md"

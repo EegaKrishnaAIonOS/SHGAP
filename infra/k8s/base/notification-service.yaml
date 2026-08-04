@@ -1,0 +1,105 @@
+# See core-api.yaml for the full blue/green rationale — identical pattern.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service-blue
+  namespace: shgap
+  labels: { app: notification-service, version: blue }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: notification-service, version: blue }
+  template:
+    metadata:
+      labels: { app: notification-service, version: blue }
+    spec:
+      containers:
+        - name: notification-service
+          image: ghcr.io/eegakrishnaaionos/shgap/notification-service:latest
+          ports: [{ containerPort: 3001 }]
+          envFrom:
+            - secretRef: { name: notification-service-secrets }
+          env:
+            - { name: PORT, value: "3001" }
+            - { name: NODE_ENV, value: "production" }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 3001 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 3001 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service-green
+  namespace: shgap
+  labels: { app: notification-service, version: green }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: notification-service, version: green }
+  template:
+    metadata:
+      labels: { app: notification-service, version: green }
+    spec:
+      containers:
+        - name: notification-service
+          image: ghcr.io/eegakrishnaaionos/shgap/notification-service:latest
+          ports: [{ containerPort: 3001 }]
+          envFrom:
+            - secretRef: { name: notification-service-secrets }
+          env:
+            - { name: PORT, value: "3001" }
+            - { name: NODE_ENV, value: "production" }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 3001 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 3001 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: shgap
+spec:
+  selector: { app: notification-service, version: blue }
+  ports: [{ port: 3001, targetPort: 3001 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notification-service-blue
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: notification-service-blue }
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notification-service-green
+  namespace: shgap
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: notification-service-green }
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource: { name: cpu, target: { type: Utilization, averageUtilization: 70 } }

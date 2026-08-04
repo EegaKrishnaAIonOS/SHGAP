@@ -22,6 +22,8 @@ import { GeoModule } from './geo/geo.module';
 import { HealthController } from './health.controller';
 import { MasterDataModule } from './master-data/master-data.module';
 import { MepmaModule } from './mepma/mepma.module';
+import { MetricsMiddleware } from './metrics/metrics.middleware';
+import { MetricsModule } from './metrics/metrics.module';
 import { OndcModule } from './ondc/ondc.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
@@ -50,6 +52,7 @@ import { UsersModule } from './users/users.module';
     RedisModule,
     StorageModule,
     GeoModule,
+    MetricsModule,
     SecurityModule,
     AuditModule,
     AuthModule,
@@ -80,6 +83,9 @@ import { UsersModule } from './users/users.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
+    // Metrics first so a route that later errors (or is rejected by a
+    // guard) still gets its duration/status recorded.
+    consumer.apply(MetricsMiddleware).forRoutes('*');
     consumer.apply(AccessLogMiddleware).forRoutes('*');
   }
 }

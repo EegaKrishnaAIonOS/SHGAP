@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: shgap
+
+resources:
+  - namespace.yaml
+  - core-api.yaml
+  - notification-service.yaml
+  - ml-services.yaml
+  - voice-service.yaml
+  - web.yaml
+  - ingress.yaml
+  - backup-cronjob.yaml
+# secrets.example.yaml is deliberately NOT listed here — see its own header
+# comment for why real secrets are applied separately, never via this file.

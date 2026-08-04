@@ -33,5 +33,9 @@ async def categorize(
     service: CategorizationService = Depends(get_categorization_service),
     fetch_categories_fn=Depends(get_fetch_categories),
 ) -> CategorizeResponse:
+    """Suggests the closest product category (or categories) for a product's
+    name/description via zero-shot sentence-embedding similarity against the
+    real category taxonomy — see ADR-0017 for why this isn't a fine-tuned
+    classifier (no labeled training data exists for this)."""
     suggestions = await service.suggest(request.name, request.description, fetch_categories_fn)
     return CategorizeResponse(suggestions=suggestions)

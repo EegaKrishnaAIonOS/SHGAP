@@ -12,9 +12,11 @@ if sys.platform == "win32":
 import logging  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 
+import psycopg  # noqa: E402
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # noqa: E402
 from apscheduler.triggers.interval import IntervalTrigger  # noqa: E402
-from fastapi import FastAPI  # noqa: E402
+from fastapi import FastAPI, HTTPException  # noqa: E402
+from prometheus_fastapi_instrumentator import Instrumentator  # noqa: E402
 
 from app.categorization.router import router as categorization_router  # noqa: E402
 from app.config import settings  # noqa: E402
@@ -103,7 +105,32 @@ app.include_router(market_intelligence_router)
 app.include_router(forecast_router)
 app.include_router(matching_router)
 
+# T24/ADR-0033: real Prometheus instrumentation (ADR-0014 named the stack,
+# deferred building it to T24) — request latency/count by method/handler/
+# status, plus Python/process defaults, exposed at GET /metrics.
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
 
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "ml-services"}
+
+
+@app.get("/health/ready")
+async def ready() -> dict:
+    """T24/ADR-0033: a real readiness check against Postgres — this
+    service's hard dependency for scheme-guidance RAG lookups, feature/
+    training pipeline reads, and matching candidate queries. See
+    core-api's identical liveness/readiness split rationale."""
+    checks = {"database": False}
+    try:
+        async with await psycopg.AsyncConnection.connect(settings.database_url) as conn:
+            async with conn.cursor() as cur:
+                await cur.execute("SELECT 1")
+        checks["database"] = True
+    except Exception:  # noqa: BLE001 - any DB failure means "not ready", not a 500
+        pass
+
+    if not all(checks.values()):
+        raise HTTPException(status_code=503, detail={"status": "not_ready", "checks": checks})
+    return {"status": "ok", "checks": checks}

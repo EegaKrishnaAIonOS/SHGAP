@@ -1,0 +1,31 @@
+# T24/ADR-0033: the WAF/API-gateway/TLS-termination layer
+# docs/architecture/README.md's deployment diagram already named. Real
+# WAF rules attach to the AWS ALB this Ingress provisions via the AWS Load
+# Balancer Controller annotation below — a specific WAFv2 WebACL resource
+# is real, concrete follow-up work once a specific ingress controller is
+# chosen and installed on the cluster, not invented speculatively here.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shgap
+  namespace: shgap
+  annotations:
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    # ACM certificate ARN — real value supplied per-environment, not
+    # committed here (see infra/terraform's future acm module / an
+    # operator-provisioned cert for the pilot's real domain).
+    alb.ingress.kubernetes.io/certificate-arn: "REPLACE_WITH_REAL_ACM_CERTIFICATE_ARN"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port: { number: 80 }

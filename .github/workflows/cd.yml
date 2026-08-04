@@ -1,0 +1,80 @@
+name: CD (blue/green deploy)
+
+# T24/ADR-0033: real blue/green deploy automation — but deliberately
+# `workflow_dispatch` only, never `on: push`. This repo's CI already
+# builds and pushes every image to GHCR on every push to master
+# (ci.yml); wiring THIS workflow to run automatically on the same trigger
+# would mean it fires on every commit against a `KUBE_CONFIG`/AWS secret
+# that doesn't exist in this environment (no live cluster — see
+# docs/deployment-guide.md's "what's real vs. what's a documented gap"
+# table) and fails loudly on every single push. Manual dispatch means it
+# only ever runs when a real operator, with real cluster access
+# configured, deliberately chooses to run it.
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Which service to deploy"
+        required: true
+        type: choice
+        options:
+          - core-api
+          - notification-service
+          - ml-services
+          - voice-service
+          - web
+      image_tag:
+        description: "Image tag to deploy (e.g. a commit SHA already pushed to GHCR by ci.yml)"
+        required: true
+        type: string
+      switch_traffic:
+        description: "Also cut real traffic over after a successful deploy+rollout (unchecked = deploy to the inactive color and stop there for manual smoke-testing first)"
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  # One deploy at a time per service — a second dispatch for the same
+  # service while one is in flight would race deploy-inactive.sh's
+  # "which color is inactive" check against itself.
+  group: cd-${{ github.event.inputs.service }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.service }}:${{ inputs.image_tag }}
+    runs-on: ubuntu-latest
+    # A real "production" GitHub Environment with required reviewers
+    # configured (Settings → Environments) turns this into a real
+    # approval gate — this workflow file doesn't (and can't) create that
+    # protection rule itself, only reference the environment by name.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-south-1
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+
+      - name: Point kubectl at the real cluster
+        run: aws eks update-kubeconfig --region ap-south-1 --name "${{ secrets.EKS_CLUSTER_NAME }}"
+
+      - name: Deploy to the inactive color
+        run: |
+          chmod +x infra/k8s/scripts/*.sh
+          ./infra/k8s/scripts/deploy-inactive.sh "${{ inputs.service }}" "${{ inputs.image_tag }}"
+
+      - name: Switch real traffic over
+        if: ${{ inputs.switch_traffic }}
+        run: |
+          ACTIVE=$(kubectl get service "${{ inputs.service }}" -n shgap -o jsonpath='{.spec.selector.version}')
+          TARGET=$([ "$ACTIVE" = "blue" ] && echo "green" || echo "blue")
+          ./infra/k8s/scripts/switch-traffic.sh "${{ inputs.service }}" "$TARGET"
+
+      - name: Deployed to inactive color only — smoke-test before switching
+        if: ${{ !inputs.switch_traffic }}
+        run: |
+          echo "::notice::${{ inputs.service }}:${{ inputs.image_tag }} is rolled out to its inactive color but is NOT serving real traffic yet."
+          echo "::notice::Smoke-test it (see docs/runbooks/blue-green-deploy.md), then re-run this workflow with switch_traffic=true."

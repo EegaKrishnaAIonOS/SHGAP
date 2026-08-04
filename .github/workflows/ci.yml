@@ -99,6 +99,13 @@ jobs:
           - service: voice-service
             context: apps/voice-service
             dockerfile: apps/voice-service/Dockerfile
+          # T24/ADR-0033: Alertmanager's real local-rehearsal/default receiver
+          # (see infra/monitoring/alertmanager/alertmanager.yml) — small,
+          # self-contained, same per-directory-context pattern as ml-services/
+          # voice-service above.
+          - service: alert-log-sink
+            context: infra/monitoring/alert-log-sink
+            dockerfile: infra/monitoring/alert-log-sink/Dockerfile
     steps:
       - uses: actions/checkout@v4
 

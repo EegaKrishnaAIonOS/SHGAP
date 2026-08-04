@@ -70,6 +70,13 @@ class SessionStore:
     async def delete(self, session_id: str) -> None:
         await self._redis.delete(self._key(session_id))
 
+    async def ping(self) -> bool:
+        """T24/ADR-0033: real readiness check — exposed through `SessionStore`
+        rather than reaching into `_redis` directly from main.py, since the
+        redis client is intentionally this class's own implementation
+        detail (see the class docstring)."""
+        return bool(await self._redis.ping())
+
     async def save(self, session: VoiceSession) -> None:
         """Persists the given session as-is — for callers that mutated a
         `VoiceSession` directly (e.g. refreshing the access token on a new

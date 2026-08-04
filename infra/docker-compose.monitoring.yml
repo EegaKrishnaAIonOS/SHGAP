@@ -1,0 +1,92 @@
+# T24/ADR-0033: real Prometheus + Grafana + Loki + Alertmanager stack —
+# ADR-0014 named this exactly (self-hosted, India-region-resident, not a
+# managed SaaS observability product, for the data-residency reason ADR-0013
+# already established) and deferred building it to this task. Always run
+# combined with the other two compose files (see infra/docker-compose.apps.yml's
+# own header comment for the full command) — this file alone has nothing to
+# scrape.
+
+name: shgap-dev
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: shgap-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - shgap_prometheusdata:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - "9090:9090"
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    container_name: shgap-alertmanager
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    ports:
+      - "9093:9093"
+
+  alert-log-sink:
+    build:
+      context: ./monitoring/alert-log-sink
+    container_name: shgap-alert-log-sink
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: shgap-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      # Dev-only default credentials — never used outside this local
+      # rehearsal; a real deployment's Grafana admin password comes from
+      # the Terraform-provisioned secrets manager (see infra/terraform).
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: shgap_dev_password
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - shgap_grafanadata:/var/lib/grafana
+    ports:
+      - "3002:3000"
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: shgap-loki
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - shgap_lokidata:/loki
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:3.3.2
+    container_name: shgap-promtail
+    restart: unless-stopped
+    depends_on:
+      - loki
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command:
+      - "-config.file=/etc/promtail/config.yml"
+
+volumes:
+  shgap_prometheusdata:
+  shgap_grafanadata:
+  shgap_lokidata:

@@ -17,14 +17,20 @@ packages/
   shared-types/           Shared TypeScript types (grows with each module)
 database/                 Prisma schema, migrations, seed scripts (T02)
 infra/
-  docker-compose.yml      Local dev: Postgres+PostGIS+pgvector, Redis, MinIO
+  docker-compose.yml         Local dev: Postgres+PostGIS+pgvector, Redis, MinIO, ClamAV
+  docker-compose.apps.yml    T24: containerizes all 5 app services on the same network
+  docker-compose.monitoring.yml  T24: Prometheus + Grafana + Loki + Alertmanager
+  terraform/                 T24: real IaC (AWS ap-south-1), validated, not applied
+  k8s/                       T24: real K8s manifests — blue/green, HPA, Ingress, monitoring
+  scripts/                   T24: backup/restore, blue/green deploy/rollback scripts
 docs/
-  architecture/           C4 diagrams, ADRs index
-  adr/                    Architecture Decision Records
-  database/               ER diagram
+  architecture/              C4 diagrams, ADRs index
+  adr/                       Architecture Decision Records
+  data-model.md              T24: ERD + data dictionary
+  ml-model-cards.md          T24: model cards for every real ML model
+  deployment-guide.md        T24: step-by-step, what's real vs. unapplied
+  runbooks/                  T24: incident response, deploy/rollback, backup/restore
 ```
-
-Every app is a scaffold at this point (T03) — a bootable shell with a `/health` endpoint, not the finished module. Each module's real functionality lands in its own sprint task (see the table below).
 
 ## Prerequisites
 
@@ -68,17 +74,35 @@ npm run build    # build every workspace
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml): lint + test + build on every push/PR (Node apps and Python services run as separate jobs), then builds and pushes each app's Docker image to GitHub Container Registry (`ghcr.io`) on pushes to `master`.
 
+## Production-like local rehearsal
+
+All 5 services, containerized (the exact images CI builds), plus a real Prometheus/Grafana/Loki/Alertmanager monitoring stack — running together, verified with live data (see [`docs/deployment-guide.md`](docs/deployment-guide.md) for the exact verification steps and results):
+
+```bash
+docker compose \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.apps.yml \
+  -f infra/docker-compose.monitoring.yml \
+  up -d --build
+```
+
+Web: `localhost:8080` · core-api Swagger: `localhost:3000/api/docs` · Grafana: `localhost:3002` (`admin` / `shgap_dev_password`) · Prometheus: `localhost:9090`.
+
 ## Cloud hosting
 
-Terraform IaC for dev/staging (India-region, per [ADR-0013](docs/adr/0013-infra-india-region-hosting.md)) is **deferred** — no cloud provider has been selected yet and no cloud credentials are configured in this environment. The local Docker/docker-compose stack above is the current source of truth for "runnable stack."
+Real Terraform (AWS `ap-south-1`/Mumbai — a literal India region, per [ADR-0013](docs/adr/0013-infra-india-region-hosting.md)) and Kubernetes manifests (blue/green + rollback, HPA, Ingress, monitoring — [ADR-0033](docs/adr/0033-documentation-api-refs-deployment.md)) exist under `infra/terraform/` and `infra/k8s/`, validated (`terraform validate`, `kubectl kustomize`) but **not applied** — no cloud account/credentials exist in this environment. See [`docs/deployment-guide.md`](docs/deployment-guide.md) for the full picture of what's real versus written-but-unapplied, and [`docs/runbooks/`](docs/runbooks/) for the operational procedures (deploy/rollback, backup/restore, incident response) that go with it.
 
 ## Sprint plan reference
 
-| Sprint                                    | Tasks                                                                                                                                                                   | Status                                         |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| Sprint 0 — Foundation & Architecture      | T01 Architecture diagrams & tech design, T02 DB schema & migrations, **T03 Repo scaffold/CI-CD/environments**, T04 Design system & wireframes, T05 Core API + Auth/RBAC | T01 ✅, T02 ✅, T03 ✅ (this), T04/T05 pending |
-| Sprint 1 — Registry + Admin               | T06-T09                                                                                                                                                                 | Pending                                        |
-| Sprint 2 — Voice + Notify                 | T10-T13                                                                                                                                                                 | Pending                                        |
-| Sprint 3 — Market Intelligence + Matching | T14-T17                                                                                                                                                                 | Pending                                        |
-| Sprint 4 — Dashboards + Integrations      | T18-T21                                                                                                                                                                 | Pending                                        |
-| Sprint 5 — Security/DPDP + Docs + Deploy  | T22-T24                                                                                                                                                                 | Pending                                        |
+All 24 tasks across 6 sprints are complete.
+
+| Sprint                                    | Tasks   | Status      |
+| ----------------------------------------- | ------- | ----------- |
+| Sprint 0 — Foundation & Architecture      | T01-T05 | ✅ Complete |
+| Sprint 1 — Registry + Admin               | T06-T09 | ✅ Complete |
+| Sprint 2 — Voice + Notify                 | T10-T13 | ✅ Complete |
+| Sprint 3 — Market Intelligence + Matching | T14-T17 | ✅ Complete |
+| Sprint 4 — Dashboards + Integrations      | T18-T21 | ✅ Complete |
+| Sprint 5 — Security/DPDP + Docs + Deploy  | T22-T24 | ✅ Complete |
+
+Plain-language, end-of-sprint summaries: [`docs/sprints/`](docs/sprints/).
