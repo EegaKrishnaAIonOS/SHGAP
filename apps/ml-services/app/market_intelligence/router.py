@@ -5,6 +5,7 @@ from app.market_intelligence import feature_store
 from app.market_intelligence.pipeline import run_feature_pipeline
 from app.market_intelligence.price_history_store import load_price_history
 from app.market_intelligence.training_pipeline import run_training_pipeline
+from app.market_intelligence.trends_history_store import load_trends_history
 
 router = APIRouter(prefix="/market-intelligence", tags=["market-intelligence"])
 
@@ -66,3 +67,22 @@ def get_prices(
         history = history.sort_values("_parsed_date", ascending=False).drop(columns="_parsed_date")
     history = history.head(limit)
     return {"prices": history.to_dict(orient="records")}
+
+
+@router.get("/trends")
+def get_trends(
+    keyword: str | None = None,
+    limit: int = Query(default=260, ge=1, le=2000),
+) -> dict:
+    """Real, ingested Google Trends search-interest history (T14) — the
+    same local trends-history archive the feature pipeline already reads
+    from; this adds no new ingestion, just a read surface over data that
+    already exists. Default `limit=260` is one full 5-year window at
+    Trends' own weekly resolution (~52 weeks/year)."""
+    history = load_trends_history()
+    if keyword:
+        history = history[history["keyword"].str.casefold() == keyword.casefold()]
+    if not history.empty:
+        history = history.sort_values("date", ascending=False)
+    history = history.head(limit)
+    return {"trends": history.to_dict(orient="records")}

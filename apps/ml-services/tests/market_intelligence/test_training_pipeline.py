@@ -12,7 +12,7 @@ async def test_delegates_to_both_model_trainers_and_summarizes_results():
     with (
         patch(
             "app.market_intelligence.training_pipeline.feature_store.read_features",
-            return_value=(sales_features, price_features),
+            return_value=(sales_features, price_features, pd.DataFrame()),
         ),
         patch(
             "app.market_intelligence.training_pipeline.fetch_festivals",
@@ -41,7 +41,7 @@ async def test_reports_honestly_when_neither_model_trains():
     with (
         patch(
             "app.market_intelligence.training_pipeline.feature_store.read_features",
-            return_value=(pd.DataFrame(), pd.DataFrame()),
+            return_value=(pd.DataFrame(), pd.DataFrame(), pd.DataFrame()),
         ),
         patch(
             "app.market_intelligence.training_pipeline.fetch_festivals",

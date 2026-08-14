@@ -3,13 +3,18 @@ import logging
 import pandas as pd
 
 from app.config import settings
-from app.market_intelligence import feature_store, price_history_store
+from app.market_intelligence import feature_store, price_history_store, trends_history_store
 from app.market_intelligence.agmarknet_client import AgmarknetError, fetch_daily_prices
 from app.market_intelligence.feature_engineering import (
     add_festival_features,
     add_geo_features,
     add_lag_features,
     add_seasonality_features,
+    add_trends_features,
+)
+from app.market_intelligence.google_trends_client import (
+    GoogleTrendsError,
+    fetch_interest_over_time,
 )
 from app.market_intelligence.repository import fetch_festivals, fetch_products, fetch_sales
 
@@ -69,11 +74,20 @@ def _build_price_features(price_history: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _build_trends_features(trends_history: pd.DataFrame) -> pd.DataFrame:
+    if trends_history.empty:
+        return trends_history
+
+    return add_trends_features(trends_history.copy(), date_col="date", value_col="interest")
+
+
 async def run_feature_pipeline() -> dict:
-    """The T14 pipeline: ingest sales/products/festivals from Postgres and
-    today's mandi prices from Agmarknet, engineer features (seasonality,
-    festival proximity, H3 geo, lag/rolling), and write both feature tables
-    to Parquet. Returns the manifest `feature_store.write_features` produces.
+    """The T14 pipeline: ingest sales/products/festivals from Postgres,
+    today's mandi prices from Agmarknet, and a 5-year Google Trends search-
+    interest window for `settings.google_trends_keyword`; engineer features
+    (seasonality, festival proximity, H3 geo, lag/rolling) for each; and
+    write all three feature tables to Parquet. Returns the manifest
+    `feature_store.write_features` produces.
 
     Fetching products isn't used for feature engineering directly today (no
     feature currently needs product metadata beyond what's already in
@@ -96,10 +110,24 @@ async def run_feature_pipeline() -> dict:
         logger.warning(f"Agmarknet ingestion failed, using existing price history only: {err}")
         price_history = price_history_store.load_price_history()
 
+    try:
+        trend_records = fetch_interest_over_time(
+            settings.google_trends_keyword,
+            settings.google_trends_years,
+            settings.google_trends_geo,
+        )
+        trends_history = trends_history_store.append_snapshot(trend_records)
+    except GoogleTrendsError as err:
+        # Same "unreachable external API shouldn't block everything else"
+        # convention as the Agmarknet fallback above.
+        logger.warning(f"Google Trends ingestion failed, using existing history only: {err}")
+        trends_history = trends_history_store.load_trends_history()
+
     sales_features = _build_sales_features(sales, festivals)
     price_features = _build_price_features(price_history)
+    trends_features = _build_trends_features(trends_history)
 
-    manifest = feature_store.write_features(sales_features, price_features)
+    manifest = feature_store.write_features(sales_features, price_features, trends_features)
     manifest["products_count"] = len(products)
     manifest["sales_rows_ingested"] = len(sales)
     return manifest

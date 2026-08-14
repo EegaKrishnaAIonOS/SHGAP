@@ -17,7 +17,9 @@ export class AuthController {
   @ApiOperation({
     summary: 'Request a one-time password for phone-based login',
   })
-  requestOtp(@Body() dto: RequestOtpDto): Promise<{ message: string }> {
+  requestOtp(
+    @Body() dto: RequestOtpDto,
+  ): Promise<{ message: string; devOtp?: string }> {
     return this.authService.requestOtp(dto.phone);
   }
 

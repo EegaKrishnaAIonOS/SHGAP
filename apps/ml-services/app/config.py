@@ -49,6 +49,24 @@ class Settings:
         os.environ.get("FEATURE_PIPELINE_INTERVAL_HOURS", "24")
     )
 
+    # Google Trends demand-interest signal. `pytrends` (unofficial, scrapes
+    # the public Trends UI — Google has no official public API for this)
+    # returns weekly-resolution interest for windows longer than ~90 days, so
+    # "5 years" comes back as ~260 weekly points, not 1826 daily ones. `geo`
+    # is left at India-wide rather than an AP-only code: pytrends'
+    # `interest_over_time` only supports country/state-level `geo` codes for
+    # a handful of countries' first-level regions, and this project's own
+    # verification found no working Andhra Pradesh sub-region code, so a
+    # narrower geo would silently fall back to global data rather than
+    # actually being AP-scoped.
+    google_trends_keyword: str = os.environ.get("GOOGLE_TRENDS_KEYWORD", "SHG products India")
+    google_trends_years: int = int(os.environ.get("GOOGLE_TRENDS_YEARS", "5"))
+    google_trends_geo: str = os.environ.get("GOOGLE_TRENDS_GEO", "IN")
+    trends_history_dir: str = os.environ.get(
+        "TRENDS_HISTORY_DIR",
+        os.path.join(os.path.dirname(__file__), "..", "data", "trends_history"),
+    )
+
     # T15 forecasting models
     model_registry_dir: str = os.environ.get(
         "MODEL_REGISTRY_DIR", os.path.join(os.path.dirname(__file__), "..", "data", "models")
@@ -63,6 +81,15 @@ class Settings:
     # isn't trained at all — Prophet can technically fit on fewer, but the
     # backtest/forecast would be fitting noise, not a signal. See ADR-0024.
     min_demand_training_days: int = int(os.environ.get("MIN_DEMAND_TRAINING_DAYS", "30"))
+    # Below this many observed calendar days (default 2 years), a product's
+    # demand model is fit with yearly_seasonality=False — one pass through
+    # the calendar isn't enough to distinguish a real annual cycle from
+    # noise. ADR-0024 originally hardcoded this off entirely, since the
+    # seeded demo history never had close to a year of data; real multi-year
+    # history should get to use it once there's actually enough of it.
+    demand_yearly_seasonality_min_days: int = int(
+        os.environ.get("DEMAND_YEARLY_SEASONALITY_MIN_DAYS", str(365 * 2))
+    )
     # Below this many total accumulated price rows (pooled across every
     # commodity/market), the price model isn't trained at all. Agmarknet's
     # snapshot-only API means this starts at 0 and grows slowly — see

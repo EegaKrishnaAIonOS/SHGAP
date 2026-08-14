@@ -14,7 +14,11 @@ interface AuthContextValue {
   profileLoading: boolean;
   /** Whether the caller holds any of the given roles (e.g. `hasRole('ADMIN', 'STATE_OFFICIAL')`). */
   hasRole: (...roles: string[]) => boolean;
-  requestOtp: (phone: string) => Promise<void>;
+  /** Resolves to the OTP itself outside production (see core-api's
+   * `AuthService.requestOtp`) — no real SMS provider is configured for this
+   * pilot, so this is the only way to actually receive a code. Always
+   * `undefined` in production. */
+  requestOtp: (phone: string) => Promise<string | undefined>;
   verifyOtp: (phone: string, otp: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -59,7 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated]);
 
   const requestOtp = useCallback(async (phone: string) => {
-    await authApi.requestOtp(phone);
+    const result = await authApi.requestOtp(phone);
+    return result.devOtp;
   }, []);
 
   const verifyOtp = useCallback(async (phone: string, otp: string) => {

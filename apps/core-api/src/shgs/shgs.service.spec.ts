@@ -177,6 +177,41 @@ describe('ShgsService', () => {
     });
   });
 
+  describe('findPublicSummary', () => {
+    it('never touches PII decryption and returns no bank fields', async () => {
+      prisma.shg.findUnique.mockResolvedValueOnce({
+        id: 'shg-1',
+        name: 'Lakshmi SHG',
+        type: 'FOOD',
+        productionCapacityNote: null,
+        district: { name: 'Anantapur' },
+        ulb: null,
+        mandal: null,
+      });
+
+      const result = await service.findPublicSummary('shg-1');
+
+      expect(pii.decrypt).not.toHaveBeenCalled();
+      expect(result).not.toHaveProperty('bankAccountNumber');
+      expect(result).not.toHaveProperty('bankIfsc');
+      expect(result.name).toBe('Lakshmi SHG');
+    });
+
+    it('selects only public-safe fields from Prisma', async () => {
+      await service.findPublicSummary('shg-1');
+      const { select } = prisma.shg.findUnique.mock.calls[0][0];
+      expect(select).not.toHaveProperty('bankAccountNumber');
+      expect(select).not.toHaveProperty('bankIfsc');
+    });
+
+    it('throws NotFoundException for a missing SHG', async () => {
+      prisma.shg.findUnique.mockResolvedValueOnce(null);
+      await expect(service.findPublicSummary('missing')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
   describe('findAllInScope', () => {
     it('scopes to the district for a DISTRICT_OFFICIAL', async () => {
       await service.findAllInScope(

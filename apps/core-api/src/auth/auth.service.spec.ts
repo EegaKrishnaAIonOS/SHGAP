@@ -30,6 +30,7 @@ describe('AuthService', () => {
   let service: AuthService;
 
   const CONFIG: Record<string, string> = {
+    NODE_ENV: 'development',
     JWT_ACCESS_SECRET: 'access-secret',
     JWT_REFRESH_SECRET: 'refresh-secret',
     JWT_ACCESS_EXPIRES_IN: '15m',
@@ -59,6 +60,7 @@ describe('AuthService', () => {
     };
     jwt = new JwtService({});
     config = {
+      get: (key: string) => CONFIG[key],
       getOrThrow: (key: string) => CONFIG[key],
     } as unknown as ConfigService;
     otpService = {
@@ -95,7 +97,21 @@ describe('AuthService', () => {
         '123456',
         300,
       );
-      expect(result).toEqual({ message: 'OTP sent' });
+      expect(result.message).toBe('OTP sent');
+    });
+
+    it('echoes the OTP back as devOtp outside production, since no real SMS provider is configured for this pilot', async () => {
+      otpService.generate.mockResolvedValueOnce('123456');
+      const result = await service.requestOtp('9876543210');
+      expect(result.devOtp).toBe('123456');
+    });
+
+    it('never echoes the OTP back when NODE_ENV is production', async () => {
+      CONFIG.NODE_ENV = 'production';
+      otpService.generate.mockResolvedValueOnce('123456');
+      const result = await service.requestOtp('9876543210');
+      expect(result.devOtp).toBeUndefined();
+      CONFIG.NODE_ENV = 'development';
     });
   });
 

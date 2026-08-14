@@ -26,8 +26,10 @@
   },
   "nav": {
     "home": "Home",
+    "marketplace": "Marketplace",
     "registration": "SHG Registration",
     "catalogue": "Product Catalogue",
+    "enquiriesReceived": "Enquiries Received",
     "voiceAssistant": "Voice Assistant",
     "dashboards": "Dashboards",
     "districtDashboard": "District Dashboard",
@@ -47,13 +49,35 @@
     "otpInvalid": "Enter the code you received",
     "otpIncorrect": "That code is incorrect or has expired. Please try again.",
     "networkError": "Couldn't reach the server. Check your connection and try again.",
-    "changeNumber": "Change phone number"
+    "changeNumber": "Change phone number",
+    "devOtpNotice": "Dev mode — no SMS provider is configured, so here's your code directly: {{otp}} (already filled in below)."
   },
   "home": {
     "title": "SHG Smart Market Linkage Platform",
-    "subtitle": "Sprint 0 wireframes (T04) — SHG-facing screens and official dashboards, implemented as real routed pages instead of Figma.",
-    "shgFacingHeading": "SHG member screens (mobile-first)",
-    "officialFacingHeading": "Official dashboards (desktop-first)"
+    "subtitle": "Connecting Self Help Groups across Andhra Pradesh with buyers, markets and government support — one platform for members and officials alike.",
+    "department": "MEPMA / Department of Rural Development",
+    "heroEyebrow": "An Andhra Pradesh Government Initiative",
+    "browseMarketplaceCta": "Browse Marketplace",
+    "officerLoginCta": "Officer Login",
+    "skipToContent": "Skip to main content",
+    "fontSizeControl": "Font size",
+    "fontSizeOption": "Set font size to {{percent}}%",
+    "cardRegistrationDesc": "Register your Self Help Group and get discovered by buyers across the state.",
+    "cardCatalogueDesc": "Add and manage your product listings with photos, pricing and stock.",
+    "cardEnquiriesDesc": "View and respond to buyer enquiries on your products.",
+    "cardVoiceDesc": "Get AI-powered voice support in Telugu for common tasks.",
+    "sectionPillMember": "Member Portal",
+    "sectionPillOfficial": "Official Portal",
+    "shgFacingHeading": "For SHG members",
+    "shgFacingSubheading": "Mobile-first tools to register your group, list products, and reach buyers.",
+    "officialFacingHeading": "For officials",
+    "officialFacingSubheading": "Desktop dashboards for monitoring SHG performance, sales and market linkage.",
+    "badgeMobileFirst": "Mobile-First",
+    "badgeDesktopFirst": "Desktop-First",
+    "badgePublicAccess": "Public Access",
+    "badgeLoginRequired": "Login Required",
+    "badgeOfficerLogin": "Officer Login Required",
+    "footerNote": "SHG Smart Market Linkage Platform — a Proof of Concept for MEPMA, Government of Andhra Pradesh."
   },
   "registration": {
     "title": "SHG Registration",
@@ -172,6 +196,64 @@
       "queuedOffline": "You're offline — this photo will upload automatically once you're back online.",
       "deleteImage": "Delete photo"
     }
+  },
+  "marketplace": {
+    "title": "SHG Product Marketplace",
+    "subtitle": "Browse products from Self Help Groups across Andhra Pradesh — no login needed.",
+    "searchPlaceholder": "Search products...",
+    "noProducts": "No products found.",
+    "noProductsFiltered": "No products match your filters.",
+    "clearFilters": "Clear filters",
+    "categoriesLoadError": "Couldn't load categories. Please try again.",
+    "districtsLoadError": "Couldn't load districts. Please try again.",
+    "productsLoadError": "Couldn't load products. Please try again.",
+    "productLoadError": "Couldn't load this product. Please try again.",
+    "storefrontLoadError": "Couldn't load this SHG's storefront. Please try again.",
+    "backToBrowse": "← Back to marketplace",
+    "viewStorefront": "View {{shg}}'s storefront",
+    "storefrontProducts": "Products from this SHG",
+    "districtLabel": "District",
+    "allDistricts": "All districts",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "enquiryStatus": {
+      "OPEN": "Open",
+      "RESPONDED": "Responded",
+      "CLOSED": "Closed"
+    },
+    "enquiry": {
+      "enquireButton": "Enquire",
+      "loginToEnquire": "Log in to enquire",
+      "title": "Enquire about {{product}}",
+      "yourName": "Your name",
+      "message": "Message",
+      "messagePlaceholder": "What would you like to ask about this product?",
+      "submit": "Send enquiry",
+      "sentConfirmation": "Your enquiry has been sent. The SHG will respond soon — check \"My enquiries\" for their reply.",
+      "queuedOffline": "You're offline — this enquiry will send automatically once you're back online.",
+      "submitFailed": "Couldn't send your enquiry. Please try again."
+    },
+    "myEnquiries": {
+      "navLink": "My enquiries",
+      "title": "My Enquiries",
+      "loadError": "Couldn't load your enquiries. Please try again.",
+      "empty": "You haven't sent any enquiries yet.",
+      "productUnavailable": "Product no longer available",
+      "shgReplied": "The SHG replied"
+    }
+  },
+  "enquiries": {
+    "title": "Enquiries Received",
+    "loadError": "Couldn't load enquiries. Please try again.",
+    "empty": "No enquiries yet.",
+    "fromBuyer": "From {{buyer}}",
+    "responsePlaceholder": "Type your reply (e.g. a quote, availability)...",
+    "markResponded": "Send response",
+    "markClosed": "Close enquiry",
+    "respondFailed": "Couldn't send your response. Please try again.",
+    "yourReply": "Your reply"
   },
   "voice": {
     "title": "Voice Assistant",

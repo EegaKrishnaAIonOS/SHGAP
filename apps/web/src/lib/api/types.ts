@@ -103,6 +103,48 @@ export interface Product {
   createdAt: string;
 }
 
+/** Public storefront profile (`GET /marketplace/shgs/:id`) — deliberately
+ * narrower than `Shg`: no `bankAccountNumber`/`bankIfsc`/`contactUserId`/
+ * `isActive`/`mepmaRegistrationNumber`, since this is what an anonymous
+ * marketplace visitor can see. */
+export interface MarketplaceShgSummary {
+  id: string;
+  name: string;
+  type: ShgType;
+  productionCapacityNote: string | null;
+  district?: District;
+  ulb?: Ulb | null;
+  mandal?: Mandal | null;
+  location: GeoPoint | null;
+}
+
+export interface MarketplaceStorefront {
+  shg: MarketplaceShgSummary;
+  products: Product[];
+}
+
+export type MarketplaceSortBy = "newest" | "price_asc" | "price_desc";
+
+export type EnquiryStatus = "OPEN" | "RESPONDED" | "CLOSED";
+
+/** An RFQ (`POST /enquiries` et al, Phase 2) — nested `product`/`shg`/`buyer`
+ * are name-only summaries (`{ id, name }`), matching the backend's
+ * `enquiryInclude`, not the full `Product`/`Shg`/`Buyer` shapes. */
+export interface Enquiry {
+  id: string;
+  buyerId: string;
+  productId: string | null;
+  shgId: string;
+  message: string | null;
+  status: EnquiryStatus;
+  responseMessage: string | null;
+  respondedAt: string | null;
+  createdAt: string;
+  product: { id: string; name: string } | null;
+  shg: { id: string; name: string };
+  buyer: { id: string; name: string };
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   page: number;

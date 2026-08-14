@@ -10,8 +10,13 @@ import { RequireRole } from "./components/RequireRole";
 import { initOfflineSync } from "./lib/offlineQueue/sync";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/auth/LoginPage";
+import { MarketplaceHomePage } from "./pages/marketplace/MarketplaceHomePage";
+import { MarketplaceProductDetailPage } from "./pages/marketplace/MarketplaceProductDetailPage";
+import { MarketplaceStorefrontPage } from "./pages/marketplace/MarketplaceStorefrontPage";
+import { MyEnquiresPage } from "./pages/marketplace/MyEnquiresPage";
 import { RegistrationPage } from "./pages/shg/RegistrationPage";
 import { ProductCataloguePage } from "./pages/shg/ProductCataloguePage";
+import { EnquiriesReceivedPage } from "./pages/shg/EnquiriesReceivedPage";
 import { VoiceAssistantPage } from "./pages/shg/VoiceAssistantPage";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminOverviewPage } from "./pages/admin/AdminOverviewPage";
@@ -75,11 +80,25 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
 
+          {/* Public marketplace (Phase 1, read-only) — no login, unlike every
+              other route below. */}
+          <Route path="/marketplace" element={<MarketplaceHomePage />} />
+          <Route path="/marketplace/products/:id" element={<MarketplaceProductDetailPage />} />
+          <Route path="/marketplace/shgs/:id" element={<MarketplaceStorefrontPage />} />
+
+          {/* Phase 2: a buyer's own sent RFQs — login-gated, but standalone
+              (no MobileShell): a buyer here is any logged-in user, not
+              necessarily an SHG member. */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/my-enquiries" element={<MyEnquiresPage />} />
+          </Route>
+
           {/* SHG-member-facing screens: mobile-first shell, gated behind phone-OTP login. */}
           <Route element={<ProtectedRoute />}>
             <Route element={<MobileShell />}>
               <Route path="/register" element={<RegistrationPage />} />
               <Route path="/catalogue" element={<ProductCataloguePage />} />
+              <Route path="/enquiries" element={<EnquiriesReceivedPage />} />
               <Route path="/voice-assistant" element={<VoiceAssistantPage />} />
             </Route>
           </Route>

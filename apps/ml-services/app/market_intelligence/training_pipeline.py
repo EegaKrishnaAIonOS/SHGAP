@@ -11,7 +11,10 @@ async def run_training_pipeline() -> dict:
     thresholds and simply register nothing if there isn't enough yet,
     rather than fitting a model to noise (see ADR-0024).
     """
-    sales_features, price_features = feature_store.read_features()
+    # trends_features (3rd table) isn't consumed here yet — see
+    # feature_engineering.add_trends_features' docstring for why using it as
+    # a Prophet regressor is a stated gap, not a silent one.
+    sales_features, price_features, _trends_features = feature_store.read_features()
     festivals = await fetch_festivals()
 
     demand_results = demand_model.train_all(sales_features, festivals)

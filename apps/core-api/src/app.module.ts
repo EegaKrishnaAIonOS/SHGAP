@@ -18,8 +18,10 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { AccessLogMiddleware } from './common/middleware/access-log.middleware';
 import { validate } from './config/env.validation';
 import { ConsentModule } from './consent/consent.module';
+import { EnquiriesModule } from './enquiries/enquiries.module';
 import { GeoModule } from './geo/geo.module';
 import { HealthController } from './health.controller';
+import { MarketplaceModule } from './marketplace/marketplace.module';
 import { MasterDataModule } from './master-data/master-data.module';
 import { MepmaModule } from './mepma/mepma.module';
 import { MetricsMiddleware } from './metrics/metrics.middleware';
@@ -68,6 +70,8 @@ import { UsersModule } from './users/users.module';
     AnalyticsModule,
     MepmaModule,
     OndcModule,
+    MarketplaceModule,
+    EnquiriesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

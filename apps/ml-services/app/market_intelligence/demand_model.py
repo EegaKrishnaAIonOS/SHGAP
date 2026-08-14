@@ -51,11 +51,21 @@ def _prepare_prophet_frame(dense_df: pd.DataFrame, festivals: list[FestivalRecor
     return df.rename(columns={"sale_date": "ds", "total_quantity": "y"})[["ds", "y", *REGRESSORS]]
 
 
-def _fit_prophet(train_df: pd.DataFrame) -> Prophet:
-    # yearly_seasonality is deliberately off: fitting a yearly cycle from
-    # well under a year of real history would just be fitting noise, not a
-    # real seasonal signal — see ADR-0024.
-    model = Prophet(yearly_seasonality=False, weekly_seasonality=True)
+def _spans_enough_history_for_yearly_seasonality(product_df: pd.DataFrame) -> bool:
+    """Whether this product has observed enough real calendar time to fit a
+    yearly cycle from, rather than from noise — see
+    `settings.demand_yearly_seasonality_min_days`. ADR-0024 originally
+    hardcoded yearly_seasonality off entirely, since the only history that
+    existed then was well under a year; this makes it conditional instead of
+    just flipping it on, now that real multi-year history exists for some
+    products."""
+    dates = pd.to_datetime(product_df["sale_date"])
+    observed_days = (dates.max() - dates.min()).days + 1
+    return observed_days >= settings.demand_yearly_seasonality_min_days
+
+
+def _fit_prophet(train_df: pd.DataFrame, yearly_seasonality: bool) -> Prophet:
+    model = Prophet(yearly_seasonality=yearly_seasonality, weekly_seasonality=True)
     for regressor in REGRESSORS:
         model.add_regressor(regressor)
     model.fit(train_df)
@@ -79,13 +89,14 @@ def train_one_product(
 
     dense = _densify_daily_series(product_df, district_id)
     prophet_df = _prepare_prophet_frame(dense, festivals)
+    yearly_seasonality = _spans_enough_history_for_yearly_seasonality(product_df)
 
     train_df, test_df = time_based_split(prophet_df, date_col="ds")
     if len(test_df) < 7 or len(train_df) < 7:
         logger.info(f"Skipping demand model for product {product_id}: not enough rows to backtest")
         return None
 
-    model = _fit_prophet(train_df)
+    model = _fit_prophet(train_df, yearly_seasonality)
     forecast = model.predict(test_df[["ds", *REGRESSORS]])
     predicted = forecast["yhat"].clip(lower=0)
     metrics = compute_metrics(test_df["y"], predicted)
@@ -93,7 +104,7 @@ def train_one_product(
     # Refit on the *full* series (train + test) for the model actually
     # served — the held-out split above exists only to measure honest
     # accuracy, not to withhold real data from the production model.
-    final_model = _fit_prophet(prophet_df)
+    final_model = _fit_prophet(prophet_df, yearly_seasonality)
 
     with open(model_registry.model_path(f"demand_{product_id}", "json"), "w") as f:
         f.write(model_to_json(final_model))
@@ -105,6 +116,7 @@ def train_one_product(
             "district_id": district_id,
             "observed_days": int(product_df["sale_date"].nunique()),
             "date_range": [str(dense["sale_date"].min()), str(dense["sale_date"].max())],
+            "yearly_seasonality": yearly_seasonality,
             "backtest_mae": metrics.mae,
             "backtest_rmse": metrics.rmse,
             "backtest_mape": metrics.mape,

@@ -12,6 +12,7 @@ import { RequestScope } from '../common/interfaces/jwt-payload.interface';
 import { CreateProductDto } from './dto/create-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { QueryMarketplaceProductsDto } from '../marketplace/dto/query-marketplace-products.dto';
 
 const productInclude = {
   shg: { include: { district: true, ulb: true } },
@@ -81,6 +82,63 @@ export class ProductsService {
     ]);
 
     return paginate(await this.attachLocations(products), total, query);
+  }
+
+  /** Public marketplace listing (no auth, no `RequestScope`) — always
+   * restricted to `isAvailable: true` since this is what an anonymous buyer
+   * can act on, unlike `findAllInScope`'s scoped-but-otherwise-unfiltered
+   * default. */
+  async findAllPublic(
+    query: QueryMarketplaceProductsDto,
+  ): Promise<PaginatedResult<unknown>> {
+    const where: Prisma.ProductWhereInput = {
+      isAvailable: true,
+      ...(query.categoryId
+        ? { categoryId: await this.resolveCategoryFilter(query.categoryId) }
+        : {}),
+      ...(query.shgId ? { shgId: query.shgId } : {}),
+      ...(query.districtId ? { shg: { districtId: query.districtId } } : {}),
+      ...(query.search
+        ? {
+            OR: [
+              { name: { contains: query.search, mode: 'insensitive' } },
+              { description: { contains: query.search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, products] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        include: productInclude,
+        orderBy: marketplaceOrderBy(query.sortBy),
+        skip: query.skip,
+        take: query.pageSize,
+      }),
+    ]);
+
+    return paginate(await this.attachLocations(products), total, query);
+  }
+
+  /** `Product.categoryId` always stores the *leaf* category (e.g.
+   * "Pickles"), never a top-level one (e.g. "Food Products") — but the
+   * public marketplace's category chips are built from the top-level list,
+   * so clicking one sends the parent's id. An exact-match filter on that id
+   * would therefore always return zero rows. Resolving to "this id, or any
+   * of its children" makes a parent chip match everything under it while
+   * leaving a leaf id's exact-match behavior unchanged (it simply has no
+   * children to add). */
+  private async resolveCategoryFilter(
+    categoryId: string,
+  ): Promise<string | { in: string[] }> {
+    const children = await this.prisma.category.findMany({
+      where: { parentId: categoryId },
+      select: { id: true },
+    });
+    if (children.length === 0) return categoryId;
+    return { in: [categoryId, ...children.map((c) => c.id)] };
   }
 
   async findNearby(point: LatLng, radiusKm: number) {
@@ -227,5 +285,19 @@ function scopeWhere(scope: RequestScope): Prisma.ProductWhereInput {
       return { shg: { ulbId: { in: scope.ulbIds } } };
     case 'self':
       return { shg: { contactUserId: scope.userId } };
+  }
+}
+
+function marketplaceOrderBy(
+  sortBy: QueryMarketplaceProductsDto['sortBy'],
+): Prisma.ProductOrderByWithRelationInput {
+  switch (sortBy) {
+    case 'price_asc':
+      return { price: 'asc' };
+    case 'price_desc':
+      return { price: 'desc' };
+    case 'newest':
+    default:
+      return { createdAt: 'desc' };
   }
 }

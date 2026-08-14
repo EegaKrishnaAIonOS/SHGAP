@@ -93,6 +93,30 @@ export class ShgsService {
     return withLocation;
   }
 
+  /** Public storefront summary (no auth) — deliberately does NOT reuse
+   * `findOne`/`attachLocations`, which decrypt and return
+   * `bankAccountNumber`/`bankIfsc` (PII with no business reason to ever
+   * leave this platform to an anonymous caller). Selects only the fields a
+   * public storefront page needs. */
+  async findPublicSummary(id: string) {
+    const shg = await this.prisma.shg.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        productionCapacityNote: true,
+        district: true,
+        ulb: true,
+        mandal: true,
+      },
+    });
+    if (!shg) {
+      throw new NotFoundException(`SHG ${id} not found`);
+    }
+    return { ...shg, location: await this.geo.getLocation('shg', shg.id) };
+  }
+
   async update(
     id: string,
     requesterId: string,

@@ -31,6 +31,16 @@ class TestDensifyDailySeries:
         assert (dense["district_id"] == "d1").all()
 
 
+class TestSpansEnoughHistoryForYearlySeasonality:
+    def test_false_below_the_configured_threshold(self, monkeypatch):
+        monkeypatch.setattr(settings, "demand_yearly_seasonality_min_days", 730)
+        assert not demand_model._spans_enough_history_for_yearly_seasonality(_sales_df(45))
+
+    def test_true_at_or_above_the_configured_threshold(self, monkeypatch):
+        monkeypatch.setattr(settings, "demand_yearly_seasonality_min_days", 45)
+        assert demand_model._spans_enough_history_for_yearly_seasonality(_sales_df(45))
+
+
 class TestTrainOneProduct:
     def test_returns_none_below_the_minimum_observed_days_threshold(self, monkeypatch, tmp_path):
         monkeypatch.setattr(settings, "model_registry_dir", str(tmp_path))
@@ -51,6 +61,23 @@ class TestTrainOneProduct:
         assert result["backtest_test_rows"] > 0
         # A model file was actually serialized, not just a manifest entry.
         assert (tmp_path / "demand_p1.json").exists()
+
+    def test_yearly_seasonality_defaults_off_for_under_two_years_of_history(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.setattr(settings, "model_registry_dir", str(tmp_path))
+        monkeypatch.setattr(settings, "min_demand_training_days", 30)
+        result = demand_model.train_one_product("p1", "d1", _sales_df(45), festivals=[])
+        assert result["yearly_seasonality"] is False
+
+    def test_yearly_seasonality_turns_on_once_the_configured_threshold_is_met(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.setattr(settings, "model_registry_dir", str(tmp_path))
+        monkeypatch.setattr(settings, "min_demand_training_days", 30)
+        monkeypatch.setattr(settings, "demand_yearly_seasonality_min_days", 45)
+        result = demand_model.train_one_product("p1", "d1", _sales_df(45), festivals=[])
+        assert result["yearly_seasonality"] is True
 
 
 class TestTrainAll:

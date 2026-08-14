@@ -2,8 +2,8 @@ import { authFetch, publicFetch } from "./httpClient";
 import type { TokenPair } from "../auth/tokenStore";
 import type { UserProfile } from "./types";
 
-export function requestOtp(phone: string): Promise<{ message: string }> {
-  return publicFetch<{ message: string }>("/auth/request-otp", {
+export function requestOtp(phone: string): Promise<{ message: string; devOtp?: string }> {
+  return publicFetch<{ message: string; devOtp?: string }>("/auth/request-otp", {
     method: "POST",
     body: { phone },
   });

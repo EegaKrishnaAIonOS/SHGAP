@@ -6,6 +6,7 @@ export const roles: { name: RoleName; description: string }[] = [
   { name: "DISTRICT_OFFICIAL", description: "District-level official — monitors SHGs, products and buyers across a district" },
   { name: "STATE_OFFICIAL", description: "State-level official (MEPMA) — monitors state-wide KPIs and district ranking" },
   { name: "ADMIN", description: "Platform administrator — manages master data, users and moderation" },
+  { name: "BUYER", description: "Marketplace buyer — auto-created on first RFQ submission" },
 ];
 
 /** The three POC pilot districts (see Proof of Concept Scope.docx, Section 2). */

@@ -6,6 +6,7 @@ from app.market_intelligence.feature_engineering import (
     add_geo_features,
     add_lag_features,
     add_seasonality_features,
+    add_trends_features,
 )
 from app.market_intelligence.repository import FestivalRecord
 
@@ -157,3 +158,40 @@ class TestLagFeatures:
         assert result["quantity_lag_1"].iloc[1:].tolist() == [10, 20]
         # Day 3's rolling mean of the prior 2 days (day1=10, day2=20) = 15.
         assert result["quantity_rolling_mean_2"].iloc[2] == pytest.approx(15.0)
+
+
+class TestTrendsFeatures:
+    def test_adds_seasonality_and_week_scale_lag_columns(self):
+        df = pd.DataFrame(
+            {
+                "keyword": ["SHG products India"] * 5,
+                "date": [
+                    "2026-01-04",
+                    "2026-01-11",
+                    "2026-01-18",
+                    "2026-01-25",
+                    "2026-02-01",
+                ],
+                "interest": [10, 20, 30, 40, 50],
+            }
+        )
+        result = add_trends_features(df, date_col="date", value_col="interest")
+
+        assert "is_weekend" in result.columns  # from add_seasonality_features
+        assert "interest_lag_1" in result.columns
+        assert "interest_rolling_mean_4" in result.columns
+        # lag_1 is in weeks here, not days: row 2 (2026-01-11) should see row 1's value.
+        lag_1 = result.sort_values("date")["interest_lag_1"]
+        assert lag_1.isna().tolist() == [True, False, False, False, False]
+        assert lag_1.iloc[1:].tolist() == [10, 20, 30, 40]
+
+    def test_lag_does_not_leak_across_different_keywords(self):
+        df = pd.DataFrame(
+            {
+                "keyword": ["term-a", "term-b"],
+                "date": ["2026-01-04", "2026-01-04"],
+                "interest": [10, 999],
+            }
+        )
+        result = add_trends_features(df, date_col="date", value_col="interest")
+        assert result["interest_lag_1"].isna().all()

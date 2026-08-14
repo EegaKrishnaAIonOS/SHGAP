@@ -26,6 +26,10 @@ enum RoleName {
   DISTRICT_OFFICIAL
   STATE_OFFICIAL
   ADMIN
+  /// Auto-assigned the first time a logged-in user submits a marketplace
+  /// RFQ (EnquiriesService.ensureBuyerRole) — mirrors how SHG is
+  /// auto-assigned on SHG registration. Never assigned by a signup form.
+  BUYER
 
   @@map("role_name")
 }
@@ -149,6 +153,7 @@ model User {
 
   userRoles     UserRole[]
   shgs          Shg[]          @relation("ShgContactUser")
+  buyer         Buyer?         @relation("BuyerContactUser")
   notifications Notification[]
   consents      Consent[]
   auditLogs     AuditLog[]     @relation("AuditLogActor")
@@ -381,10 +386,18 @@ model Buyer {
   /// Embedding for content-based buyer matching (ADR-0009/ADR-0026) — 384-dim,
   /// same sentence-transformer model already used elsewhere in ml-services.
   embedding     Unsupported("vector(384)")?
+  /// The logged-in user this buyer profile belongs to — nullable, unlike
+  /// Shg.contactUserId (required): existing admin-curated/imported Buyer
+  /// rows have no real platform user to attach, same reasoning ADR-0030
+  /// established for MEPMA-synced SHGs. Set once, automatically, the first
+  /// time that user submits a marketplace RFQ (EnquiriesService
+  /// .getOrCreateBuyerForUser) — never asked for via a signup form.
+  contactUserId String?                               @unique @map("contact_user_id") @db.Uuid
   createdAt     DateTime                              @default(now()) @map("created_at")
   updatedAt     DateTime                              @updatedAt @map("updated_at")
 
-  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  district    District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  contactUser User?     @relation("BuyerContactUser", fields: [contactUserId], references: [id], onDelete: SetNull)
 
   categoryInterests BuyerCategoryInterest[]
   sales             Sale[]
@@ -434,14 +447,19 @@ model Sale {
 }
 
 model Enquiry {
-  id        String        @id @default(uuid()) @db.Uuid
-  buyerId   String        @map("buyer_id") @db.Uuid
-  productId String?       @map("product_id") @db.Uuid
-  shgId     String        @map("shg_id") @db.Uuid
-  message   String?
-  status    EnquiryStatus @default(OPEN)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(uuid()) @db.Uuid
+  buyerId         String        @map("buyer_id") @db.Uuid
+  productId       String?       @map("product_id") @db.Uuid
+  shgId           String        @map("shg_id") @db.Uuid
+  message         String?
+  status          EnquiryStatus @default(OPEN)
+  /// What the SHG actually replied with (a quote, an availability note) —
+  /// added alongside `status` so "respond" has real content, not just a
+  /// state flip. Both null until EnquiriesService.respond() is called.
+  responseMessage String?       @map("response_message")
+  respondedAt     DateTime?     @map("responded_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
   buyer   Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
@@ -563,17 +581,17 @@ model Consent {
 /// directly in the DB) breaks the chain from that row forward — detectable
 /// by `AuditService.verifyChain()`, not just asserted.
 model AuditLog {
-  id            String   @id @default(uuid()) @db.Uuid
-  actorUserId   String?  @map("actor_user_id") @db.Uuid
-  action        String
-  entityType    String   @map("entity_type")
-  entityId      String   @map("entity_id") @db.Uuid
-  beforeState   Json?    @map("before_state")
-  afterState    Json?    @map("after_state")
-  ipAddress     String?  @map("ip_address") @db.VarChar(45)
-  previousHash  String?  @map("previous_hash") @db.VarChar(64)
-  hash          String   @db.VarChar(64)
-  createdAt     DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  actorUserId  String?  @map("actor_user_id") @db.Uuid
+  action       String
+  entityType   String   @map("entity_type")
+  entityId     String   @map("entity_id") @db.Uuid
+  beforeState  Json?    @map("before_state")
+  afterState   Json?    @map("after_state")
+  ipAddress    String?  @map("ip_address") @db.VarChar(45)
+  previousHash String?  @map("previous_hash") @db.VarChar(64)
+  hash         String   @db.VarChar(64)
+  createdAt    DateTime @default(now()) @map("created_at")
 
   actor User? @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
 
@@ -591,12 +609,12 @@ model AuditLog {
 /// etc.) used to ground the voice assistant's scheme-guidance answers (ADR-0021).
 /// `schemeName`/`sourceUrl`/`sourceTitle` let answers cite where a fact came from.
 model SchemeChunk {
-  id          String   @id @default(uuid()) @db.Uuid
-  schemeName  String   @map("scheme_name")
+  id          String                      @id @default(uuid()) @db.Uuid
+  schemeName  String                      @map("scheme_name")
   content     String
-  sourceUrl   String   @map("source_url")
-  sourceTitle String   @map("source_title")
-  createdAt   DateTime @default(now()) @map("created_at")
+  sourceUrl   String                      @map("source_url")
+  sourceTitle String                      @map("source_title")
+  createdAt   DateTime                    @default(now()) @map("created_at")
   /// Embedding dimension is 384 to match ml-services' actual embedding model
   /// (sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2, ADR-0017) —
   /// Product/Buyer below now reuse this same model/dimension too (T17/ADR-0026),

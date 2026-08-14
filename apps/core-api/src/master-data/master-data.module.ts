@@ -5,5 +5,6 @@ import { MasterDataService } from './master-data.service';
 @Module({
   controllers: [MasterDataController],
   providers: [MasterDataService],
+  exports: [MasterDataService],
 })
 export class MasterDataModule {}

@@ -151,3 +151,34 @@ def add_lag_features(
             lambda s, w=window: _rolling_mean(s, w)
         )
     return df
+
+
+def add_trends_features(
+    df: pd.DataFrame, date_col: str = "date", value_col: str = "interest"
+) -> pd.DataFrame:
+    """Seasonality plus lag/rolling features over a Google Trends
+    interest-over-time series (see google_trends_client.py). Trends' own
+    5-year window comes back at weekly, not daily, resolution — lags are
+    expressed in weeks (1/4/12 ~ last week / last month / last quarter)
+    rather than reusing `add_lag_features`' daily defaults, which would
+    silently mean "12 weeks ago" whatever the caller intended.
+
+    This is a standalone macro-level signal (one national search-interest
+    series, not per-product/per-district) — grouped by `keyword` only so
+    multiple tracked keywords, if ever added, don't leak lags across each
+    other's series. It is engineered and written to the feature store
+    alongside sales/price features, but not yet consumed as a model
+    regressor: doing that for Prophet would require forecasting *future*
+    trends values too, which is a real modeling problem of its own, not
+    something to fabricate. That wiring is a stated gap, not a silent one.
+    """
+    df = add_seasonality_features(df, date_col=date_col)
+    df = add_lag_features(
+        df,
+        group_cols=["keyword"],
+        date_col=date_col,
+        value_col=value_col,
+        lags=(1, 4, 12),
+        rolling_windows=(4, 12),
+    )
+    return df

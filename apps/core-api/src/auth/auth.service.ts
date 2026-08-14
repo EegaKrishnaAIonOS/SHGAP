@@ -30,7 +30,7 @@ export class AuthService {
     @Inject(SMS_PROVIDER) private readonly smsProvider: SmsProvider,
   ) {}
 
-  async requestOtp(phone: string): Promise<{ message: string }> {
+  async requestOtp(phone: string): Promise<{ message: string; devOtp?: string }> {
     // Upserted here too (not just on verify) so a real `User.id` already
     // exists for notification-service's dispatch call to reference — its
     // `Notification.userId` is a required FK (T13). A brand-new phone number
@@ -49,7 +49,17 @@ export class AuthService {
       otp,
       this.otpService.ttlSeconds,
     );
-    return { message: 'OTP sent' };
+
+    // Dev/test convenience only: no real SMS/WhatsApp provider is configured
+    // for this pilot (ConsoleSmsProvider just logs the OTP — see
+    // notification-service's ADR-0022), so there's nowhere else to read the
+    // code from without this. Never populated outside development/test —
+    // echoing a real OTP back over the wire in production would defeat the
+    // point of a one-time code.
+    const devOtp =
+      this.config.get<string>('NODE_ENV') !== 'production' ? otp : undefined;
+
+    return { message: 'OTP sent', devOtp };
   }
 
   async verifyOtp(phone: string, otp: string): Promise<TokenPair> {

@@ -20,6 +20,7 @@ describe('ProductsService', () => {
   beforeEach(() => {
     prisma = {
       shg: { findUnique: jest.fn().mockResolvedValue(shgRow) },
+      category: { findMany: jest.fn().mockResolvedValue([]) },
       product: {
         create: jest.fn().mockResolvedValue(productRow),
         findUnique: jest.fn().mockResolvedValue(productRow),
@@ -116,6 +117,127 @@ describe('ProductsService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('findAllPublic', () => {
+    it('always restricts to isAvailable: true, regardless of filters passed', async () => {
+      await service.findAllPublic({
+        skip: 0,
+        pageSize: 20,
+        page: 1,
+      } as any);
+      expect(prisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ isAvailable: true }),
+        }),
+      );
+    });
+
+    it('matches name OR description (case-insensitive) when search is provided', async () => {
+      await service.findAllPublic({
+        skip: 0,
+        pageSize: 20,
+        page: 1,
+        search: 'pickle',
+      } as any);
+      expect(prisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            OR: [
+              { name: { contains: 'pickle', mode: 'insensitive' } },
+              { description: { contains: 'pickle', mode: 'insensitive' } },
+            ],
+          }),
+        }),
+      );
+    });
+
+    it('filters by shgId when provided (used by the storefront composition)', async () => {
+      await service.findAllPublic({
+        skip: 0,
+        pageSize: 100,
+        page: 1,
+        shgId: 'shg-1',
+      } as any);
+      expect(prisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ shgId: 'shg-1' }),
+        }),
+      );
+    });
+
+    describe('categoryId resolution (a chip may send a parent OR a leaf id)', () => {
+      it('matches only that id when it has no children (a leaf category)', async () => {
+        prisma.category.findMany.mockResolvedValueOnce([]);
+        await service.findAllPublic({
+          skip: 0,
+          pageSize: 20,
+          page: 1,
+          categoryId: 'leaf-cat',
+        } as any);
+        expect(prisma.category.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({ where: { parentId: 'leaf-cat' } }),
+        );
+        expect(prisma.product.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({ categoryId: 'leaf-cat' }),
+          }),
+        );
+      });
+
+      it('matches the id AND every child when it has children (a top-level category)', async () => {
+        prisma.category.findMany.mockResolvedValueOnce([
+          { id: 'child-1' },
+          { id: 'child-2' },
+        ]);
+        await service.findAllPublic({
+          skip: 0,
+          pageSize: 20,
+          page: 1,
+          categoryId: 'parent-cat',
+        } as any);
+        expect(prisma.product.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({
+              categoryId: { in: ['parent-cat', 'child-1', 'child-2'] },
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('sortBy', () => {
+      it('defaults to newest-first when no sortBy is given', async () => {
+        await service.findAllPublic({ skip: 0, pageSize: 20, page: 1 } as any);
+        expect(prisma.product.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({ orderBy: { createdAt: 'desc' } }),
+        );
+      });
+
+      it('sorts by ascending price when sortBy is price_asc', async () => {
+        await service.findAllPublic({
+          skip: 0,
+          pageSize: 20,
+          page: 1,
+          sortBy: 'price_asc',
+        } as any);
+        expect(prisma.product.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({ orderBy: { price: 'asc' } }),
+        );
+      });
+
+      it('sorts by descending price when sortBy is price_desc', async () => {
+        await service.findAllPublic({
+          skip: 0,
+          pageSize: 20,
+          page: 1,
+          sortBy: 'price_desc',
+        } as any);
+        expect(prisma.product.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({ orderBy: { price: 'desc' } }),
+        );
+      });
     });
   });
 

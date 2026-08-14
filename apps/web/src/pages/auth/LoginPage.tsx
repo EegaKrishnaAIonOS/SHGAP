@@ -28,6 +28,7 @@ export function LoginPage() {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +46,9 @@ export function LoginPage() {
     }
     setIsSubmitting(true);
     try {
-      await requestOtp(phone);
+      const receivedDevOtp = await requestOtp(phone);
+      setDevOtp(receivedDevOtp ?? null);
+      setOtp(receivedDevOtp ?? "");
       setStep("otp");
     } catch (err) {
       setError(describeError(err, t));
@@ -105,6 +108,14 @@ export function LoginPage() {
           </form>
         ) : (
           <form className="flex flex-col gap-4" onSubmit={(e) => void handleVerifyOtp(e)}>
+            {devOtp && (
+              <p
+                role="status"
+                className="rounded-md border border-dashed border-warning-500 bg-warning-50 px-3 py-2 text-sm text-warning-700"
+              >
+                {t("login.devOtpNotice", { otp: devOtp })}
+              </p>
+            )}
             <Input
               label={t("registration.otp")}
               inputMode="numeric"
@@ -126,6 +137,7 @@ export function LoginPage() {
               onClick={() => {
                 setStep("phone");
                 setOtp("");
+                setDevOtp(null);
                 setError(null);
               }}
             >

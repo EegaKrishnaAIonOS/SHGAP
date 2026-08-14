@@ -96,3 +96,63 @@ class TestGetPrices:
 
         assert response.status_code == 200
         assert response.json() == {"prices": []}
+
+
+class TestGetTrends:
+    FAKE_HISTORY = pd.DataFrame(
+        [
+            {
+                "keyword": "SHG products India",
+                "date": "2026-01-04",
+                "interest": 40.0,
+                "is_partial": False,
+            },
+            {
+                "keyword": "SHG products India",
+                "date": "2026-01-11",
+                "interest": 55.0,
+                "is_partial": True,
+            },
+            {
+                "keyword": "handloom sarees",
+                "date": "2026-01-04",
+                "interest": 20.0,
+                "is_partial": False,
+            },
+        ]
+    )
+
+    def test_returns_records_sorted_by_date_descending(self):
+        with patch(
+            "app.market_intelligence.router.load_trends_history",
+            return_value=self.FAKE_HISTORY,
+        ):
+            response = client.get("/market-intelligence/trends")
+
+        assert response.status_code == 200
+        trends = response.json()["trends"]
+        assert trends[0]["date"] == "2026-01-11"
+
+    def test_filters_by_keyword_case_insensitively(self):
+        with patch(
+            "app.market_intelligence.router.load_trends_history",
+            return_value=self.FAKE_HISTORY,
+        ):
+            response = client.get(
+                "/market-intelligence/trends", params={"keyword": "handloom sarees"}
+            )
+
+        trends = response.json()["trends"]
+        assert len(trends) == 1
+        assert trends[0]["keyword"] == "handloom sarees"
+
+    def test_returns_empty_list_when_no_history_exists_yet(self):
+        empty_columns = ["keyword", "date", "interest", "is_partial"]
+        with patch(
+            "app.market_intelligence.router.load_trends_history",
+            return_value=pd.DataFrame(columns=empty_columns),
+        ):
+            response = client.get("/market-intelligence/trends")
+
+        assert response.status_code == 200
+        assert response.json() == {"trends": []}
