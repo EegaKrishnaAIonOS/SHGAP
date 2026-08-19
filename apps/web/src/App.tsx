@@ -7,15 +7,20 @@ import { useHtmlLangSync } from "./i18n/useHtmlLangSync";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { RequireRole } from "./components/RequireRole";
+import { FloatingChatWidget } from "./components/chatbot/FloatingChatWidget";
 import { initOfflineSync } from "./lib/offlineQueue/sync";
-import { HomePage } from "./pages/HomePage";
-import { LoginPage } from "./pages/auth/LoginPage";
-import { RegistrationPage } from "./pages/shg/RegistrationPage";
+import { LandingPage } from "./pages/marketing/LandingPage";
+import { DevIndexPage } from "./pages/dev/DevIndexPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { VerifyEmailPage } from "./pages/auth/VerifyEmailPage";
 import { ProductCataloguePage } from "./pages/shg/ProductCataloguePage";
 import { VoiceAssistantPage } from "./pages/shg/VoiceAssistantPage";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminOverviewPage } from "./pages/admin/AdminOverviewPage";
 import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminApprovalsPage } from "./pages/admin/AdminApprovalsPage";
 import { AdminShgsPage } from "./pages/admin/AdminShgsPage";
 import { AdminProductsPage } from "./pages/admin/AdminProductsPage";
 import { AdminMasterDataPage } from "./pages/admin/AdminMasterDataPage";
@@ -72,13 +77,20 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/_dev" element={<DevIndexPage />} />
+          {/* Login/register now surface as a popup on the homepage (blurred
+              backdrop) instead of a full navigation to interface/*.html. */}
+          <Route path="/login" element={<Navigate to="/?auth=login" replace />} />
+          <Route path="/signup" element={<Navigate to="/?auth=register" replace />} />
+          <Route path="/register" element={<Navigate to="/?auth=register" replace />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* SHG-member-facing screens: mobile-first shell, gated behind phone-OTP login. */}
           <Route element={<ProtectedRoute />}>
             <Route element={<MobileShell />}>
-              <Route path="/register" element={<RegistrationPage />} />
               <Route path="/catalogue" element={<ProductCataloguePage />} />
               <Route path="/voice-assistant" element={<VoiceAssistantPage />} />
             </Route>
@@ -144,7 +156,11 @@ function App() {
                   <Route path="users" element={<AdminUsersPage />} />
                   <Route path="shgs" element={<AdminShgsPage />} />
                   <Route path="products" element={<AdminProductsPage />} />
+                  {/* Approve/reject and master-data both require the ADMIN role
+                      specifically on the backend (@Roles('ADMIN')), narrower
+                      than the ADMIN_PORTAL_ROLES group above. */}
                   <Route element={<RequireRole roles={["ADMIN"]} />}>
+                    <Route path="approvals" element={<AdminApprovalsPage />} />
                     <Route path="master-data" element={<AdminMasterDataPage />} />
                   </Route>
                 </Route>
@@ -152,8 +168,9 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        <FloatingChatWidget />
       </BrowserRouter>
     </AuthProvider>
   );

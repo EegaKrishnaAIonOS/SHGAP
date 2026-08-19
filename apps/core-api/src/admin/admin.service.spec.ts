@@ -1,3 +1,4 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 describe('AdminService', () => {
@@ -8,7 +9,12 @@ describe('AdminService', () => {
     prisma = {
       shg: { count: jest.fn().mockResolvedValue(0) },
       product: { count: jest.fn().mockResolvedValue(0) },
-      user: { count: jest.fn().mockResolvedValue(0) },
+      user: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue({}),
+      },
       $transaction: jest.fn((ops: Promise<unknown>[]) => Promise.all(ops)),
     };
     service = new AdminService(prisma);
@@ -57,6 +63,93 @@ describe('AdminService', () => {
       totalProducts: 50,
       availableProducts: 45,
       totalUsers: 20,
+    });
+  });
+
+  describe('listPendingUsers', () => {
+    it('filters to PENDING_APPROVAL users holding the SHG or DISTRIBUTOR role', async () => {
+      await service.listPendingUsers();
+      expect(prisma.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            status: 'PENDING_APPROVAL',
+            userRoles: {
+              some: { role: { name: { in: ['SHG', 'DISTRIBUTOR'] } } },
+            },
+          },
+        }),
+      );
+    });
+
+    it('never returns passwordHash, even if Prisma returns it', async () => {
+      prisma.user.findMany.mockResolvedValueOnce([
+        {
+          id: 'user-1',
+          status: 'PENDING_APPROVAL',
+          passwordHash: 'super-secret-hash',
+        },
+      ]);
+      const result = await service.listPendingUsers();
+      expect(result[0]).not.toHaveProperty('passwordHash');
+    });
+  });
+
+  describe('approveUser', () => {
+    it('flips a PENDING_APPROVAL user to ACTIVE', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        status: 'PENDING_APPROVAL',
+      });
+      await service.approveUser('user-1');
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { status: 'ACTIVE' },
+      });
+    });
+
+    it('never returns passwordHash, even if Prisma returns it', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        status: 'PENDING_APPROVAL',
+      });
+      prisma.user.update.mockResolvedValueOnce({
+        id: 'user-1',
+        status: 'ACTIVE',
+        passwordHash: 'super-secret-hash',
+      });
+      const result = await service.approveUser('user-1');
+      expect(result).not.toHaveProperty('passwordHash');
+    });
+
+    it('rejects approving a user that is not pending', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        status: 'ACTIVE',
+      });
+      await expect(service.approveUser('user-1')).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects approving an unknown user', async () => {
+      await expect(service.approveUser('nope')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('rejectUser', () => {
+    it('flips a PENDING_APPROVAL user to REJECTED', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        status: 'PENDING_APPROVAL',
+      });
+      await service.rejectUser('user-1');
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { status: 'REJECTED' },
+      });
     });
   });
 });

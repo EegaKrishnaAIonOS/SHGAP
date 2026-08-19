@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshmi - An innovative SHG intelligent assistant</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="chatbot-widget.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-shell">
+      <div class="auth-header">
+        <h1>Register SHG</h1>
+        <a class="secondary-btn" href="/">Back</a>
+      </div>
+
+      <div class="auth-card">
+        <p id="stepLabel" class="helper-text" style="font-weight:700; color: var(--primary);">Step 1 of 5</p>
+        <div class="stepper" aria-label="Progress">
+          <span class="active"></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <form id="registrationForm" class="form-grid">
+          <div class="step-panel active">
+            <div class="field">
+              <label for="groupName">Group name</label>
+              <input id="groupName" type="text" data-required="true" placeholder="Enter SHG name" />
+            </div>
+            <div class="field">
+              <label for="groupType">SHG type</label>
+              <select id="groupType" data-required="true">
+                <option value="">Select type</option>
+                <option value="Producer">Producer</option>
+                <option value="Trader">Trader</option>
+                <option value="Service">Service</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="mepmaId">MEPMA registration number</label>
+              <input id="mepmaId" type="text" placeholder="Optional" />
+            </div>
+          </div>
+
+          <div class="step-panel">
+            <div class="field">
+              <label for="districtSelect">District</label>
+              <select id="districtSelect" data-required="true"></select>
+            </div>
+            <div class="field">
+              <label for="ulbSelect">ULB</label>
+              <select id="ulbSelect"></select>
+            </div>
+            <div class="field">
+              <label for="mandalSelect">Mandal</label>
+              <select id="mandalSelect"></select>
+            </div>
+            <button type="button" id="detectLocationBtn" class="secondary-btn" style="width: 100%;">Detect location</button>
+            <p id="locationStatus" class="helper-text" style="margin-top: 8px;">Location not detected yet.</p>
+          </div>
+
+          <div class="step-panel">
+            <div class="field">
+              <label for="bankName">Bank account number</label>
+              <input id="bankName" type="text" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="ifscCode">IFSC code</label>
+              <input id="ifscCode" type="text" maxlength="11" placeholder="Optional" />
+            </div>
+          </div>
+
+          <div class="step-panel">
+            <div class="summary-box" id="summaryBox">
+              <p><strong>Review details</strong></p>
+              <p>Group name: <span id="reviewName">-</span></p>
+              <p>Type: <span id="reviewType">-</span></p>
+              <p>District: <span id="reviewDistrict">-</span></p>
+            </div>
+          </div>
+
+          <div class="step-panel">
+            <div class="field">
+              <label for="regEmail">Email</label>
+              <input id="regEmail" type="email" data-required="true" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label for="regPassword">Password</label>
+              <input id="regPassword" type="password" data-required="true" placeholder="Enter your password" />
+            </div>
+            <div class="field">
+              <label for="regConfirmPassword">Confirm Password</label>
+              <input id="regConfirmPassword" type="password" data-required="true" placeholder="Re-enter your password" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" id="backBtn" class="secondary-btn" style="display: none;">Back</button>
+            <button type="button" id="nextBtn" class="primary-btn">Next</button>
+            <button type="button" id="submitBtn" class="primary-btn" style="display: none;">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="chatbot-widget.js" defer></script>
+    <script>
+      document.body.dataset.page = 'register';
+    </script>
+  </body>
+</html>

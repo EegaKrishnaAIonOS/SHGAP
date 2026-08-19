@@ -6,7 +6,8 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "database"
+    "database",
+    "inference"
   ],
   "scripts": {
     "lint": "turbo run lint",

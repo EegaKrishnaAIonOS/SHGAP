@@ -16,19 +16,23 @@
  */
 
 export const colors = {
-  // Brand purple, taken from the existing favicon/brand mark so the design
-  // system doesn't invent a competing palette.
+  // Brand teal, taken from the favicon/PWA icon mark so the design system
+  // doesn't invent a competing palette. 400 is the anchor identity color
+  // (matches the favicon background and interface/ prototype's --primary);
+  // every index used as a solid button/text/border color (400 and darker)
+  // is >=4.5:1 against white — 50-300 are light tints only, not meant to
+  // carry white text.
   brand: {
-    50: "#f5eeff",
-    100: "#ede6ff",
-    200: "#d9c3ff",
-    300: "#c084fc",
-    400: "#aa3bff",
-    500: "#8a2be6",
-    600: "#7e14ff",
-    700: "#63189c",
-    800: "#4a1275",
-    900: "#320c4e",
+    50: "#ecfdf9",
+    100: "#d1f7ee",
+    200: "#a8ecdf",
+    300: "#6fd9c9",
+    400: "#0f766e",
+    500: "#0c5f58",
+    600: "#0a4d47",
+    700: "#083a35",
+    800: "#062b27",
+    900: "#041e1b",
   },
   // Secondary accent (used for links / info states in charts & tables).
   sky: {
@@ -72,6 +76,23 @@ export const colors = {
     50: "#eef4ff",
     500: "#2f5fd0",
     700: "#1f3f8f",
+  },
+  // Green "growth/community" accent (T25) — used only on the public
+  // marketing surfaces (landing page, signup, password-login/forgot/reset)
+  // added for the SHG/Distributor/Consumer account system. Deliberately kept
+  // separate from `brand` (teal) rather than replacing it, so the
+  // already-shipped SHG/official/admin screens are unaffected.
+  marketing: {
+    50: "#f0fdf4",
+    100: "#dcfce7",
+    200: "#bbf7d0",
+    300: "#86efac",
+    400: "#16a34a",
+    500: "#15803d",
+    600: "#166534",
+    700: "#14532d",
+    800: "#0f3f22",
+    900: "#0a2a17",
   },
 } as const;
 

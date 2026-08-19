@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentScope } from '../common/decorators/current-scope.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -22,5 +22,32 @@ export class AdminController {
   })
   summary(@CurrentScope() scope: RequestScope) {
     return this.adminService.summary(scope);
+  }
+
+  @Get('users/pending')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({
+    summary:
+      'List self-registered SHG/Distributor accounts awaiting approval (T25)',
+  })
+  listPendingUsers() {
+    return this.adminService.listPendingUsers();
+  }
+
+  @Patch('users/:id/approve')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Approve a pending SHG/Distributor registration' })
+  approveUser(@Param('id') id: string) {
+    return this.adminService.approveUser(id);
+  }
+
+  @Patch('users/:id/reject')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Reject a pending SHG/Distributor registration' })
+  rejectUser(@Param('id') id: string) {
+    return this.adminService.rejectUser(id);
   }
 }

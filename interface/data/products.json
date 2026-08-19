@@ -1,0 +1,3410 @@
+[
+  {
+    "id": "jute-shopping-bag",
+    "name": "Jute Shopping Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 170,
+    "orders": 33000,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Visakhapatnam, Srikakulam, East Godavari, Kurnool",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "agarbatti-incense-sticks",
+    "name": "Agarbatti (Incense Sticks)",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 116,
+    "orders": 10529,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Vizianagaram, Prakasam, Kurnool, Visakhapatnam",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "canvas-handbag",
+    "name": "Canvas Handbag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 269,
+    "orders": 6462,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Vijayawada",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "cream-colour-jute-bag",
+    "name": "Cream Colour Jute Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 172,
+    "orders": 4264,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Kakinada",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-tomato-pickle",
+    "name": "Krishna KS Lakshmi Tomato Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 188,
+    "orders": 3092,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "cloth-bag",
+    "name": "Cloth Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 120,
+    "orders": 2879,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Vizianagaram, Anakapalli, Nellore, Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "jute-bags-assorted",
+    "name": "Jute Bags (Assorted)",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 178,
+    "orders": 2656,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Anantapur, Palnadu, Srikakulam, Konaseema",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-mango-pickle",
+    "name": "Krishna KS Lakshmi Mango Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 217,
+    "orders": 2346,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "sri-rama-jute-bags",
+    "name": "Sri Rama Jute Bags",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 173,
+    "orders": 2345,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Ntr",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "nipattu-rice-crackers",
+    "name": "Nipattu (Rice Crackers)",
+    "category": "Traditional Snacks",
+    "description": "A crispy, deep-fried savoury snack made from rice flour, urad dal and spices - a popular Andhra/Karnataka tea-time snack.",
+    "price": 247,
+    "orders": 2105,
+    "season": "Aug-Nov",
+    "insight": "Like most Andhra tea-time snacks, nipattu sees a strong bump around Diwali and other festivals when households stock savoury snack boxes, alongside steady everyday tea-time demand.",
+    "availability": "Anantapur",
+    "rawMaterials": [
+      {
+        "material": "Rice flour",
+        "cost": "approx. ₹40-50/kg"
+      },
+      {
+        "material": "Urad dal flour",
+        "cost": "approx. ₹90-120/kg"
+      },
+      {
+        "material": "Peanuts, sesame seeds",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Oil for frying",
+        "cost": "approx. ₹160-200/litre"
+      }
+    ],
+    "videoId": "dQ2eyOV62ww",
+    "images": [
+      "https://img-global.cpcdn.com/recipes/480eed2ab6f8a00a/1200x630cq80/photo.jpg",
+      "https://img.youtube.com/vi/dQ2eyOV62ww/hqdefault.jpg",
+      "https://img.youtube.com/vi/AQItBGs5ZFQ/hqdefault.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://img-global.cpcdn.com/recipes/480eed2ab6f8a00a/1200x630cq80/photo.jpg",
+      "https://img.youtube.com/vi/dQ2eyOV62ww/hqdefault.jpg",
+      "https://img.youtube.com/vi/AQItBGs5ZFQ/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "jute-bag-stylish-printed-design",
+    "name": "Jute Bag - Stylish Printed Design",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 146,
+    "orders": 1985,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Guntur",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "next-level-floor-cleaner",
+    "name": "Next Level Floor Cleaner",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 102,
+    "orders": 1970,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "masala-powder",
+    "name": "Masala Powder",
+    "category": "Spice Powders",
+    "description": "A dry roasted spice/lentil powder (karam podi/masala powder) mixed with hot rice and ghee - a household pantry staple across Andhra Pradesh.",
+    "price": 101,
+    "orders": 1779,
+    "season": "Mar-May",
+    "insight": "As a shelf-stable pantry staple, this has fairly flat year-round demand; small seasonal upticks occur when families stock up ahead of summer travel/exam season when quick no-cook meals (rice + podi) are preferred.",
+    "availability": "Prakasam",
+    "rawMaterials": [
+      {
+        "material": "Red chillies",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Roasted gram / urad dal",
+        "cost": "approx. ₹90-130/kg"
+      },
+      {
+        "material": "Garlic (for karam podi)",
+        "cost": "approx. ₹80-150/kg"
+      },
+      {
+        "material": "Sesame seeds, curry leaves, salt",
+        "cost": "approx. ₹100-180/kg combined"
+      }
+    ],
+    "videoId": "zns7XGwCdx8",
+    "images": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/11-01-2026/1200-675-25788109-thumbnail-16x9-ulli-karam-podi.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ],
+    "rawMaterialImages": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/11-01-2026/1200-675-25788109-thumbnail-16x9-ulli-karam-podi.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-gongura-pickle",
+    "name": "Krishna KS Lakshmi Gongura Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 200,
+    "orders": 1746,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-pandu-mirapakaya-bell-pepper-pickle",
+    "name": "Krishna KS Lakshmi Pandu Mirapakaya (Bell Pepper) Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 208,
+    "orders": 1580,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-usiri-gooseberry-pickle",
+    "name": "Krishna KS Lakshmi Usiri (Gooseberry) Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 211,
+    "orders": 1393,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "steel-scrubber",
+    "name": "Steel Scrubber",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 100,
+    "orders": 1370,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Prakasam",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "broom-stick",
+    "name": "Broom Stick",
+    "category": "Home Needs",
+    "description": "A traditional handmade broom stick used for daily home sweeping, made from natural fibre/grass.",
+    "price": 118,
+    "orders": 1287,
+    "season": "Jun-Sep; Oct-Nov",
+    "insight": "Brooms are an everyday consumable with fairly constant demand, but sales spike sharply just before major festivals (Diwali, Ugadi) when homes traditionally replace cleaning tools.",
+    "availability": "Vizianagaram",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / waste cotton fabric strips",
+        "cost": "approx. ₹50-100/kg"
+      },
+      {
+        "material": "Backing / binding thread",
+        "cost": "approx. ₹100-150/kg"
+      }
+    ],
+    "videoId": null,
+    "images": [
+      "https://5.imimg.com/data5/SELLER/Default/2020/12/PX/TA/PJ/116880961/handmade-jute-doormat-500x500.jpg",
+      "https://3.imimg.com/data3/JX/KR/GLADMIN-10401/jute-mats-500x500.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Pathamadai_mats_in_making_JEG1741.jpg/1280px-Pathamadai_mats_in_making_JEG1741.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2020/12/PX/TA/PJ/116880961/handmade-jute-doormat-500x500.jpg",
+      "https://3.imimg.com/data3/JX/KR/GLADMIN-10401/jute-mats-500x500.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Pathamadai_mats_in_making_JEG1741.jpg/1280px-Pathamadai_mats_in_making_JEG1741.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ]
+  },
+  {
+    "id": "phenol-floor-cleaner",
+    "name": "Phenol Floor Cleaner",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 137,
+    "orders": 1260,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Vizianagaram",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "kakarla-homemade-red-chilli-pickle",
+    "name": "Kakarla Homemade Red Chilli Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 116,
+    "orders": 1250,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Eluru",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "kakarla-homemade-tomato-pickle",
+    "name": "Kakarla Homemade Tomato Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 117,
+    "orders": 1235,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Eluru",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "women-s-jute-bag-venkatagiri-design",
+    "name": "Women's Jute Bag - Venkatagiri Design",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 116,
+    "orders": 1186,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "floor-cleaner",
+    "name": "Floor Cleaner",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 117,
+    "orders": 1144,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor, Ananthapur",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "jute-bags-pair-pack",
+    "name": "Jute Bags (Pair Pack)",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 130,
+    "orders": 1094,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "srinivasa-cotton-towel",
+    "name": "Srinivasa Cotton Towel",
+    "category": "Handlooms",
+    "description": "A handloom-woven cotton textile product (towel/petticoat/nightwear) made by traditional weaver SHGs on pit or frame looms.",
+    "price": 118,
+    "orders": 1066,
+    "season": "Mar-Jun (towels/nighties); Nov-Feb, Apr-May (petticoats)",
+    "insight": "Cotton handloom items sell best in hot months when breathable fabric is preferred, while petticoats see a parallel spike during the wedding/festive saree-buying season.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Cotton yarn (warp & weft)",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Natural / reactive dyes",
+        "cost": "approx. ₹150-400/kg"
+      },
+      {
+        "material": "Sizing starch",
+        "cost": "approx. ₹40-60/kg"
+      }
+    ],
+    "videoId": "8wHdHg6ZJFs",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ],
+    "rawMaterialImages": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ]
+  },
+  {
+    "id": "phenyl-toilet-cleaner-combo-pack-tirupati",
+    "name": "Phenyl & Toilet Cleaner Combo Pack - Tirupati",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 100,
+    "orders": 1027,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "canvas-hand-bag",
+    "name": "Canvas Hand Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 271,
+    "orders": 1023,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Vijayawada",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "doctor-scented-phenyl-jasmine",
+    "name": "Doctor Scented Phenyl - Jasmine",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 53,
+    "orders": 998,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "cotton-bags",
+    "name": "Cotton Bags",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 35,
+    "orders": 993,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Multiple SHG clusters across Andhra Pradesh",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "good-morning-mepma-beauty-essentials-combo-pack",
+    "name": "Good Morning MEPMA Beauty Essentials Combo Pack",
+    "category": "Beauty & Personal Care",
+    "description": "An assorted combo pack of everyday beauty/personal-care essentials (soap, powder, cosmetics) curated for women, sold as an affordable gift-style bundle.",
+    "price": 100,
+    "orders": 985,
+    "season": "Mar-Jun (aloe vera); Aug-Nov (sunni pindi)",
+    "insight": "Combo packs are typically bought as affordable gifting bundles, so sales concentrate around festivals and wedding season when small gifts are exchanged.",
+    "availability": "Anakapalli",
+    "rawMaterials": [
+      {
+        "material": "Soap base / glycerin",
+        "cost": "approx. ₹70-125/kg"
+      },
+      {
+        "material": "Coconut oil",
+        "cost": "approx. ₹160-200/litre"
+      },
+      {
+        "material": "Aloe vera gel / Sunni Pindi herbal powder",
+        "cost": "approx. ₹100-200/kg"
+      },
+      {
+        "material": "Essential oil fragrance",
+        "cost": "approx. ₹300-600/litre"
+      }
+    ],
+    "videoId": "QX2VwwEeUH4",
+    "images": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/11/363036202/SQ/PY/EV/28031/glycerin-soap-base-500x500.jpg",
+      "https://5.imimg.com/data5/SELLER/Default/2022/1/FH/ZJ/TS/13854737/glycerin-soap-base-500x500.JPG",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ]
+  },
+  {
+    "id": "door-mat",
+    "name": "Door Mat",
+    "category": "Home Décor / Home Needs",
+    "description": "A handwoven jute/cotton door mat used at home entrances for dirt-trapping and décor.",
+    "price": 140,
+    "orders": 946,
+    "season": "Jun-Sep; Oct-Nov",
+    "insight": "Door mats see a monsoon-driven spike for practical dirt control, plus a home-décor refresh spike before Diwali when many households replace entrance mats.",
+    "availability": "Kurnool",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / waste cotton fabric strips",
+        "cost": "approx. ₹50-100/kg"
+      },
+      {
+        "material": "Backing / binding thread",
+        "cost": "approx. ₹100-150/kg"
+      }
+    ],
+    "videoId": null,
+    "images": [
+      "https://5.imimg.com/data5/SELLER/Default/2020/12/PX/TA/PJ/116880961/handmade-jute-doormat-500x500.jpg",
+      "https://3.imimg.com/data3/JX/KR/GLADMIN-10401/jute-mats-500x500.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Pathamadai_mats_in_making_JEG1741.jpg/1280px-Pathamadai_mats_in_making_JEG1741.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2020/12/PX/TA/PJ/116880961/handmade-jute-doormat-500x500.jpg",
+      "https://3.imimg.com/data3/JX/KR/GLADMIN-10401/jute-mats-500x500.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Pathamadai_mats_in_making_JEG1741.jpg/1280px-Pathamadai_mats_in_making_JEG1741.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ]
+  },
+  {
+    "id": "maha-taaz-tea-three-roses-flavour",
+    "name": "Maha Taaz Tea - Three Roses Flavour",
+    "category": "Beverages",
+    "description": "A blended tea (Assam/Darjeeling leaf blend) packaged and sold under a value-brand label for everyday household tea consumption.",
+    "price": 104,
+    "orders": 923,
+    "season": "Nov-Feb; Jun-Aug",
+    "insight": "Tea is a daily-use staple so demand is fairly constant, but cooler weather in winter and the monsoon months typically boosts per-household consumption and hence purchase frequency.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Assam CTC tea leaves",
+        "cost": "approx. ₹160-250/kg wholesale"
+      },
+      {
+        "material": "Darjeeling tea leaves (blend component)",
+        "cost": "approx. ₹300-600/kg"
+      },
+      {
+        "material": "Packaging pouch / box",
+        "cost": "approx. ₹3-6/unit"
+      }
+    ],
+    "videoId": "XhkCrSygidA",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/mutton-curry-recipe.jpg",
+      "https://img.youtube.com/vi/XhkCrSygidA/hqdefault.jpg"
+    ],
+    "rawMaterialImages": ["https://assamteasellers.in/imag/assam-black-tea-packet1.webp"]
+  },
+  {
+    "id": "beauty-essentials-combo-pack-for-women",
+    "name": "Beauty Essentials Combo Pack for Women",
+    "category": "Beauty & Personal Care",
+    "description": "An assorted combo pack of everyday beauty/personal-care essentials (soap, powder, cosmetics) curated for women, sold as an affordable gift-style bundle.",
+    "price": 100,
+    "orders": 893,
+    "season": "Mar-Jun (aloe vera); Aug-Nov (sunni pindi)",
+    "insight": "Combo packs are typically bought as affordable gifting bundles, so sales concentrate around festivals and wedding season when small gifts are exchanged.",
+    "availability": "Anakapalli",
+    "rawMaterials": [
+      {
+        "material": "Soap base / glycerin",
+        "cost": "approx. ₹70-125/kg"
+      },
+      {
+        "material": "Coconut oil",
+        "cost": "approx. ₹160-200/litre"
+      },
+      {
+        "material": "Aloe vera gel / Sunni Pindi herbal powder",
+        "cost": "approx. ₹100-200/kg"
+      },
+      {
+        "material": "Essential oil fragrance",
+        "cost": "approx. ₹300-600/litre"
+      }
+    ],
+    "videoId": "QX2VwwEeUH4",
+    "images": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/11/363036202/SQ/PY/EV/28031/glycerin-soap-base-500x500.jpg",
+      "https://5.imimg.com/data5/SELLER/Default/2022/1/FH/ZJ/TS/13854737/glycerin-soap-base-500x500.JPG",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ]
+  },
+  {
+    "id": "ultra-impact-phenyl-floor-cleaner-1l",
+    "name": "Ultra Impact Phenyl Floor Cleaner (1L)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 111,
+    "orders": 867,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "madugula-halwa",
+    "name": "Madugula Halwa",
+    "category": "Traditional Sweets",
+    "description": "Madugula Halwa is a soft, dark, chewy wheat-and-milk based sweet from Madugula town near Visakhapatnam, traditionally linked to weddings.",
+    "price": 138,
+    "orders": 867,
+    "season": "Nov-Feb, Apr-May; Aug-Nov",
+    "insight": "Madugula Halwa is famously known as a 'first-night special sweet' in Andhra wedding tradition, so wedding season drives the bulk of sales alongside general festive gifting.",
+    "availability": "Visakhapatnam",
+    "rawMaterials": [
+      {
+        "material": "Wheat",
+        "cost": "approx. ₹28-35/kg"
+      },
+      {
+        "material": "Milk",
+        "cost": "approx. ₹55-65/litre"
+      },
+      {
+        "material": "Sugar / jaggery",
+        "cost": "approx. ₹45-70/kg"
+      },
+      {
+        "material": "Ghee, cardamom, dry fruits",
+        "cost": "approx. ₹500-700/kg combined"
+      }
+    ],
+    "videoId": "vzLrmHizyu0",
+    "images": [
+      "https://img.youtube.com/vi/vzLrmHizyu0/hqdefault.jpg",
+      "https://img.youtube.com/vi/F1hFtbJbOgQ/hqdefault.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/15-10-2025/1200-675-25210027-thumbnail-16x9-mushroom-masala-curry.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://img.youtube.com/vi/vzLrmHizyu0/hqdefault.jpg",
+      "https://img.youtube.com/vi/F1hFtbJbOgQ/hqdefault.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/15-10-2025/1200-675-25210027-thumbnail-16x9-mushroom-masala-curry.jpg"
+    ]
+  },
+  {
+    "id": "eco-friendly-jute-shopping-bag",
+    "name": "Eco-Friendly Jute Shopping Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 169,
+    "orders": 848,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "pink-jute-tote-bag-embroidered-floral-design",
+    "name": "Pink Jute Tote Bag - Embroidered Floral Design",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 116,
+    "orders": 836,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Eluru",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "v-m-s-s-premium-agarbatti",
+    "name": "V.M.S.S Premium Agarbatti",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 123,
+    "orders": 819,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "3-in-1-agarbatti",
+    "name": "3-in-1 Agarbatti",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 139,
+    "orders": 813,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Anantapur",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "home-cleaning-kit",
+    "name": "Home Cleaning Kit",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 148,
+    "orders": 782,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Guntur",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "phenyl-multi-purpose-soap-oil-combo-3l-pack",
+    "name": "Phenyl + Multi-Purpose Soap Oil Combo (3L Pack)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 165,
+    "orders": 755,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Multiple SHG clusters across Andhra Pradesh",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "konda-s-turmeric-powder",
+    "name": "Konda's Turmeric Powder",
+    "category": "Kitchen / Spices",
+    "description": "Pure ground turmeric powder, a kitchen staple used in daily cooking as well as for skincare and religious rituals.",
+    "price": 42,
+    "orders": 755,
+    "season": "Nov-Feb, Apr-May",
+    "insight": "Turmeric is an everyday cooking staple with flat demand, but wedding season and Pasupu-Kumkuma festive gatherings add a reliable seasonal bump.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Dried turmeric rhizomes (stone-ground)",
+        "cost": "approx. ₹90-140/kg (raw)"
+      }
+    ],
+    "videoId": "zns7XGwCdx8",
+    "images": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ],
+    "rawMaterialImages": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ]
+  },
+  {
+    "id": "women-s-peacock-jute-bag-tirupati",
+    "name": "Women's Peacock Jute Bag - Tirupati",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 122,
+    "orders": 720,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "v-m-s-s-dhanush-premium-incense-sticks",
+    "name": "V.M.S.S Dhanush Premium Incense Sticks",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 124,
+    "orders": 679,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "next-level-detergent-liquid",
+    "name": "Next Level Detergent Liquid",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 130,
+    "orders": 650,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "jute-bags-nellore-urban",
+    "name": "Jute Bags - Nellore Urban",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 178,
+    "orders": 617,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Nellore",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "saree-petticoat",
+    "name": "Saree Petticoat",
+    "category": "Handlooms",
+    "description": "A handloom-woven cotton textile product (towel/petticoat/nightwear) made by traditional weaver SHGs on pit or frame looms.",
+    "price": 124,
+    "orders": 616,
+    "season": "Mar-Jun (towels/nighties); Nov-Feb, Apr-May (petticoats)",
+    "insight": "Cotton handloom items sell best in hot months when breathable fabric is preferred, while petticoats see a parallel spike during the wedding/festive saree-buying season.",
+    "availability": "Kurnool",
+    "rawMaterials": [
+      {
+        "material": "Cotton yarn (warp & weft)",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Natural / reactive dyes",
+        "cost": "approx. ₹150-400/kg"
+      },
+      {
+        "material": "Sizing starch",
+        "cost": "approx. ₹40-60/kg"
+      }
+    ],
+    "videoId": "8wHdHg6ZJFs",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ],
+    "rawMaterialImages": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ]
+  },
+  {
+    "id": "mt-premium-karpooram-pure-camphor-100g",
+    "name": "MT Premium Karpooram (Pure Camphor, 100g)",
+    "category": "Pooja Needs",
+    "description": "Pure camphor tablets used for daily aarti/pooja rituals in Hindu households and temples.",
+    "price": 102,
+    "orders": 609,
+    "season": "Oct-Nov; Aug-Nov (camphor)",
+    "insight": "Camphor is used daily for aarti so it has a steady baseline, with a clear multiplier during festival months when temples and households perform more frequent poojas.",
+    "availability": "Multiple SHG clusters across Andhra Pradesh",
+    "rawMaterials": [
+      {
+        "material": "Paraffin / soy wax",
+        "cost": "approx. ₹90-140/kg"
+      },
+      {
+        "material": "Cotton wick",
+        "cost": "approx. ₹40-80/kg"
+      },
+      {
+        "material": "Colour dye, fragrance oil",
+        "cost": "approx. ₹200-400/kg combined"
+      },
+      {
+        "material": "Pure camphor (for camphor products)",
+        "cost": "approx. ₹850-1000/kg"
+      }
+    ],
+    "videoId": "PUkNo8gNF7M",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://businessideastelugu.com/wp-content/uploads/2025/06/Organic-Farming-Business-Idea-In-Telugu.png"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/ANDROID/Default/2020/12/EB/KA/FB/59706089/product-jpeg-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303428676/QZ/WN/MB/96165/camphor-tablet-500x500.png"
+    ]
+  },
+  {
+    "id": "ldhs-detergent-liquid-1l",
+    "name": "LDHS Detergent Liquid (1L)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 115,
+    "orders": 603,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "kakarla-homemade-amla-gooseberry-pickle",
+    "name": "Kakarla Homemade Amla (Gooseberry) Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 117,
+    "orders": 601,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Eluru",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "floor-cleaner-rose-flavour",
+    "name": "Floor Cleaner - Rose Flavour",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 91,
+    "orders": 598,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "mahataaz-tea-assam-darjeeling-blend-250g",
+    "name": "MahaTaaz Tea - Assam & Darjeeling Blend (250g)",
+    "category": "Beverages",
+    "description": "A blended tea (Assam/Darjeeling leaf blend) packaged and sold under a value-brand label for everyday household tea consumption.",
+    "price": 102,
+    "orders": 582,
+    "season": "Nov-Feb; Jun-Aug",
+    "insight": "Tea is a daily-use staple so demand is fairly constant, but cooler weather in winter and the monsoon months typically boosts per-household consumption and hence purchase frequency.",
+    "availability": "Bhimavarm",
+    "rawMaterials": [
+      {
+        "material": "Assam CTC tea leaves",
+        "cost": "approx. ₹160-250/kg wholesale"
+      },
+      {
+        "material": "Darjeeling tea leaves (blend component)",
+        "cost": "approx. ₹300-600/kg"
+      },
+      {
+        "material": "Packaging pouch / box",
+        "cost": "approx. ₹3-6/unit"
+      }
+    ],
+    "videoId": "XhkCrSygidA",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/mutton-curry-recipe.jpg",
+      "https://img.youtube.com/vi/XhkCrSygidA/hqdefault.jpg"
+    ],
+    "rawMaterialImages": ["https://assamteasellers.in/imag/assam-black-tea-packet1.webp"]
+  },
+  {
+    "id": "lakshmi-devi-earrings-gudur",
+    "name": "Lakshmi Devi Earrings - Gudur",
+    "category": "Jewellery",
+    "description": "Traditional gold-tone/lightweight fashion earrings featuring the Goddess Lakshmi motif, popular as daily-wear and festive temple jewellery.",
+    "price": 175,
+    "orders": 570,
+    "season": "Nov-Feb, Apr-May; Aug-Nov",
+    "insight": "Lakshmi Devi motifs are especially popular around Varalakshmi Vratam and Diwali (goddess-linked festivals) and during wedding season when temple-style jewellery is bought as bridal/gifting pieces.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Gold-polished / imitation metal alloy",
+        "cost": "approx. ₹400-900/kg (alloy grade)"
+      },
+      {
+        "material": "Stone / kemp work embellishments",
+        "cost": "approx. ₹2-8/piece"
+      },
+      {
+        "material": "Ear posts and backs (findings)",
+        "cost": "approx. ₹1-3/pair"
+      }
+    ],
+    "videoId": "Uem_JMjCA-0",
+    "images": [
+      "https://img.youtube.com/vi/Uem_JMjCA-0/hqdefault.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/e/e9/Sea_necklace.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail_unscaled",
+      "https://img.youtube.com/vi/y82r5lirIh4/hqdefault.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://img.youtube.com/vi/Uem_JMjCA-0/hqdefault.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/e/e9/Sea_necklace.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail_unscaled",
+      "https://img.youtube.com/vi/y82r5lirIh4/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "mahataaz-tea-250g-assam-darjeeling",
+    "name": "MahaTaaz Tea, 250g - Assam & Darjeeling",
+    "category": "Beverages",
+    "description": "A blended tea (Assam/Darjeeling leaf blend) packaged and sold under a value-brand label for everyday household tea consumption.",
+    "price": 101,
+    "orders": 560,
+    "season": "Nov-Feb; Jun-Aug",
+    "insight": "Tea is a daily-use staple so demand is fairly constant, but cooler weather in winter and the monsoon months typically boosts per-household consumption and hence purchase frequency.",
+    "availability": "Bhimavarm",
+    "rawMaterials": [
+      {
+        "material": "Assam CTC tea leaves",
+        "cost": "approx. ₹160-250/kg wholesale"
+      },
+      {
+        "material": "Darjeeling tea leaves (blend component)",
+        "cost": "approx. ₹300-600/kg"
+      },
+      {
+        "material": "Packaging pouch / box",
+        "cost": "approx. ₹3-6/unit"
+      }
+    ],
+    "videoId": "XhkCrSygidA",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/mutton-curry-recipe.jpg",
+      "https://img.youtube.com/vi/XhkCrSygidA/hqdefault.jpg"
+    ],
+    "rawMaterialImages": ["https://assamteasellers.in/imag/assam-black-tea-packet1.webp"]
+  },
+  {
+    "id": "maha-taaz-tea-taj-mahal-flavour",
+    "name": "Maha Taaz Tea - Taj Mahal Flavour",
+    "category": "Beverages",
+    "description": "A blended tea (Assam/Darjeeling leaf blend) packaged and sold under a value-brand label for everyday household tea consumption.",
+    "price": 104,
+    "orders": 554,
+    "season": "Nov-Feb; Jun-Aug",
+    "insight": "Tea is a daily-use staple so demand is fairly constant, but cooler weather in winter and the monsoon months typically boosts per-household consumption and hence purchase frequency.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Assam CTC tea leaves",
+        "cost": "approx. ₹160-250/kg wholesale"
+      },
+      {
+        "material": "Darjeeling tea leaves (blend component)",
+        "cost": "approx. ₹300-600/kg"
+      },
+      {
+        "material": "Packaging pouch / box",
+        "cost": "approx. ₹3-6/unit"
+      }
+    ],
+    "videoId": "XhkCrSygidA",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/mutton-curry-recipe.jpg",
+      "https://img.youtube.com/vi/XhkCrSygidA/hqdefault.jpg"
+    ],
+    "rawMaterialImages": ["https://assamteasellers.in/imag/assam-black-tea-packet1.webp"]
+  },
+  {
+    "id": "biscuits",
+    "name": "Biscuits",
+    "category": "Bakery / Snacks",
+    "description": "Locally baked biscuits produced by SHG bakery units, sold as an everyday tea-time snack.",
+    "price": 237,
+    "orders": 551,
+    "season": "Aug-Nov",
+    "insight": "Biscuits have consistent daily-use demand as a tea accompaniment, with a seasonal boost around festivals when gift tins/boxes are purchased.",
+    "availability": "Anantapur, VMC",
+    "rawMaterials": [
+      {
+        "material": "Wheat flour (maida)",
+        "cost": "approx. ₹35-45/kg"
+      },
+      {
+        "material": "Sugar",
+        "cost": "approx. ₹45-50/kg"
+      },
+      {
+        "material": "Ghee / vegetable shortening",
+        "cost": "approx. ₹450-600/kg"
+      },
+      {
+        "material": "Baking powder, flavouring",
+        "cost": "approx. ₹150-300/kg"
+      }
+    ],
+    "videoId": "dQ2eyOV62ww",
+    "images": [
+      "https://img-global.cpcdn.com/recipes/480eed2ab6f8a00a/1200x630cq80/photo.jpg",
+      "https://img.youtube.com/vi/dQ2eyOV62ww/hqdefault.jpg",
+      "https://img.youtube.com/vi/AQItBGs5ZFQ/hqdefault.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://img-global.cpcdn.com/recipes/480eed2ab6f8a00a/1200x630cq80/photo.jpg",
+      "https://img.youtube.com/vi/dQ2eyOV62ww/hqdefault.jpg",
+      "https://img.youtube.com/vi/AQItBGs5ZFQ/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "next-level-toilet-cleaner-combo-1-1-offer",
+    "name": "Next Level Toilet Cleaner Combo (1+1 Offer)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 148,
+    "orders": 544,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "agarbatti-incense-sticks-2",
+    "name": "Agarbatti Incense Sticks",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 29,
+    "orders": 538,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Nellore",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "satya-sai-baba-nag-champa-pineapple-incense-dhoop-sticks",
+    "name": "Satya Sai Baba Nag Champa Pineapple Incense Dhoop Sticks",
+    "category": "Pooja Needs",
+    "description": "Hand-rolled incense sticks/dhoop used for daily prayer rituals and temple offerings, made by SHG units on small extrusion/rolling machines.",
+    "price": 102,
+    "orders": 537,
+    "season": "Aug-Oct; Sep",
+    "insight": "Incense is a daily-use religious item so it has continuous baseline demand, but festival months multiply sales several-fold as households and temples stock up for daily worship and gifting.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Bamboo sticks (core)",
+        "cost": "approx. ₹50-60/kg"
+      },
+      {
+        "material": "Charcoal / joss powder, sawdust",
+        "cost": "approx. ₹30-50/kg"
+      },
+      {
+        "material": "Natural gums (jigat powder)",
+        "cost": "approx. ₹120-180/kg"
+      },
+      {
+        "material": "Fragrance oils (sandalwood/rose/nag champa)",
+        "cost": "approx. ₹300-800/litre"
+      }
+    ],
+    "videoId": "QtKkF70EHIo",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://d2zfbyesi0qka0.cloudfront.net/wp-content/uploads/2023/10/New-Project-38.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303535054/ZS/BP/TV/96165/bamboo-incense-stick-500x500.png",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/VU/IS/ZU/92368/incense-sticks-500x500.jpg",
+      "https://img1.exportersindia.com/final_catg_image/166473-162.jpg"
+    ]
+  },
+  {
+    "id": "cotton-petticoat",
+    "name": "Cotton Petticoat",
+    "category": "Handlooms",
+    "description": "A handloom-woven cotton textile product (towel/petticoat/nightwear) made by traditional weaver SHGs on pit or frame looms.",
+    "price": 135,
+    "orders": 529,
+    "season": "Mar-Jun (towels/nighties); Nov-Feb, Apr-May (petticoats)",
+    "insight": "Cotton handloom items sell best in hot months when breathable fabric is preferred, while petticoats see a parallel spike during the wedding/festive saree-buying season.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Cotton yarn (warp & weft)",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Natural / reactive dyes",
+        "cost": "approx. ₹150-400/kg"
+      },
+      {
+        "material": "Sizing starch",
+        "cost": "approx. ₹40-60/kg"
+      }
+    ],
+    "videoId": "8wHdHg6ZJFs",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ],
+    "rawMaterialImages": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ]
+  },
+  {
+    "id": "super-vin-pure-gel-cleaning-solution",
+    "name": "Super Vin Pure Gel Cleaning Solution",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 67,
+    "orders": 526,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "multi-purpose-floor-cleaner",
+    "name": "Multi-Purpose Floor Cleaner",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 158,
+    "orders": 515,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Anantapur",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "karpuram-camphor-srikalahasthi",
+    "name": "Karpuram (Camphor) - Srikalahasthi",
+    "category": "Pooja Needs",
+    "description": "Pure camphor tablets used for daily aarti/pooja rituals in Hindu households and temples.",
+    "price": 122,
+    "orders": 509,
+    "season": "Oct-Nov; Aug-Nov (camphor)",
+    "insight": "Camphor is used daily for aarti so it has a steady baseline, with a clear multiplier during festival months when temples and households perform more frequent poojas.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Paraffin / soy wax",
+        "cost": "approx. ₹90-140/kg"
+      },
+      {
+        "material": "Cotton wick",
+        "cost": "approx. ₹40-80/kg"
+      },
+      {
+        "material": "Colour dye, fragrance oil",
+        "cost": "approx. ₹200-400/kg combined"
+      },
+      {
+        "material": "Pure camphor (for camphor products)",
+        "cost": "approx. ₹850-1000/kg"
+      }
+    ],
+    "videoId": "PUkNo8gNF7M",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://businessideastelugu.com/wp-content/uploads/2025/06/Organic-Farming-Business-Idea-In-Telugu.png"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/ANDROID/Default/2020/12/EB/KA/FB/59706089/product-jpeg-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303428676/QZ/WN/MB/96165/camphor-tablet-500x500.png"
+    ]
+  },
+  {
+    "id": "nighty-handloom-cotton",
+    "name": "Nighty (Handloom Cotton)",
+    "category": "Handlooms",
+    "description": "A handloom-woven cotton textile product (towel/petticoat/nightwear) made by traditional weaver SHGs on pit or frame looms.",
+    "price": 142,
+    "orders": 501,
+    "season": "Mar-Jun (towels/nighties); Nov-Feb, Apr-May (petticoats)",
+    "insight": "Cotton handloom items sell best in hot months when breathable fabric is preferred, while petticoats see a parallel spike during the wedding/festive saree-buying season.",
+    "availability": "Konaseema",
+    "rawMaterials": [
+      {
+        "material": "Cotton yarn (warp & weft)",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Natural / reactive dyes",
+        "cost": "approx. ₹150-400/kg"
+      },
+      {
+        "material": "Sizing starch",
+        "cost": "approx. ₹40-60/kg"
+      }
+    ],
+    "videoId": "8wHdHg6ZJFs",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ],
+    "rawMaterialImages": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ]
+  },
+  {
+    "id": "henna-cones-natural-mehendi",
+    "name": "Henna Cones - Natural Mehendi",
+    "category": "Fashion / Beauty",
+    "description": "Natural henna cones used for temporary mehendi body art and as a natural hair dye/conditioner.",
+    "price": 26,
+    "orders": 487,
+    "season": "Nov-Feb, Apr-May",
+    "insight": "Mehendi demand is driven almost entirely by weddings and festivals where hand/feet henna art is a ritual practice, alongside smaller ongoing demand as a natural hair-conditioning dye.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Dried henna (mehendi) leaf powder",
+        "cost": "approx. ₹80-150/kg"
+      },
+      {
+        "material": "Eucalyptus / tea tree oil",
+        "cost": "approx. ₹500-900/litre"
+      },
+      {
+        "material": "Cone / plastic applicator",
+        "cost": "approx. ₹0.50-1/piece"
+      }
+    ],
+    "videoId": "x6EIZ9vvGT0",
+    "images": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp"
+    ],
+    "rawMaterialImages": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp"
+    ]
+  },
+  {
+    "id": "rose-jute-bag-tirupati",
+    "name": "Rose Jute Bag - Tirupati",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 115,
+    "orders": 459,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "striped-jute-tote-bag-with-button-closure",
+    "name": "Striped Jute Tote Bag with Button Closure",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 178,
+    "orders": 446,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Kurnool, Kakinada, Ongole",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "krishna-ks-lakshmi-nimma-lemon-pickle",
+    "name": "Krishna KS Lakshmi Nimma (Lemon) Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 209,
+    "orders": 439,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "natural-aloe-vera-soap",
+    "name": "Natural Aloe Vera Soap",
+    "category": "Beauty & Personal Care",
+    "description": "A natural handmade bathing soap made with a named natural ingredient (aloe vera/sunni pindi) by SHG micro-units, positioned as a chemical-free skincare alternative.",
+    "price": 163,
+    "orders": 430,
+    "season": "Mar-Jun (aloe vera); Aug-Nov (sunni pindi)",
+    "insight": "Aloe-based soaps see a summer bump for their cooling properties, while Sunni Pindi soap (a traditional ubtan-style bath powder) is strongly linked to festival-day ritual bathing, especially Diwali.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Soap base / glycerin",
+        "cost": "approx. ₹70-125/kg"
+      },
+      {
+        "material": "Coconut oil",
+        "cost": "approx. ₹160-200/litre"
+      },
+      {
+        "material": "Aloe vera gel / Sunni Pindi herbal powder",
+        "cost": "approx. ₹100-200/kg"
+      },
+      {
+        "material": "Essential oil fragrance",
+        "cost": "approx. ₹300-600/litre"
+      }
+    ],
+    "videoId": "QX2VwwEeUH4",
+    "images": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/11/363036202/SQ/PY/EV/28031/glycerin-soap-base-500x500.jpg",
+      "https://5.imimg.com/data5/SELLER/Default/2022/1/FH/ZJ/TS/13854737/glycerin-soap-base-500x500.JPG",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ]
+  },
+  {
+    "id": "petticoat",
+    "name": "Petticoat",
+    "category": "Handlooms",
+    "description": "A handloom-woven cotton textile product (towel/petticoat/nightwear) made by traditional weaver SHGs on pit or frame looms.",
+    "price": 115,
+    "orders": 427,
+    "season": "Mar-Jun (towels/nighties); Nov-Feb, Apr-May (petticoats)",
+    "insight": "Cotton handloom items sell best in hot months when breathable fabric is preferred, while petticoats see a parallel spike during the wedding/festive saree-buying season.",
+    "availability": "Konaseema",
+    "rawMaterials": [
+      {
+        "material": "Cotton yarn (warp & weft)",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Natural / reactive dyes",
+        "cost": "approx. ₹150-400/kg"
+      },
+      {
+        "material": "Sizing starch",
+        "cost": "approx. ₹40-60/kg"
+      }
+    ],
+    "videoId": "8wHdHg6ZJFs",
+    "images": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ],
+    "rawMaterialImages": [
+      "https://images.tv9telugu.com/wp-content/uploads/2024/12/handloom-worker.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/BD_Tangail_4.JPG/1280px-BD_Tangail_4.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail",
+      "https://media.andhrajyothy.com/media/2024/20241209/97alp18_396d1607c6_v_jpg.webp"
+    ]
+  },
+  {
+    "id": "plmr-jute-shopping-bag",
+    "name": "PLMR Jute Shopping Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 110,
+    "orders": 424,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "multi-colour-flower-candles-set-of-5",
+    "name": "Multi-Colour Flower Candles (Set of 5)",
+    "category": "Home Décor / Pooja",
+    "description": "Decorative multi-colour wax candles used for home décor and festive/pooja lighting.",
+    "price": 96,
+    "orders": 423,
+    "season": "Oct-Nov; Aug-Nov (camphor)",
+    "insight": "Candles are quintessential Diwali décor items in India, so nearly all volume concentrates in the weeks before Diwali, with a smaller birthday/décor market the rest of the year.",
+    "availability": "Multiple SHG clusters across Andhra Pradesh",
+    "rawMaterials": [
+      {
+        "material": "Paraffin / soy wax",
+        "cost": "approx. ₹90-140/kg"
+      },
+      {
+        "material": "Cotton wick",
+        "cost": "approx. ₹40-80/kg"
+      },
+      {
+        "material": "Colour dye, fragrance oil",
+        "cost": "approx. ₹200-400/kg combined"
+      },
+      {
+        "material": "Pure camphor (for camphor products)",
+        "cost": "approx. ₹850-1000/kg"
+      }
+    ],
+    "videoId": "PUkNo8gNF7M",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://businessideastelugu.com/wp-content/uploads/2025/06/Organic-Farming-Business-Idea-In-Telugu.png"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/ANDROID/Default/2020/12/EB/KA/FB/59706089/product-jpeg-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/6/HG/CG/CV/92368/candle-wax-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/4/303428676/QZ/WN/MB/96165/camphor-tablet-500x500.png"
+    ]
+  },
+  {
+    "id": "ldhs-gold-dish-wash-gel-1l",
+    "name": "LDHS Gold Dish Wash Gel (1L)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 114,
+    "orders": 414,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "pickles-set-of-2",
+    "name": "Pickles Set of 2",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 146,
+    "orders": 409,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Guntur",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "dish-wash-liquid",
+    "name": "Dish Wash Liquid",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 116,
+    "orders": 407,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "next-level-toilet-cleaner-500ml",
+    "name": "Next Level Toilet Cleaner (500ml)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 84,
+    "orders": 398,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Bhimavarm",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "next-level-dish-wash-liquid-combo-1-1-offer",
+    "name": "Next Level Dish Wash Liquid Combo (1+1 Offer)",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 162,
+    "orders": 398,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "kakarla-tomato-pickle",
+    "name": "Kakarla Tomato Pickle",
+    "category": "Pickles (Andhra Style)",
+    "description": "Traditional Andhra-style homemade pickle prepared in small batches by SHG women, made with the named fruit/vegetable, oil and spices, sold in sealed jars/pouches.",
+    "price": 115,
+    "orders": 394,
+    "season": "Mar-Jun (mango/gongura/chilli varieties); Nov-Feb (usiri variety)",
+    "insight": "Mango and gongura pickles peak in summer harvest season; usiri (gooseberry) pickle peaks in winter (Nov-Feb) matching amla harvest. These are pantry staples eaten with rice/curd rice year-round, giving a stable base demand outside the seasonal spikes.",
+    "availability": "Bhimavaram",
+    "rawMaterials": [
+      {
+        "material": "Primary fruit/vegetable (mango, gongura, chilli, lemon, gooseberry, bell pepper)",
+        "cost": "approx. ₹30-80/kg (seasonal)"
+      },
+      {
+        "material": "Edible oil (sesame/groundnut)",
+        "cost": "approx. ₹160-220/litre"
+      },
+      {
+        "material": "Red chilli powder",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Mustard, fenugreek, salt, tamarind",
+        "cost": "approx. ₹80-150/kg combined"
+      }
+    ],
+    "videoId": "3xoy7KYdUZM",
+    "images": [
+      "https://imagesvs.oneindia.com/te/img/2026/04/mamidikaya-turumu-pachadi-1-jpg-1775217533219_1775217532004-1200x675.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/05/neella-avakaya-6.jpg",
+      "https://lh3.googleusercontent.com/sitesv/AG8ngQVxejMhZTUaO4RfE4H1gNErGtAN1IQX3whfeHVlKLdjBXoPuAcEZGob_YgkBsBEssB95SJGrT0006kEgqEgyeQwXoPOugyre8GMjemKefDKqcoR2puH3Hy3HieL3uFSaoujwBGSpsnrVPuwOmGpwzRhNiQhz48tixMFhWLp1hDMtABvXzbf1q4eAyFzv8Y=w16383"
+    ],
+    "rawMaterialImages": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Mangos_-_single_and_halved.jpg/1280px-Mangos_-_single_and_halved.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d9/SesameSeedOil.png",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/BolivianChilePowder2.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mustard.png/1280px-Mustard.png"
+    ]
+  },
+  {
+    "id": "natural-sunni-pindi-soap",
+    "name": "Natural Sunni Pindi Soap",
+    "category": "Beauty & Personal Care",
+    "description": "A natural handmade bathing soap made with a named natural ingredient (aloe vera/sunni pindi) by SHG micro-units, positioned as a chemical-free skincare alternative.",
+    "price": 151,
+    "orders": 391,
+    "season": "Mar-Jun (aloe vera); Aug-Nov (sunni pindi)",
+    "insight": "Aloe-based soaps see a summer bump for their cooling properties, while Sunni Pindi soap (a traditional ubtan-style bath powder) is strongly linked to festival-day ritual bathing, especially Diwali.",
+    "availability": "Krishna",
+    "rawMaterials": [
+      {
+        "material": "Soap base / glycerin",
+        "cost": "approx. ₹70-125/kg"
+      },
+      {
+        "material": "Coconut oil",
+        "cost": "approx. ₹160-200/litre"
+      },
+      {
+        "material": "Aloe vera gel / Sunni Pindi herbal powder",
+        "cost": "approx. ₹100-200/kg"
+      },
+      {
+        "material": "Essential oil fragrance",
+        "cost": "approx. ₹300-600/litre"
+      }
+    ],
+    "videoId": "QX2VwwEeUH4",
+    "images": [
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048",
+      "http://orgatma.com/wp-content/uploads/2024/08/pack-of-3-soaps.webp",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/02/home-made-soap.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2023/11/363036202/SQ/PY/EV/28031/glycerin-soap-base-500x500.jpg",
+      "https://5.imimg.com/data5/SELLER/Default/2022/1/FH/ZJ/TS/13854737/glycerin-soap-base-500x500.JPG",
+      "http://www.khadinatural.com/cdn/shop/files/resizing-banner-20_a560fed5-d0d6-4845-ba24-f1ef4fbdac0d.gif?v=1713013366&width=2048"
+    ]
+  },
+  {
+    "id": "jute-bag-pair-floral-print-tote-bags",
+    "name": "Jute Bag Pair - Floral Print Tote Bags",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 143,
+    "orders": 390,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "doctor-scented-phenyl-rose",
+    "name": "Doctor Scented Phenyl - Rose",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 48,
+    "orders": 387,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Chittoor",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "floor-wash",
+    "name": "Floor Wash",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 114,
+    "orders": 387,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Anakapalli",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "jute-bags-kavali",
+    "name": "Jute Bags - Kavali",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 164,
+    "orders": 387,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Nellore",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "eco-friendly-canvas-tote-bag-with-zipper",
+    "name": "Eco-Friendly Canvas Tote Bag with Zipper",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 156,
+    "orders": 384,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Multiple SHG clusters across Andhra Pradesh",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "phenyle-floor-cleaner",
+    "name": "Phenyle Floor Cleaner",
+    "category": "Home Cleaning / Detergents",
+    "description": "A household cleaning product (floor cleaner/phenyl/detergent/dish-wash) manufactured locally by an SHG unit for daily home hygiene use.",
+    "price": 116,
+    "orders": 383,
+    "season": "Jun-Sep; Aug-Oct",
+    "insight": "Floor cleaners see a monsoon bump because of mud/dirt tracked indoors, and a second spike before major festivals when households do thorough deep-cleaning; otherwise it's a steady monthly-replenishment product.",
+    "availability": "Prakasam",
+    "rawMaterials": [
+      {
+        "material": "Acid slurry / LABSA (surfactant)",
+        "cost": "approx. ₹110-160/kg"
+      },
+      {
+        "material": "Caustic soda flakes",
+        "cost": "approx. ₹55-65/kg"
+      },
+      {
+        "material": "Pine oil / fragrance concentrate",
+        "cost": "approx. ₹170-200/litre"
+      },
+      {
+        "material": "Colourants, packaging bottles",
+        "cost": "approx. ₹8-15/bottle"
+      }
+    ],
+    "videoId": "IkClJkVvkYU",
+    "images": [
+      "https://5.imimg.com/data5/GLADMIN/Default/2022/7/CY/JA/PG/91623/phenyl-500x500.jpg",
+      "https://images.tv9telugu.com/wp-content/uploads/2026/08/washing-machines-liquid-4-1.jpg",
+      "https://static.asianetnews.com/images/w-1280,h-720,format-jpg,imgid-01kz5rztt2v009c86nmwt3vfjz,imgname-washing-machine-1785826634562.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/RP/YA/MY-110850/labsa-28acid-slurry-29-500x500.jpg",
+      "https://5.imimg.com/data5/GLADMIN/Default/2025/12/568403404/PI/SL/NP/28031/acidslurry1-jpg-500x500.jpg"
+    ]
+  },
+  {
+    "id": "printed-jute-bag",
+    "name": "Printed Jute Bag",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 160,
+    "orders": 380,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Kakinada",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "maroon-women-s-jute-bag-sullurpeta",
+    "name": "Maroon Women's Jute Bag - Sullurpeta",
+    "category": "Jute & Cloth Bags",
+    "description": "A handwoven/hand-stitched eco-friendly carry bag made by SHG artisans, used as a reusable alternative to plastic bags for shopping, groceries and gifting.",
+    "price": 116,
+    "orders": 377,
+    "season": "Jun; Aug-Nov",
+    "insight": "Demand spikes around festivals when SHGs supply gift/return-gift bags, and around government/eco-awareness drives promoting cloth/jute over plastic; year-round steady demand from daily shoppers as a plastic-bag substitute.",
+    "availability": "Tirupathi",
+    "rawMaterials": [
+      {
+        "material": "Jute fibre / cloth fabric",
+        "cost": "approx. ₹50-65/kg (raw jute)"
+      },
+      {
+        "material": "Cotton thread / lining fabric",
+        "cost": "approx. ₹150-250/kg"
+      },
+      {
+        "material": "Handles (jute rope / fabric strap)",
+        "cost": "approx. ₹40-60/piece set"
+      },
+      {
+        "material": "Zippers, buttons, dyes (printed variants)",
+        "cost": "approx. ₹10-30/bag"
+      }
+    ],
+    "videoId": "Mrbkx4Uv-Mg",
+    "images": [
+      "https://3.imimg.com/data3/VS/FL/GLADMIN-825/jute-shopping-bags-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg",
+      "https://3.imimg.com/data3/GA/YQ/GLADMIN-10413/jute-tote-bags-500x500.jpg"
+    ],
+    "rawMaterialImages": [
+      "https://5.imimg.com/data5/SELLER/Default/2023/9/343349249/JX/EX/DD/193853725/maxresdefault-32-500x500.jpg",
+      "https://3.imimg.com/data3/XB/OK/GLADMIN-31234/jute-fibers-500x500.jpg",
+      "https://4.imimg.com/data4/UA/OC/GLADMIN-2/handcrafted-jute-bag-500x500.jpg"
+    ]
+  },
+  {
+    "id": "bhuvanesh-swagruha-homemade-vellulli-garlic-karam-podi",
+    "name": "Bhuvanesh Swagruha Homemade Vellulli (Garlic) Karam Podi",
+    "category": "Spice Powders",
+    "description": "A dry roasted spice/lentil powder (karam podi/masala powder) mixed with hot rice and ghee - a household pantry staple across Andhra Pradesh.",
+    "price": 104,
+    "orders": 373,
+    "season": "Mar-May",
+    "insight": "As a shelf-stable pantry staple, this has fairly flat year-round demand; small seasonal upticks occur when families stock up ahead of summer travel/exam season when quick no-cook meals (rice + podi) are preferred.",
+    "availability": "Kadapa",
+    "rawMaterials": [
+      {
+        "material": "Red chillies",
+        "cost": "approx. ₹250-350/kg"
+      },
+      {
+        "material": "Roasted gram / urad dal",
+        "cost": "approx. ₹90-130/kg"
+      },
+      {
+        "material": "Garlic (for karam podi)",
+        "cost": "approx. ₹80-150/kg"
+      },
+      {
+        "material": "Sesame seeds, curry leaves, salt",
+        "cost": "approx. ₹100-180/kg combined"
+      }
+    ],
+    "videoId": "zns7XGwCdx8",
+    "images": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/11-01-2026/1200-675-25788109-thumbnail-16x9-ulli-karam-podi.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ],
+    "rawMaterialImages": [
+      "https://imgs.etvbharat.com/etvbharat/prod-images/11-01-2026/1200-675-25788109-thumbnail-16x9-ulli-karam-podi.jpg",
+      "https://imgs.etvbharat.com/etvbharat/prod-images/19-06-2025/1200-675-24221156-thumbnail-16x9-masala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Punugulu1.JPG/1280px-Punugulu1.JPG?utm_source=en.wikipedia.org&amp;utm_campaign=index&amp;utm_content=thumbnail"
+    ]
+  }
+]

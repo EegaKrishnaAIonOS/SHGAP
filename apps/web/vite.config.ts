@@ -10,7 +10,7 @@ import { VitePWA } from "vite-plugin-pwa";
 // deployment would front both with a single reverse proxy the same way.
 const apiProxy = {
   "/api": {
-    target: "http://localhost:3000",
+    target: "http://127.0.0.1:3000",
     changeOrigin: true,
     rewrite: (path: string) => path.replace(/^\/api/, ""),
   },
@@ -18,23 +18,32 @@ const apiProxy = {
   // WebRTC signaling (`/api/offer`) is a plain HTTP POST, so it proxies fine
   // even though the resulting media itself is a direct peer connection.
   "/voice-api": {
-    target: "http://localhost:8002",
+    target: "http://127.0.0.1:8002",
     changeOrigin: true,
     rewrite: (path: string) => path.replace(/^\/voice-api/, ""),
+  },
+  // inference/ (the Lakshmi guidance agent, run via the "inference" workspace's
+  // `dev` script on port 8090) - same same-origin-proxy reasoning as above.
+  "/guidance-api": {
+    target: "http://127.0.0.1:8090",
+    changeOrigin: true,
+    rewrite: (path: string) => path.replace(/^\/guidance-api/, ""),
   },
 };
 
 // https://vite.dev/config/
 export default defineConfig({
-  server: { proxy: apiProxy },
-  preview: { proxy: apiProxy },
+  // Bind to all interfaces, not just loopback - nginx proxies to this dev
+  // server from outside its own network namespace/container.
+  server: { host: "0.0.0.0", proxy: apiProxy },
+  preview: { host: "0.0.0.0", proxy: apiProxy },
   plugins: [
     react(),
     VitePWA({
       // Generates the service worker with Workbox and injects the manifest
       // link + registration into index.html automatically.
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.png"],
       manifest: {
         name: "SHG Smart Market Linkage Platform",
         short_name: "SHG Market",
@@ -44,7 +53,7 @@ export default defineConfig({
         scope: "/",
         display: "standalone",
         background_color: "#ffffff",
-        theme_color: "#7e14ff",
+        theme_color: "#0f766e",
         lang: "en",
         icons: [
           { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png", purpose: "any" },

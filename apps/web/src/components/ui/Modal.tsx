@@ -11,6 +11,7 @@ export interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
+  blurBackdrop?: boolean;
 }
 
 const FOCUSABLE_SELECTOR =
@@ -29,6 +30,7 @@ export function Modal({
   children,
   footer,
   className,
+  blurBackdrop,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -75,7 +77,11 @@ export function Modal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-neutral-900/50" aria-hidden="true" onClick={onClose} />
+      <div
+        className={cn("absolute inset-0 bg-neutral-900/50", blurBackdrop && "backdrop-blur-sm")}
+        aria-hidden="true"
+        onClick={onClose}
+      />
       <div
         ref={panelRef}
         role="dialog"
@@ -84,8 +90,8 @@ export function Modal({
         aria-describedby={descriptionId}
         tabIndex={-1}
         className={cn(
-          "relative z-10 w-full max-w-lg rounded-lg bg-white p-5 shadow-modal focus:outline-none",
-          className,
+          "relative z-10 w-full rounded-lg bg-white p-5 shadow-modal focus:outline-none",
+          className ?? "max-w-lg",
         )}
       >
         <h2 id={titleId} className="text-lg font-semibold text-neutral-900">

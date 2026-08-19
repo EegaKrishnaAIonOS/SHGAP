@@ -2,10 +2,27 @@ import { RoleName } from "@prisma/client";
 
 export const roles: { name: RoleName; description: string }[] = [
   { name: "SHG", description: "Self Help Group member / product supplier" },
-  { name: "ULB_OFFICIAL", description: "Urban Local Body official — monitors SHG activity within a ULB" },
-  { name: "DISTRICT_OFFICIAL", description: "District-level official — monitors SHGs, products and buyers across a district" },
-  { name: "STATE_OFFICIAL", description: "State-level official (MEPMA) — monitors state-wide KPIs and district ranking" },
-  { name: "ADMIN", description: "Platform administrator — manages master data, users and moderation" },
+  {
+    name: "ULB_OFFICIAL",
+    description: "Urban Local Body official — monitors SHG activity within a ULB",
+  },
+  {
+    name: "DISTRICT_OFFICIAL",
+    description: "District-level official — monitors SHGs, products and buyers across a district",
+  },
+  {
+    name: "STATE_OFFICIAL",
+    description: "State-level official (MEPMA) — monitors state-wide KPIs and district ranking",
+  },
+  {
+    name: "ADMIN",
+    description: "Platform administrator — manages master data, users and moderation",
+  },
+  {
+    name: "DISTRIBUTOR",
+    description: "Wholesale distributor — self-registered account, pending admin approval",
+  },
+  { name: "CONSUMER", description: "End consumer — self-registered account, active immediately" },
 ];
 
 /** The three POC pilot districts (see Proof of Concept Scope.docx, Section 2). */
@@ -78,8 +95,16 @@ export const categories: { name: string; slug: string; parentSlug: string | null
   { name: "Honey & Bee Products", slug: "honey-bee-products", parentSlug: "agri-allied-products" },
 
   { name: "Home Based Enterprises", slug: "home-based-enterprises", parentSlug: null },
-  { name: "Tailoring & Garments", slug: "tailoring-garments", parentSlug: "home-based-enterprises" },
-  { name: "Candle & Soap Making", slug: "candle-soap-making", parentSlug: "home-based-enterprises" },
+  {
+    name: "Tailoring & Garments",
+    slug: "tailoring-garments",
+    parentSlug: "home-based-enterprises",
+  },
+  {
+    name: "Candle & Soap Making",
+    slug: "candle-soap-making",
+    parentSlug: "home-based-enterprises",
+  },
   { name: "Papad & Vadiyalu", slug: "papad-vadiyalu", parentSlug: "home-based-enterprises" },
 ];
 
@@ -97,11 +122,54 @@ export const festivalCalendar: {
   recurring: boolean;
   description: string;
 }[] = [
-  { name: "Sankranti", startDate: "2026-01-14", endDate: "2026-01-16", recurring: true, description: "Harvest festival — statewide demand peak for food products and new clothing." },
-  { name: "Ugadi", startDate: "2026-03-19", endDate: "2026-03-19", recurring: true, description: "Telugu New Year — approximate date, lunar calendar; confirm annually." },
-  { name: "Ganesh Chaturthi", startDate: "2026-09-14", endDate: "2026-09-14", recurring: true, description: "Vinayaka Chavithi — demand peak for clay idols/terracotta and sweets." },
-  { name: "Dasara / Vijayadashami", startDate: "2026-10-20", endDate: "2026-10-20", recurring: true, description: "Approximate date, lunar calendar; confirm annually." },
-  { name: "Diwali", startDate: "2026-11-08", endDate: "2026-11-08", recurring: true, description: "Approximate date, lunar calendar; confirm annually. Major demand peak across all categories." },
-  { name: "Ramzan (Eid-ul-Fitr)", startDate: "2026-03-20", endDate: "2026-03-20", recurring: true, description: "Approximate date, lunar calendar; confirm annually." },
-  { name: "Christmas", startDate: "2026-12-25", endDate: "2026-12-25", recurring: true, description: "Fixed date; regional demand peak in coastal AP." },
+  {
+    name: "Sankranti",
+    startDate: "2026-01-14",
+    endDate: "2026-01-16",
+    recurring: true,
+    description: "Harvest festival — statewide demand peak for food products and new clothing.",
+  },
+  {
+    name: "Ugadi",
+    startDate: "2026-03-19",
+    endDate: "2026-03-19",
+    recurring: true,
+    description: "Telugu New Year — approximate date, lunar calendar; confirm annually.",
+  },
+  {
+    name: "Ganesh Chaturthi",
+    startDate: "2026-09-14",
+    endDate: "2026-09-14",
+    recurring: true,
+    description: "Vinayaka Chavithi — demand peak for clay idols/terracotta and sweets.",
+  },
+  {
+    name: "Dasara / Vijayadashami",
+    startDate: "2026-10-20",
+    endDate: "2026-10-20",
+    recurring: true,
+    description: "Approximate date, lunar calendar; confirm annually.",
+  },
+  {
+    name: "Diwali",
+    startDate: "2026-11-08",
+    endDate: "2026-11-08",
+    recurring: true,
+    description:
+      "Approximate date, lunar calendar; confirm annually. Major demand peak across all categories.",
+  },
+  {
+    name: "Ramzan (Eid-ul-Fitr)",
+    startDate: "2026-03-20",
+    endDate: "2026-03-20",
+    recurring: true,
+    description: "Approximate date, lunar calendar; confirm annually.",
+  },
+  {
+    name: "Christmas",
+    startDate: "2026-12-25",
+    endDate: "2026-12-25",
+    recurring: true,
+    description: "Fixed date; regional demand peak in coastal AP.",
+  },
 ];

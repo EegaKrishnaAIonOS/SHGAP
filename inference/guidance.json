@@ -1,0 +1,5 @@
+{
+  "element_id": "passwordForm",
+  "override_code": "document.getElementById('passwordForm').style.boxShadow = '0 0 10px 4px gray';",
+  "message": "Enter your email and password in the form and click the 'Login' button."
+}

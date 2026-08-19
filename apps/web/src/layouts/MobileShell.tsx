@@ -1,9 +1,16 @@
+import { useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "../lib/cn";
 import { LanguageToggle } from "../components/LanguageToggle";
 import { SyncStatusBanner } from "../components/SyncStatusBanner";
 import { useAuth } from "../context/AuthContext";
+
+// Exposes this shell's fixed bottom tab bar height as a CSS variable so
+// other fixed-positioned, app-root-mounted elements (e.g. FloatingChatWidget,
+// which renders outside this shell and has no other way to know the tab
+// bar exists) can clear it instead of overlapping it.
+const NAV_HEIGHT_VAR = "--mobile-shell-nav-height";
 
 /**
  * Mobile-first app shell for SHG-member-facing screens (registration,
@@ -17,12 +24,29 @@ export function MobileShell() {
   const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const navRef = useRef<HTMLElement>(null);
 
   const tabs = [
     { to: "/register", icon: "📝", label: t("nav.registration") },
     { to: "/catalogue", icon: "🛒", label: t("nav.catalogue") },
     { to: "/voice-assistant", icon: "🎙️", label: t("nav.voiceAssistant") },
   ];
+
+  // Track the tab bar's real rendered height (it varies with label wrapping
+  // across languages/screen sizes) rather than assuming a fixed value.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const updateHeight = () => root.style.setProperty(NAV_HEIGHT_VAR, `${el.offsetHeight}px`);
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty(NAV_HEIGHT_VAR);
+    };
+  }, []);
 
   return (
     <div className="flex min-h-dvh flex-col bg-neutral-50">
@@ -50,6 +74,7 @@ export function MobileShell() {
       </main>
 
       <nav
+        ref={navRef}
         aria-label={t("nav.dashboards") ?? "primary"}
         className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-200 bg-white"
       >

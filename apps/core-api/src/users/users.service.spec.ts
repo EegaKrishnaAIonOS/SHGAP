@@ -83,6 +83,48 @@ describe('UsersService', () => {
         }),
       );
     });
+
+    it('never returns passwordHash, even if Prisma returns it', async () => {
+      prisma.user.findMany.mockResolvedValueOnce([
+        { ...userRow, passwordHash: 'super-secret-hash' },
+      ]);
+      const result = await service.findAllInScope({ kind: 'global' }, {
+        skip: 0,
+        pageSize: 20,
+        page: 1,
+      } as any);
+      expect(result.items[0]).not.toHaveProperty('passwordHash');
+    });
+  });
+
+  describe('findOne / create / update', () => {
+    it('never returns passwordHash from findOne', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce({
+        ...userRow,
+        passwordHash: 'super-secret-hash',
+      });
+      const result = await service.findOne('user-1');
+      expect(result).not.toHaveProperty('passwordHash');
+    });
+
+    it('never returns passwordHash from create', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce(null); // no existing phone
+      prisma.user.create.mockResolvedValueOnce({
+        ...userRow,
+        passwordHash: 'super-secret-hash',
+      });
+      const result = await service.create({ phone: '9000000001' } as any);
+      expect(result).not.toHaveProperty('passwordHash');
+    });
+
+    it('never returns passwordHash from update', async () => {
+      prisma.user.update.mockResolvedValueOnce({
+        ...userRow,
+        passwordHash: 'super-secret-hash',
+      });
+      const result = await service.update('user-1', {} as any);
+      expect(result).not.toHaveProperty('passwordHash');
+    });
   });
 
   describe('assignRole', () => {

@@ -8,6 +8,7 @@ import { Prisma } from '@shgap/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginatedResult, paginate } from '../common/dto/pagination-query.dto';
 import { RequestScope } from '../common/interfaces/jwt-payload.interface';
+import { toSafeUser, toSafeUsers } from '../common/utils/safe-user.util';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUserDto } from './dto/query-user.dto';
@@ -58,7 +59,7 @@ export class UsersService {
       }),
     ]);
 
-    return paginate(users, total, query);
+    return paginate(toSafeUsers(users), total, query);
   }
 
   async findOne(id: string) {
@@ -69,7 +70,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
     }
-    return user;
+    return toSafeUser(user);
   }
 
   async create(dto: CreateUserDto) {
@@ -81,19 +82,21 @@ export class UsersService {
         `A user with phone ${dto.phone} already exists`,
       );
     }
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: dto,
       include: userWithRoles.include,
     });
+    return toSafeUser(user);
   }
 
   async update(id: string, dto: UpdateUserDto) {
     await this.findOne(id);
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: dto,
       include: userWithRoles.include,
     });
+    return toSafeUser(user);
   }
 
   async remove(id: string): Promise<void> {

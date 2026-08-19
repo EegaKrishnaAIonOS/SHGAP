@@ -26,9 +26,8 @@ export interface StoredAuth extends TokenPair {
 
 const STORAGE_KEY = "shgap.auth.v1";
 
-function loadFromStorage(): StoredAuth | null {
+function parseStored(raw: string | null): StoredAuth | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredAuth;
     if (!parsed?.accessToken || !parsed?.refreshToken) return null;
@@ -36,6 +35,16 @@ function loadFromStorage(): StoredAuth | null {
   } catch {
     return null;
   }
+}
+
+function loadFromStorage(): StoredAuth | null {
+  // localStorage (persisted "remember me" / phone-OTP sessions) takes
+  // precedence over sessionStorage (unchecked "remember me" — cleared when
+  // the tab closes) in the unlikely case both are somehow populated.
+  return (
+    parseStored(localStorage.getItem(STORAGE_KEY)) ??
+    parseStored(sessionStorage.getItem(STORAGE_KEY))
+  );
 }
 
 let current: StoredAuth | null = loadFromStorage();
@@ -50,12 +59,23 @@ export function getAuth(): StoredAuth | null {
   return current;
 }
 
-export function setAuth(tokens: TokenPair): void {
+/** `persist` controls where the token pair survives a page reload:
+ * `"local"` (default — matches every existing call site, i.e. the phone-OTP
+ * flow) keeps it until explicit logout; `"session"` (password login with
+ * "remember me" unchecked) clears it as soon as the browser tab closes. */
+export function setAuth(tokens: TokenPair, persist: "local" | "session" = "local"): void {
   current = { ...tokens, obtainedAt: Date.now() };
+  const serialized = JSON.stringify(current);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    if (persist === "local") {
+      localStorage.setItem(STORAGE_KEY, serialized);
+      sessionStorage.removeItem(STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(STORAGE_KEY, serialized);
+      localStorage.removeItem(STORAGE_KEY);
+    }
   } catch {
-    // localStorage unavailable (private browsing, quota) — keep in-memory only.
+    // Storage unavailable (private browsing, quota) — keep in-memory only.
   }
   notify();
 }
@@ -64,6 +84,7 @@ export function clearAuth(): void {
   current = null;
   try {
     localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
   } catch {
     // ignore
   }

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import * as argon2 from "argon2";
 import { roles, districts, ulbs, mandals, categories, festivalCalendar } from "./data";
 import {
   demoUsers,
@@ -7,6 +8,7 @@ import {
   demoProducts,
   demoBuyers,
   demoGemOpportunities,
+  demoSelfRegisteredAccounts,
 } from "./demo-data";
 
 const prisma = new PrismaClient();
@@ -129,10 +131,17 @@ async function seedDemoOfficials() {
       throw new Error(`Unknown ULB code ${official.ulbCode} for official ${official.name}`);
     }
 
+    const passwordHash = official.password ? await argon2.hash(official.password) : undefined;
     const user = await prisma.user.upsert({
       where: { phone: official.phone },
-      update: { name: official.name, status: "ACTIVE" },
-      create: { phone: official.phone, name: official.name, status: "ACTIVE" },
+      update: { name: official.name, status: "ACTIVE", email: official.email, passwordHash },
+      create: {
+        phone: official.phone,
+        name: official.name,
+        status: "ACTIVE",
+        email: official.email,
+        passwordHash,
+      },
     });
 
     const existingRole = await prisma.userRole.findFirst({
@@ -145,6 +154,42 @@ async function seedDemoOfficials() {
     }
   }
   console.log(`Seeded ${demoOfficials.length} demo official accounts`);
+}
+
+/**
+ * One demo login per self-registerable role (SHG/Retailer/Consumer) with a
+ * known email+password, seeded straight to ACTIVE — bypasses the normal
+ * email-verification and admin-approval steps real self-registration goes
+ * through, purely so these are immediately usable for local testing.
+ */
+async function seedDemoSelfRegisteredAccounts() {
+  const roleByName = new Map((await prisma.role.findMany()).map((r) => [r.name, r]));
+
+  for (const account of demoSelfRegisteredAccounts) {
+    const role = roleByName.get(account.role);
+    if (!role) throw new Error(`Role ${account.role} not seeded — run seedRoles first`);
+
+    const passwordHash = await argon2.hash(account.password);
+    const user = await prisma.user.upsert({
+      where: { email: account.email },
+      update: { name: account.name, passwordHash, status: "ACTIVE" },
+      create: {
+        phone: account.phone,
+        email: account.email,
+        name: account.name,
+        passwordHash,
+        status: "ACTIVE",
+      },
+    });
+
+    const existingRole = await prisma.userRole.findFirst({
+      where: { userId: user.id, roleId: role.id },
+    });
+    if (!existingRole) {
+      await prisma.userRole.create({ data: { userId: user.id, roleId: role.id } });
+    }
+  }
+  console.log(`Seeded ${demoSelfRegisteredAccounts.length} demo self-registered accounts`);
 }
 
 async function seedDemoShgsAndProducts() {
@@ -358,6 +403,7 @@ async function main() {
   await seedCategories();
   await seedFestivalCalendar();
   await seedDemoOfficials();
+  await seedDemoSelfRegisteredAccounts();
   await seedDemoShgsAndProducts();
   await seedDemoBuyers();
 }

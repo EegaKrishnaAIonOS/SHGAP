@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@shgap/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequestScope } from '../common/interfaces/jwt-payload.interface';
+import { toSafeUser, toSafeUsers } from '../common/utils/safe-user.util';
 
 export interface AdminSummary {
   totalShgs: number;
@@ -87,5 +92,48 @@ export class AdminService {
       availableProducts,
       totalUsers,
     };
+  }
+
+  /** Self-registered SHG/DISTRIBUTOR accounts awaiting review (T25) — CONSUMER
+   * self-registrations skip this entirely (see AuthService.registerWithPassword)
+   * and never appear here. */
+  async listPendingUsers() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        status: 'PENDING_APPROVAL',
+        userRoles: { some: { role: { name: { in: ['SHG', 'DISTRIBUTOR'] } } } },
+      },
+      include: { userRoles: { include: { role: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    return toSafeUsers(users);
+  }
+
+  async approveUser(id: string) {
+    await this.requirePendingUser(id);
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { status: 'ACTIVE' },
+    });
+    return toSafeUser(user);
+  }
+
+  async rejectUser(id: string) {
+    await this.requirePendingUser(id);
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { status: 'REJECTED' },
+    });
+    return toSafeUser(user);
+  }
+
+  private async requirePendingUser(id: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+    if (user.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException(`User ${id} is not pending approval`);
+    }
   }
 }

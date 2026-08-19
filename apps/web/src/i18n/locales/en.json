@@ -26,6 +26,12 @@
   },
   "nav": {
     "home": "Home",
+    "about": "About",
+    "howItWorks": "How It Works",
+    "login": "Login",
+    "register": "Register",
+    "primary": "Primary",
+    "toggleMenu": "Toggle menu",
     "registration": "SHG Registration",
     "catalogue": "Product Catalogue",
     "voiceAssistant": "Voice Assistant",
@@ -41,19 +47,158 @@
   },
   "login": {
     "title": "Log in",
+    "tabPhone": "Phone (SHG members)",
+    "tabPassword": "Email & password",
     "phoneSubtitle": "Enter your phone number. We'll send you a one-time code — no password needed.",
     "otpSubtitle": "Enter the code sent to {{phone}}",
     "phoneInvalid": "Enter a valid 10-digit mobile number",
     "otpInvalid": "Enter the code you received",
     "otpIncorrect": "That code is incorrect or has expired. Please try again.",
     "networkError": "Couldn't reach the server. Check your connection and try again.",
-    "changeNumber": "Change phone number"
+    "changeNumber": "Change phone number",
+    "email": "Email ID",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot Password?",
+    "submit": "Log In",
+    "noAccount": "Don't have an account?",
+    "registerHere": "Register here",
+    "resendVerification": "Resend verification email",
+    "resendVerificationSent": "If that email is registered and not yet verified, a new verification link has been sent."
+  },
+  "signup": {
+    "title": "Create your account",
+    "subtitle": "Choose your account type to get started.",
+    "roleSelector": {
+      "label": "Account type",
+      "SHG": {
+        "title": "Self Help Group",
+        "description": "Bring your group's products online and reach more customers."
+      },
+      "DISTRIBUTOR": {
+        "title": "Wholesale Distributor",
+        "description": "Connect with local Self Help Groups for wholesale distribution."
+      },
+      "CONSUMER": {
+        "title": "Consumer",
+        "description": "Discover and support authentic products from local communities."
+      }
+    },
+    "fullName": "Full Name",
+    "email": "Email ID",
+    "mobileNumber": "Mobile Number",
+    "password": "Create Password",
+    "confirmPassword": "Confirm Password",
+    "passwordRequirements": "At least 8 characters, with an uppercase letter, a lowercase letter, a number, and a special character.",
+    "termsLabel": "I agree to the Terms & Conditions and Privacy Policy.",
+    "submit": "Register",
+    "successTitle": "Registration successful",
+    "goToLogin": "Go to login",
+    "haveAccount": "Already have an account?",
+    "loginHere": "Log in",
+    "errors": {
+      "fullNameRequired": "Please enter your full name.",
+      "emailInvalid": "Please enter a valid email address.",
+      "mobileInvalid": "Please enter a valid mobile number.",
+      "passwordWeak": "Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.",
+      "passwordMismatch": "Passwords do not match.",
+      "termsRequired": "Please accept the Terms & Conditions.",
+      "networkError": "Couldn't reach the server. Please try again."
+    }
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password",
+    "strength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot password",
+    "subtitle": "Enter your email and we'll send you a link to reset your password.",
+    "email": "Email ID",
+    "emailInvalid": "Please enter a valid email address.",
+    "submit": "Send reset link",
+    "backToLogin": "Back to login",
+    "networkError": "Couldn't reach the server. Please try again."
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "subtitle": "Choose a new password for your account.",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordWeak": "Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.",
+    "passwordMismatch": "Passwords do not match.",
+    "submit": "Update password",
+    "success": "Password updated. You can now log in.",
+    "goToLogin": "Go to login",
+    "missingToken": "This reset link is invalid. Please request a new one from the forgot password page.",
+    "networkError": "Couldn't reach the server. Please try again."
+  },
+  "verifyEmail": {
+    "title": "Verify your email",
+    "verifying": "Verifying your email...",
+    "goToLogin": "Go to login",
+    "missingToken": "This verification link is invalid or has expired.",
+    "networkError": "Couldn't reach the server. Please try again.",
+    "resendHint": "Enter your email to get a new verification link.",
+    "email": "Email ID",
+    "resendSubmit": "Resend verification email"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or may have moved.",
+    "goHome": "Go to homepage"
   },
   "home": {
     "title": "SHG Smart Market Linkage Platform",
     "subtitle": "Sprint 0 wireframes (T04) — SHG-facing screens and official dashboards, implemented as real routed pages instead of Figma.",
     "shgFacingHeading": "SHG member screens (mobile-first)",
     "officialFacingHeading": "Official dashboards (desktop-first)"
+  },
+  "landing": {
+    "hero": {
+      "headline": "Empowering Local Communities Through Digital Commerce",
+      "subtext": "Helping Self Help Groups bring their products online, connect with distributors, and reach consumers beyond their local communities."
+    },
+    "userTypes": {
+      "heading": "Who this platform is for",
+      "shg": {
+        "title": "Self Help Groups",
+        "description": "Help local SHGs establish their digital presence and reach more customers."
+      },
+      "distributor": {
+        "title": "Wholesale Distributors",
+        "description": "Connect with local Self Help Groups and discover products for wholesale distribution."
+      },
+      "consumer": {
+        "title": "Consumers",
+        "description": "Discover and support authentic products created by local communities."
+      }
+    },
+    "howItWorks": {
+      "heading": "How it works",
+      "step1": {
+        "title": "Register",
+        "description": "Choose your user type and create an account."
+      },
+      "step2": {
+        "title": "Get Connected",
+        "description": "Depending on your role, your account is activated immediately or reviewed by an administrator."
+      },
+      "step3": {
+        "title": "Access the Platform",
+        "description": "Login securely and continue to the appropriate platform area."
+      }
+    },
+    "footer": {
+      "contact": "Contact",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "copyright": "© {{year}} SHG Smart Market Linkage. All rights reserved."
+    }
   },
   "registration": {
     "title": "SHG Registration",
@@ -310,6 +455,7 @@
     "tabUsers": "Users",
     "tabShgs": "SHGs",
     "tabProducts": "Products",
+    "tabApprovals": "Approvals",
     "tabMasterData": "Master data",
     "totalShgs": "Total SHGs",
     "activeShgs": "Active SHGs",
@@ -335,6 +481,16 @@
     "productsLoadError": "Couldn't load products. Please try again.",
     "productsUpdateError": "Couldn't update this product. Please try again.",
     "noProductsFound": "No products found.",
+    "approvals": {
+      "title": "Pending approvals",
+      "subtitle": "Self-registered SHG and Wholesale Distributor accounts awaiting review.",
+      "email": "Email",
+      "approve": "Approve",
+      "reject": "Reject",
+      "loadError": "Couldn't load pending registrations. Please try again.",
+      "updateError": "Couldn't update this registration. Please try again.",
+      "noneFound": "No pending registrations."
+    },
     "masterData": {
       "tabDistricts": "Districts",
       "tabUlbs": "ULBs",
@@ -370,5 +526,28 @@
     "offlineWithPending": "You're offline. {{count}} change(s) will sync once you're back online.",
     "pending": "{{count}} change(s) waiting to sync.",
     "syncNow": "Sync now"
+  },
+  "chatbot": {
+    "openLabel": "Open chat assistant",
+    "title": "SHG Assistant",
+    "historyLabel": "Chat history",
+    "historyTitle": "Previous conversations",
+    "backToChat": "Back to chat",
+    "newChat": "New chat",
+    "noHistory": "No previous conversations yet.",
+    "emptyState": "Ask us anything, by text or voice.",
+    "textOption": "Text",
+    "voiceOption": "Voice",
+    "backToOptions": "Back to input options",
+    "inputPlaceholder": "Type your message...",
+    "send": "Send",
+    "recording": "Recording",
+    "stopRecording": "Stop recording",
+    "voiceMessage": "Voice message ({{duration}})",
+    "voiceMessagePreview": "Voice message",
+    "micUnsupported": "Voice messages aren't supported in this browser.",
+    "micDenied": "Microphone access was denied. Please allow microphone access to send a voice message.",
+    "autoReplyText": "Thanks for your message! Our support team will get back to you shortly.",
+    "autoReplyVoice": "Thanks for your voice message! Our support team will get back to you shortly."
   }
 }

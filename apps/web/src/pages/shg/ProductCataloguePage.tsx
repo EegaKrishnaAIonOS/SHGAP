@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card, CardFooter } from "../../components/ui/Card";
-import { cn } from "../../lib/cn";
 import { getCategories } from "../../lib/api/masterData";
 import { deleteProduct, listProducts } from "../../lib/api/products";
 import { getMyShg } from "../../lib/api/shgs";
@@ -12,27 +11,31 @@ import { ApiError } from "../../lib/api/httpClient";
 import type { Category, Product, Shg } from "../../lib/api/types";
 import { ProductFormModal } from "./ProductFormModal";
 
-/** Maps every leaf (child) category id to its top-level parent id, so the chip filter (which only shows the 5 top-level groups) can match products by their leaf `categoryId`. */
+/** Maps every leaf (child) category id to its display name and slug, so products can be labeled and filtered by their leaf `categoryId`. */
 function buildCategoryLookup(categories: Category[]) {
-  const topLevelIdByCategoryId = new Map<string, string>();
   const nameByCategoryId = new Map<string, string>();
+  const slugByCategoryId = new Map<string, string>();
   for (const parent of categories) {
     nameByCategoryId.set(parent.id, parent.name);
-    topLevelIdByCategoryId.set(parent.id, parent.id);
+    slugByCategoryId.set(parent.id, parent.slug);
     for (const child of parent.children ?? []) {
       nameByCategoryId.set(child.id, child.name);
-      topLevelIdByCategoryId.set(child.id, parent.id);
+      slugByCategoryId.set(child.id, child.slug);
     }
   }
-  return { topLevelIdByCategoryId, nameByCategoryId };
+  return { nameByCategoryId, slugByCategoryId };
 }
+
+// Launch scope is pickles-only for now — remove this filter once other categories go live.
+const LAUNCH_CATEGORY_SLUG = "pickles";
 
 /**
  * Real product catalogue for the signed-in member's own SHG: fetches the
  * caller's SHG (self-scoped `GET /shgs`), its products, and the category
- * taxonomy, with client-side search + category-group filter chips, and
- * add/edit/delete wired to the live product-registry endpoints. Camera/
- * gallery photo capture lives in `ProductFormModal` -> `ProductImageCapture`.
+ * taxonomy, with client-side search (scoped to pickles only for now — see
+ * LAUNCH_CATEGORY_SLUG), and add/edit/delete wired to the live
+ * product-registry endpoints. Camera/gallery photo capture lives in
+ * `ProductFormModal` -> `ProductImageCapture`.
  */
 export function ProductCataloguePage() {
   const { t } = useTranslation();
@@ -42,7 +45,6 @@ export function ProductCataloguePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [query, setQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [pageNotice, setPageNotice] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export function ProductCataloguePage() {
     };
   }, [t]);
 
-  const { topLevelIdByCategoryId, nameByCategoryId } = useMemo(
+  const { nameByCategoryId, slugByCategoryId } = useMemo(
     () => buildCategoryLookup(categories),
     [categories],
   );
@@ -84,11 +86,10 @@ export function ProductCataloguePage() {
     () =>
       products.filter((p) => {
         const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase());
-        const matchesCategory =
-          !categoryFilter || topLevelIdByCategoryId.get(p.categoryId) === categoryFilter;
-        return matchesQuery && matchesCategory;
+        const matchesLaunchScope = slugByCategoryId.get(p.categoryId) === LAUNCH_CATEGORY_SLUG;
+        return matchesQuery && matchesLaunchScope;
       }),
-    [products, query, categoryFilter, topLevelIdByCategoryId],
+    [products, query, slugByCategoryId],
   );
 
   function handleSaved(product: Product) {
@@ -154,36 +155,6 @@ export function ProductCataloguePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={t("dashboard.filters")}>
-        <button
-          type="button"
-          onClick={() => setCategoryFilter(null)}
-          className={cn(
-            "min-h-touch-sm rounded-full border px-4 text-sm font-medium",
-            categoryFilter === null
-              ? "border-brand-400 bg-brand-50 text-brand-500"
-              : "border-neutral-300 text-neutral-600",
-          )}
-        >
-          {t("catalogue.allCategories")}
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => setCategoryFilter(cat.id)}
-            className={cn(
-              "min-h-touch-sm rounded-full border px-4 text-sm font-medium",
-              categoryFilter === cat.id
-                ? "border-brand-400 bg-brand-50 text-brand-500"
-                : "border-neutral-300 text-neutral-600",
-            )}
-          >
-            {cat.name}
-          </button>
-        ))}
       </div>
 
       {filtered.length === 0 ? (

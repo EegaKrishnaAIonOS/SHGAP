@@ -20,7 +20,12 @@ export function AdminLayout() {
     { to: "/admin/users", label: t("admin.tabUsers") },
     { to: "/admin/shgs", label: t("admin.tabShgs") },
     { to: "/admin/products", label: t("admin.tabProducts") },
-    ...(isAdmin ? [{ to: "/admin/master-data", label: t("admin.tabMasterData") }] : []),
+    ...(isAdmin
+      ? [
+          { to: "/admin/approvals", label: t("admin.tabApprovals") },
+          { to: "/admin/master-data", label: t("admin.tabMasterData") },
+        ]
+      : []),
   ];
 
   return (

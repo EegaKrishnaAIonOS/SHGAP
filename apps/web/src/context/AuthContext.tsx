@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import * as authApi from "../lib/api/auth";
 import { clearAuth, getAuth, setAuth, subscribeAuth } from "../lib/auth/tokenStore";
+import type { RegisterPayload, RegisterResponse, VerifyEmailResponse } from "../lib/api/auth";
 import type { UserProfile } from "../lib/api/types";
 
 interface AuthContextValue {
@@ -16,6 +17,19 @@ interface AuthContextValue {
   hasRole: (...roles: string[]) => boolean;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, otp: string) => Promise<void>;
+  /** SHG/Distributor/Consumer self-registration — never signs the caller in (see AuthService.registerWithPassword on the backend); they still call loginWithPassword afterwards. */
+  registerAccount: (payload: RegisterPayload) => Promise<RegisterResponse>;
+  /** Email+password login — the only auth path for Distributor/Consumer, an alternative to phone-OTP for SHG members. */
+  loginWithPassword: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  forgotPassword: (email: string) => Promise<{ message: string }>;
+  resetPassword: (
+    token: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<{ message: string }>;
+  /** Confirms a registration email — never signs the caller in, same as registerAccount. */
+  verifyEmail: (token: string) => Promise<VerifyEmailResponse>;
+  resendVerification: (email: string) => Promise<{ message: string }>;
   logout: () => Promise<void>;
 }
 
@@ -67,6 +81,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuth(tokens);
   }, []);
 
+  const registerAccount = useCallback((payload: RegisterPayload) => {
+    return authApi.register(payload);
+  }, []);
+
+  const loginWithPassword = useCallback(
+    async (email: string, password: string, rememberMe?: boolean) => {
+      const tokens = await authApi.loginWithPassword(email, password, rememberMe);
+      setAuth(tokens, rememberMe ? "local" : "session");
+    },
+    [],
+  );
+
+  const forgotPassword = useCallback((email: string) => {
+    return authApi.forgotPassword(email);
+  }, []);
+
+  const resetPassword = useCallback(
+    (token: string, newPassword: string, confirmPassword: string) => {
+      return authApi.resetPassword(token, newPassword, confirmPassword);
+    },
+    [],
+  );
+
+  const verifyEmail = useCallback((token: string) => {
+    return authApi.verifyEmail(token);
+  }, []);
+
+  const resendVerification = useCallback((email: string) => {
+    return authApi.resendVerification(email);
+  }, []);
+
   const logout = useCallback(async () => {
     const current = getAuth();
     clearAuth();
@@ -92,9 +137,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole,
       requestOtp,
       verifyOtp,
+      registerAccount,
+      loginWithPassword,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      resendVerification,
       logout,
     }),
-    [isAuthenticated, profile, profileLoading, hasRole, requestOtp, verifyOtp, logout],
+    [
+      isAuthenticated,
+      profile,
+      profileLoading,
+      hasRole,
+      requestOtp,
+      verifyOtp,
+      registerAccount,
+      loginWithPassword,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      resendVerification,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

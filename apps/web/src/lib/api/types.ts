@@ -125,11 +125,15 @@ export interface CategorySuggestion {
   score: number;
 }
 
+export type UserStatus =
+  "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION" | "ERASED" | "PENDING_APPROVAL" | "REJECTED";
+
 export interface UserProfile {
   id: string;
   phone: string;
+  email?: string | null;
   name: string | null;
-  status?: "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION";
+  status?: UserStatus;
   createdAt?: string;
   userRoles: Array<{
     id: string;
@@ -138,6 +142,11 @@ export interface UserProfile {
     role: { name: string };
   }>;
 }
+
+/** The three account types a caller may self-select at /signup — mirrors
+ * SELF_REGISTERABLE_ROLES in core-api's register.dto.ts. */
+export const SELF_REGISTERABLE_ROLES = ["SHG", "DISTRIBUTOR", "CONSUMER"] as const;
+export type SelfRegisterableRole = (typeof SELF_REGISTERABLE_ROLES)[number];
 
 export interface AdminSummary {
   totalShgs: number;

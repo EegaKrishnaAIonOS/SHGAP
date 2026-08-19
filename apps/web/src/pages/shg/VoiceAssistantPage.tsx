@@ -243,7 +243,18 @@ function VoiceAssistantContent() {
         </p>
       )}
 
-      <div className="mt-6 w-full flex-1 overflow-y-auto rounded-md border border-neutral-200 bg-white p-3">
+      <div
+        className={cn(
+          "mt-6 w-full flex-1 overflow-y-auto rounded-md border border-neutral-200 bg-white p-3",
+          // The call's own language toggle (above) is independent of the
+          // app's overall UI language (html[lang], see useHtmlLangSync) - so
+          // the transcript needs its own Telugu font switch here rather than
+          // relying on the global html[lang="te"] rule, which only follows
+          // the app's UI language and would miss a Telugu call started
+          // while the UI itself is in English.
+          language === "te" && "font-telugu",
+        )}
+      >
         {messages.length === 0 ? (
           <p className="text-center text-sm text-neutral-400">{t("voice.transcriptEmpty")}</p>
         ) : (

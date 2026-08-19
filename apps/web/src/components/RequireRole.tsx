@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import { ForbiddenPage } from "../pages/ForbiddenPage";
 
 interface RequireRoleProps {
   roles: string[];
@@ -15,7 +15,6 @@ interface RequireRoleProps {
  */
 export function RequireRole({ roles }: RequireRoleProps) {
   const { profileLoading, hasRole } = useAuth();
-  const { t } = useTranslation();
 
   // Still resolving the profile fetch that determines role access — a brief
   // blank render avoids a flash of "forbidden" before we actually know,
@@ -23,11 +22,7 @@ export function RequireRole({ roles }: RequireRoleProps) {
   if (profileLoading) return null;
 
   if (!hasRole(...roles)) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center p-6 text-center">
-        <p className="text-neutral-500">{t("common.forbidden")}</p>
-      </div>
-    );
+    return <ForbiddenPage />;
   }
 
   return <Outlet />;

@@ -13,6 +13,44 @@ export const demoUsers: { phone: string; name: string }[] = [
 ];
 
 /**
+ * One demo login per self-registerable role (T25 email+password auth), for
+ * exercising the Create Account -> Login flow in a fresh environment without
+ * waiting on real email verification / admin approval — seeded straight to
+ * ACTIVE. "Retailer" in the signup UI maps to the DISTRIBUTOR role (see
+ * ROLE_MAP in interface/script.js and SELF_REGISTERABLE_ROLES in
+ * apps/core-api/src/auth/dto/register.dto.ts).
+ */
+export const demoSelfRegisteredAccounts: {
+  phone: string;
+  name: string;
+  email: string;
+  password: string;
+  role: "SHG" | "DISTRIBUTOR" | "CONSUMER";
+}[] = [
+  {
+    phone: "9000000021",
+    name: "Demo Retailer",
+    email: "retailer.email@example.com",
+    password: "retailer#0000",
+    role: "DISTRIBUTOR",
+  },
+  {
+    phone: "9000000022",
+    name: "Demo SHG",
+    email: "shg.email@example.com",
+    password: "shg#4444",
+    role: "SHG",
+  },
+  {
+    phone: "9000000023",
+    name: "Demo Consumer",
+    email: "consumer.email@example.com",
+    password: "consumer#8888",
+    role: "CONSUMER",
+  },
+];
+
+/**
  * One demo account per official role (T09 Admin Portal) — without these,
  * nobody can log in and demo the admin portal or the officials-facing
  * dashboards in a fresh environment. District/ULB officials are scoped to
@@ -25,6 +63,11 @@ export const demoOfficials: {
   role: "ADMIN" | "STATE_OFFICIAL" | "DISTRICT_OFFICIAL" | "ULB_OFFICIAL";
   districtCode?: string;
   ulbCode?: string;
+  /** Email+password login (matches demoSelfRegisteredAccounts above) — only
+   * set where an account needs to be reachable from login.html's
+   * email/password form, not just phone-OTP. */
+  email?: string;
+  password?: string;
 }[] = [
   { phone: "9000000010", name: "Admin User", role: "ADMIN" },
   { phone: "9000000011", name: "State Official", role: "STATE_OFFICIAL" },
@@ -40,6 +83,22 @@ export const demoOfficials: {
     role: "ULB_OFFICIAL",
     districtCode: "ATP",
     ulbCode: "ATP-MC",
+  },
+  // Named admin personas (state oversight vs. technical/system superuser) —
+  // District Admin is planned but not yet seeded.
+  {
+    phone: "9000000030",
+    name: "State Govt Admin",
+    role: "STATE_OFFICIAL",
+    email: "admin@ap.gov.in",
+    password: "Apgov@1212",
+  },
+  {
+    phone: "9000000031",
+    name: "Technical Admin",
+    role: "ADMIN",
+    email: "admin@technical",
+    password: "Admin@1212",
   },
 ];
 

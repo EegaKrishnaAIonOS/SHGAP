@@ -21,6 +21,7 @@ export default {
         warning: colors.warning,
         danger: colors.danger,
         info: colors.info,
+        marketing: colors.marketing,
       },
       spacing: {
         "touch-sm": spacing.touchSm,

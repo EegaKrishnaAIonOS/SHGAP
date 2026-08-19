@@ -59,6 +59,31 @@ class EnvironmentVariables {
   @Min(60)
   OTP_RATE_LIMIT_WINDOW_SECONDS: number;
 
+  // Email+password auth (T25) — forgot-password reset tokens, mirroring the
+  // OTP_* TTL pattern above but for the Redis-backed reset-token key.
+  @IsInt()
+  @Min(60)
+  PASSWORD_RESET_TTL_SECONDS: number;
+
+  // Email-verification link lifetime (T25) — much longer than a password
+  // reset since people don't always check a new account's inbox right away.
+  @IsInt()
+  @Min(60)
+  EMAIL_VERIFICATION_TTL_SECONDS: number;
+
+  // Refresh-token lifetime for a password-login session that did NOT check
+  // "remember me" (see AuthService.loginWithPassword) — shorter than
+  // JWT_REFRESH_EXPIRES_IN, which remembered sessions and the existing
+  // phone-OTP flow both continue to use as-is.
+  @IsInt()
+  @Min(60)
+  LOGIN_SESSION_REFRESH_TTL_SECONDS: number;
+
+  // Base URL of the deployed web app (apps/web) — used only to build the
+  // password-reset link sent via MailProvider; never called by core-api.
+  @IsString()
+  WEB_APP_URL: string;
+
   @IsString()
   MINIO_ENDPOINT: string;
 

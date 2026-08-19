@@ -26,6 +26,11 @@ enum RoleName {
   DISTRICT_OFFICIAL
   STATE_OFFICIAL
   ADMIN
+  /// Wholesale distributor self-registered account (T25) — not the same as
+  /// the pre-existing `Buyer` catalog entity, which has no user/login today.
+  DISTRIBUTOR
+  /// Self-registered end-consumer account (T25).
+  CONSUMER
 
   @@map("role_name")
 }
@@ -38,6 +43,11 @@ enum UserStatus {
   /// the row itself is kept (not hard-deleted) only where other real rows
   /// still reference it via a required FK (e.g. `Shg.contactUserId`).
   ERASED
+  /// Self-registered SHG/DISTRIBUTOR account awaiting admin review (T25) —
+  /// cannot obtain a JWT via /auth/login until moved to ACTIVE or REJECTED.
+  PENDING_APPROVAL
+  /// Admin rejected a pending SHG/DISTRIBUTOR self-registration (T25).
+  REJECTED
 
   @@map("user_status")
 }
@@ -141,6 +151,9 @@ model User {
   phone             String            @unique @db.VarChar(15)
   email             String?           @unique
   name              String?
+  /// Argon2id hash (T25 email+password auth). Null for phone-OTP-only users —
+  /// OTP login never sets or checks this field.
+  passwordHash      String?           @map("password_hash")
   preferredLanguage PreferredLanguage @default(TELUGU) @map("preferred_language")
   status            UserStatus        @default(PENDING_VERIFICATION)
   lastLoginAt       DateTime?         @map("last_login_at")

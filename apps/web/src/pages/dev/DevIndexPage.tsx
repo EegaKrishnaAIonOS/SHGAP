@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Card, CardDescription, CardTitle } from "../components/ui/Card";
-import { LanguageToggle } from "../components/LanguageToggle";
-import { WireframeBanner } from "../components/WireframeBanner";
+import { Card, CardDescription, CardTitle } from "../../components/ui/Card";
+import { LanguageToggle } from "../../components/LanguageToggle";
+import { WireframeBanner } from "../../components/WireframeBanner";
 
 interface WireframeLink {
   to: string;
@@ -11,11 +11,12 @@ interface WireframeLink {
 }
 
 /**
- * Not one of the T04 wireframe screens itself — this is a developer/reviewer
- * index page (the app's "/" route) linking out to every wireframe route, so
- * the deliverable can be reviewed end-to-end without knowing the URLs.
+ * Developer/reviewer index page linking out to every route, so the
+ * deliverable can be reviewed end-to-end without knowing the URLs. Used to
+ * live at "/" (the app's root); moved to /_dev once "/" became the real
+ * marketing landing page (T25) so the QA/dev team doesn't lose this tool.
  */
-export function HomePage() {
+export function DevIndexPage() {
   const { t } = useTranslation();
 
   const shgLinks: WireframeLink[] = [

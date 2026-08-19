@@ -52,3 +52,44 @@ export async function transliterate(text: string): Promise<string> {
   const { text: normalized } = await voiceFetch<{ text: string }>("/transliterate", { text });
   return normalized;
 }
+
+/**
+ * One-shot batch transcription for a fully-recorded clip (the floating chat
+ * widget's long-press voice messages) — as opposed to the live WebRTC call
+ * VoiceAssistantPage uses. Multipart, not JSON, so this doesn't go through
+ * `voiceFetch`. Returns an empty string (never throws) on failure so a
+ * transcription hiccup falls back to the widget's plain duration bubble
+ * instead of breaking the send.
+ */
+export async function transcribeAudio(blob: Blob): Promise<string> {
+  try {
+    const form = new FormData();
+    form.append("file", blob, "recording.webm");
+    const res = await fetch(`${VOICE_API_BASE}/api/transcribe`, { method: "POST", body: form });
+    if (!res.ok) return "";
+    const data = (await res.json()) as { transcript?: string };
+    return data.transcript ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * One-shot batch TTS for spoken feedback outside a live call - e.g. reading
+ * the guidance agent's message aloud after a long-press dictation. Returns
+ * `null` (never throws) on failure, same fail-quiet convention as
+ * `transcribeAudio`.
+ */
+export async function speakText(text: string, language: "te" | "en"): Promise<Blob | null> {
+  try {
+    const res = await fetch(`${VOICE_API_BASE}/api/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, language }),
+    });
+    if (!res.ok) return null;
+    return await res.blob();
+  } catch {
+    return null;
+  }
+}

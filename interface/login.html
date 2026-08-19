@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshmi - An innovative SHG intelligent assistant</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-shell">
+      <div class="auth-card">
+        <div class="inline-links" style="margin-bottom: 12px;">
+          <span>Test login:</span>
+          <a href="#" id="fillRetailer">Retailer</a>
+          <a href="#" id="fillShg">SHG</a>
+          <a href="#" id="fillConsumer">Consumer</a>
+        </div>
+        <form id="passwordForm" class="form-grid">
+          <div class="field">
+            <label for="emailInput">Email</label>
+            <input id="emailInput" type="email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label for="passwordInput">Password</label>
+            <input id="passwordInput" type="password" placeholder="Enter your password" />
+          </div>
+          <div class="inline-links">
+            <label class="checkbox-row"><input id="rememberMeInput" type="checkbox" /> Remember me</label>
+            <a href="#">Forgot password?</a>
+          </div>
+          <button class="primary-btn" type="submit" style="width: 100%; margin-top: 18px;">Login</button>
+        </form>
+
+        <div class="auth-footer">
+          New here? <a class="auth-link" href="signup.html">Create account</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.body.dataset.page = 'login';
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
