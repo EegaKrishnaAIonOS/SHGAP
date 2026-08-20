@@ -35,8 +35,25 @@ const apiProxy = {
 export default defineConfig({
   // Bind to all interfaces, not just loopback - nginx proxies to this dev
   // server from outside its own network namespace/container.
-  server: { host: "0.0.0.0", proxy: apiProxy },
-  preview: { host: "0.0.0.0", proxy: apiProxy },
+  server: {
+    host: "0.0.0.0",
+    proxy: apiProxy,
+    // Requests arrive with the EC2 public DNS name or the ALB's DNS name as
+    // Host (nginx passes it through as-is), which Vite's DNS-rebinding guard
+    // otherwise blocks.
+    allowedHosts: [
+      "ec2-18-205-10-153.compute-1.amazonaws.com",
+      "agent-lakshmi-shg-intelligence-161998846.us-east-1.elb.amazonaws.com",
+    ],
+  },
+  preview: {
+    host: "0.0.0.0",
+    proxy: apiProxy,
+    allowedHosts: [
+      "ec2-18-205-10-153.compute-1.amazonaws.com",
+      "agent-lakshmi-shg-intelligence-161998846.us-east-1.elb.amazonaws.com",
+    ],
+  },
   plugins: [
     react(),
     VitePWA({
