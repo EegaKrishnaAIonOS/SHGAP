@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "./ui/Button";
 import { deleteProductImage, uploadProductImage } from "../lib/api/products";
 import type { ProductImage } from "../lib/api/types";
@@ -22,7 +21,6 @@ export function ProductImageCapture({
   images,
   onImagesChange,
 }: ProductImageCaptureProps) {
-  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -59,7 +57,7 @@ export function ProductImageCapture({
         }
       });
     } catch {
-      setError(t("catalogue.photos.cameraUnavailable"));
+      setError("Couldn't access the camera. You can still choose a photo from your gallery.");
     }
   }
 
@@ -99,10 +97,10 @@ export function ProductImageCapture({
       if (result.status === "ok") {
         onImagesChange([...images, result.data]);
       } else {
-        setNotice(t("catalogue.photos.queuedOffline"));
+        setNotice("You're offline — this photo will upload automatically once you're back online.");
       }
     } catch {
-      setError(t("catalogue.photos.uploadFailed"));
+      setError("Photo upload failed. Please try again.");
     } finally {
       setUploadProgress(null);
     }
@@ -113,13 +111,13 @@ export function ProductImageCapture({
     if (result.status === "ok") {
       onImagesChange(images.filter((img) => img.id !== imageId));
     } else {
-      setNotice(t("catalogue.photos.queuedOffline"));
+      setNotice("You're offline — this photo will upload automatically once you're back online.");
     }
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm font-medium text-neutral-700">{t("catalogue.photos.title")}</p>
+      <p className="text-sm font-medium text-neutral-700">Photos</p>
 
       {images.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -132,7 +130,7 @@ export function ProductImageCapture({
               <button
                 type="button"
                 onClick={() => void handleDelete(image.id)}
-                aria-label={t("catalogue.photos.deleteImage")}
+                aria-label="Delete photo"
                 className="absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900/70 text-xs text-white"
               >
                 ✕
@@ -148,10 +146,10 @@ export function ProductImageCapture({
           <canvas ref={canvasRef} className="hidden" />
           <div className="flex gap-2">
             <Button type="button" size="touch" fullWidth onClick={capturePhoto}>
-              {t("catalogue.photos.capture")}
+              Capture
             </Button>
             <Button type="button" variant="outline" size="touch" fullWidth onClick={stopCamera}>
-              {t("common.cancel")}
+              Cancel
             </Button>
           </div>
         </div>
@@ -164,11 +162,11 @@ export function ProductImageCapture({
             fullWidth
             onClick={() => void openCamera()}
           >
-            <span aria-hidden="true">📷</span> {t("catalogue.photos.openCamera")}
+            <span aria-hidden="true">📷</span> Take photo
           </Button>
           <label className="flex min-h-touch flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-neutral-300 px-6 text-lg font-medium text-neutral-800 hover:bg-neutral-50">
             <span aria-hidden="true">🖼️</span>
-            {t("catalogue.photos.chooseFromGallery")}
+            Choose from gallery
             <input type="file" accept="image/*" className="sr-only" onChange={handleGalleryPick} />
           </label>
         </div>
@@ -182,9 +180,7 @@ export function ProductImageCapture({
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <span className="text-xs text-neutral-500">
-            {t("catalogue.photos.uploading", { percent: uploadProgress })}
-          </span>
+          <span className="text-xs text-neutral-500">{`Uploading... ${uploadProgress}%`}</span>
         </div>
       )}
 

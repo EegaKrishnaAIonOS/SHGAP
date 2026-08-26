@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -13,7 +12,6 @@ const SEARCH_DEBOUNCE_MS = 400;
 const PAGE_SIZE = 20;
 
 export function AdminShgsPage() {
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [shgs, setShgs] = useState<Shg[]>([]);
@@ -36,7 +34,7 @@ export function AdminShgsPage() {
           setTotal(result.total);
         })
         .catch(() => {
-          if (!cancelled) setError(t("admin.shgsLoadError"));
+          if (!cancelled) setError("Couldn't load SHGs. Please try again.");
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -46,7 +44,7 @@ export function AdminShgsPage() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [search, page, t]);
+  }, [search, page]);
 
   async function toggleActive(shg: Shg) {
     setPendingId(shg.id);
@@ -55,26 +53,26 @@ export function AdminShgsPage() {
       if (result.status === "ok") {
         setShgs((prev) => prev.map((s) => (s.id === result.data.id ? result.data : s)));
       } else {
-        setError(t("admin.actionQueuedOffline"));
+        setError("You're offline — this change will sync automatically once you're back online.");
       }
     } catch {
-      setError(t("admin.shgsUpdateError"));
+      setError("Couldn't update this SHG. Please try again.");
     } finally {
       setPendingId(null);
     }
   }
 
   const columns: Column<Shg>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "type", header: t("catalogue.form.category"), render: (row) => row.type },
+    { key: "name", header: "Name", render: (row) => row.name },
+    { key: "type", header: "Category", render: (row) => row.type },
     {
       key: "district",
-      header: t("registration.district"),
+      header: "District",
       render: (row) => row.district?.name ?? "—",
     },
     {
       key: "status",
-      header: t("common.status"),
+      header: "Status",
       render: (row) => (
         <span
           className={
@@ -83,13 +81,13 @@ export function AdminShgsPage() {
               : "rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500"
           }
         >
-          {row.isActive ? t("catalogue.available") : t("catalogue.unavailable")}
+          {row.isActive ? "Available" : "Unavailable"}
         </span>
       ),
     },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <Button
           size="sm"
@@ -97,7 +95,7 @@ export function AdminShgsPage() {
           isLoading={pendingId === row.id}
           onClick={() => void toggleActive(row)}
         >
-          {row.isActive ? t("admin.deactivate") : t("admin.reactivate")}
+          {row.isActive ? "Deactivate" : "Reactivate"}
         </Button>
       ),
     },
@@ -105,18 +103,18 @@ export function AdminShgsPage() {
 
   return (
     <div>
-      <PageHeader title={t("admin.tabShgs")} wireframe={false} />
+      <PageHeader title="SHGs" wireframe={false} />
 
       <Card>
         <div className="mb-4 max-w-sm">
           <Input
-            label={t("common.search")}
+            label="Search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder={t("admin.shgsSearchPlaceholder")}
+            placeholder="Search by SHG name"
           />
         </div>
 
@@ -126,7 +124,7 @@ export function AdminShgsPage() {
           columns={columns}
           rows={shgs}
           rowKey={(row) => row.id}
-          emptyMessage={loading ? t("common.loading") : t("admin.noShgsFound")}
+          emptyMessage={loading ? "Loading..." : "No SHGs found."}
         />
 
         <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

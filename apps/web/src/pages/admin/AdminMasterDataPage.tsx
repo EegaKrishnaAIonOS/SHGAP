@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { cn } from "../../lib/cn";
@@ -18,20 +17,19 @@ type MasterDataTab = "districts" | "ulbs" | "mandals" | "categories" | "festival
  * between them is a single click either way.
  */
 export function AdminMasterDataPage() {
-  const { t } = useTranslation();
   const [tab, setTab] = useState<MasterDataTab>("districts");
 
   const tabs: { key: MasterDataTab; label: string }[] = [
-    { key: "districts", label: t("admin.masterData.tabDistricts") },
-    { key: "ulbs", label: t("admin.masterData.tabUlbs") },
-    { key: "mandals", label: t("admin.masterData.tabMandals") },
-    { key: "categories", label: t("admin.masterData.tabCategories") },
-    { key: "festivals", label: t("admin.masterData.tabFestivals") },
+    { key: "districts", label: "Districts" },
+    { key: "ulbs", label: "ULBs" },
+    { key: "mandals", label: "Mandals" },
+    { key: "categories", label: "Categories" },
+    { key: "festivals", label: "Festival calendar" },
   ];
 
   return (
     <div>
-      <PageHeader title={t("admin.tabMasterData")} wireframe={false} />
+      <PageHeader title="Master data" wireframe={false} />
 
       <div className="mb-4 flex flex-wrap gap-2">
         {tabs.map((option) => (

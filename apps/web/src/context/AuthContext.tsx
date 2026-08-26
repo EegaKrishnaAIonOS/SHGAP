@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import * as authApi from "../lib/api/auth";
 import { clearAuth, getAuth, setAuth, subscribeAuth } from "../lib/auth/tokenStore";
-import type { RegisterPayload, RegisterResponse, VerifyEmailResponse } from "../lib/api/auth";
+import type { VerifyEmailResponse } from "../lib/api/auth";
 import type { UserProfile } from "../lib/api/types";
 
 interface AuthContextValue {
@@ -17,8 +17,6 @@ interface AuthContextValue {
   hasRole: (...roles: string[]) => boolean;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, otp: string) => Promise<void>;
-  /** SHG/Distributor/Consumer self-registration — never signs the caller in (see AuthService.registerWithPassword on the backend); they still call loginWithPassword afterwards. */
-  registerAccount: (payload: RegisterPayload) => Promise<RegisterResponse>;
   /** Email+password login — the only auth path for Distributor/Consumer, an alternative to phone-OTP for SHG members. */
   loginWithPassword: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   forgotPassword: (email: string) => Promise<{ message: string }>;
@@ -27,7 +25,7 @@ interface AuthContextValue {
     newPassword: string,
     confirmPassword: string,
   ) => Promise<{ message: string }>;
-  /** Confirms a registration email — never signs the caller in, same as registerAccount. */
+  /** Confirms a registration email — never signs the caller in. */
   verifyEmail: (token: string) => Promise<VerifyEmailResponse>;
   resendVerification: (email: string) => Promise<{ message: string }>;
   logout: () => Promise<void>;
@@ -62,7 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setProfile(me);
       })
       .catch(() => {
-        if (!cancelled) setProfile(null);
+        // authFetch already retries a 401 via refresh once, so landing here
+        // means even that failed (or some other error) — there's no usable
+        // session left. Clearing auth reverts the whole app to a real
+        // signed-out state instead of leaving it stuck "authenticated" with
+        // no profile to show for it.
+        if (!cancelled) clearAuth();
       })
       .finally(() => {
         if (!cancelled) setProfileLoading(false);
@@ -79,10 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifyOtp = useCallback(async (phone: string, otp: string) => {
     const tokens = await authApi.verifyOtp(phone, otp);
     setAuth(tokens);
-  }, []);
-
-  const registerAccount = useCallback((payload: RegisterPayload) => {
-    return authApi.register(payload);
   }, []);
 
   const loginWithPassword = useCallback(
@@ -137,7 +136,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole,
       requestOtp,
       verifyOtp,
-      registerAccount,
       loginWithPassword,
       forgotPassword,
       resetPassword,
@@ -152,7 +150,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole,
       requestOtp,
       verifyOtp,
-      registerAccount,
       loginWithPassword,
       forgotPassword,
       resetPassword,

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { useTranslation } from "react-i18next";
 import { Modal } from "../../components/ui/Modal";
 import { Button } from "../../components/ui/Button";
 import { Input, Select } from "../../components/ui/Input";
@@ -49,8 +48,6 @@ export function ProductFormModal({
   product,
   onSaved,
 }: ProductFormModalProps) {
-  const { t } = useTranslation();
-
   const [savedProduct, setSavedProduct] = useState<Product | null>(product);
   const [images, setImages] = useState(product?.images ?? []);
   const [parentCategoryId, setParentCategoryId] = useState(() =>
@@ -147,22 +144,23 @@ export function ProductFormModal({
 
   function validate(): FieldErrors {
     const next: FieldErrors = {};
-    if (!parentCategoryId) next.parentCategoryId = t("catalogue.form.errors.categoryRequired");
-    if (!categoryId) next.categoryId = t("catalogue.form.errors.categoryRequired");
-    if (!name.trim()) next.name = t("catalogue.form.errors.nameRequired");
-    if (!unit.trim()) next.unit = t("catalogue.form.errors.unitRequired");
+    if (!parentCategoryId) next.parentCategoryId = "Select a category";
+    if (!categoryId) next.categoryId = "Select a category";
+    if (!name.trim()) next.name = "Enter a product name";
+    if (!unit.trim()) next.unit = "Enter a unit (e.g. kg, piece)";
     const priceNum = Number(price);
     if (!price || Number.isNaN(priceNum) || priceNum <= 0) {
-      next.price = t("catalogue.form.errors.priceInvalid");
+      next.price = "Enter a price greater than 0";
     }
     if (moq) {
       const moqNum = Number(moq);
-      if (!Number.isInteger(moqNum) || moqNum < 1) next.moq = t("catalogue.form.errors.moqInvalid");
+      if (!Number.isInteger(moqNum) || moqNum < 1)
+        next.moq = "Minimum order quantity must be a whole number of 1 or more";
     }
     if (stock) {
       const stockNum = Number(stock);
       if (!Number.isInteger(stockNum) || stockNum < 0)
-        next.stock = t("catalogue.form.errors.stockInvalid");
+        next.stock = "Stock must be a whole number of 0 or more";
     }
     return next;
   }
@@ -196,7 +194,9 @@ export function ProductFormModal({
           setImages(result.data.images);
           onSaved(result.data);
         } else {
-          setNotice(t("catalogue.form.queuedOffline"));
+          setNotice(
+            "You're offline — these changes will sync automatically once you're back online.",
+          );
         }
       } else {
         const result = await createProduct({ shgId, ...payload });
@@ -205,12 +205,14 @@ export function ProductFormModal({
           setImages(result.data.images);
           onSaved(result.data);
         } else {
-          setNotice(t("catalogue.form.queuedOfflineNoPhotos"));
+          setNotice(
+            "You're offline — this product will be added once you're back online. You can add photos after it syncs.",
+          );
         }
       }
     } catch (err) {
       setSubmitError(
-        err instanceof ApiError ? err.message : t("catalogue.form.errors.submitFailed"),
+        err instanceof ApiError ? err.message : "Couldn't save this product. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -218,16 +220,12 @@ export function ProductFormModal({
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={savedProduct ? t("catalogue.form.editTitle") : t("catalogue.form.addTitle")}
-    >
+    <Modal open={open} onClose={onClose} title={savedProduct ? "Edit product" : "Add product"}>
       <form className="flex flex-col gap-4" onSubmit={(e) => void handleSubmit(e)}>
         <Select
-          label={t("catalogue.form.categoryGroup")}
+          label="Category group"
           options={parentOptions}
-          placeholder={t("catalogue.form.categoryGroupPlaceholder")}
+          placeholder="Select a category group"
           fieldSize="touch"
           value={parentCategoryId}
           onChange={(e) => {
@@ -238,13 +236,9 @@ export function ProductFormModal({
           required
         />
         <Select
-          label={t("catalogue.form.category")}
+          label="Category"
           options={childOptions}
-          placeholder={
-            parentCategoryId
-              ? t("catalogue.form.categoryPlaceholder")
-              : t("catalogue.form.categoryGroupFirst")
-          }
+          placeholder={parentCategoryId ? "Select a category" : "Select a category group first"}
           fieldSize="touch"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
@@ -254,9 +248,9 @@ export function ProductFormModal({
         />
         {(suggestionsLoading || categorySuggestions.length > 0) && (
           <div className="rounded-md border border-brand-200 bg-brand-50 p-3 text-sm text-brand-700">
-            <p className="mb-2">{t("catalogue.form.categorySuggestion")}</p>
+            <p className="mb-2">Suggested categories based on the name and description:</p>
             {suggestionsLoading ? (
-              <p className="text-neutral-500">{t("common.loading")}</p>
+              <p className="text-neutral-500">Loading...</p>
             ) : (
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
@@ -279,14 +273,14 @@ export function ProductFormModal({
                   variant="ghost"
                   onClick={() => setSuggestionsDismissed(true)}
                 >
-                  {t("catalogue.form.categorySuggestionDismiss")}
+                  Pick manually instead
                 </Button>
               </div>
             )}
           </div>
         )}
         <Input
-          label={t("catalogue.form.name")}
+          label="Product name"
           fieldSize="touch"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -294,15 +288,15 @@ export function ProductFormModal({
           required
         />
         <Input
-          label={t("catalogue.form.description")}
+          label="Description"
           fieldSize="touch"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label={t("catalogue.form.unit")}
-            hint={t("catalogue.form.unitHint")}
+            label="Unit"
+            hint="e.g. kg, piece, jar, dozen, litre"
             fieldSize="touch"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
@@ -310,7 +304,7 @@ export function ProductFormModal({
             required
           />
           <Input
-            label={t("catalogue.price")}
+            label="Price"
             type="number"
             min={0}
             step="0.01"
@@ -324,7 +318,7 @@ export function ProductFormModal({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label={t("catalogue.form.moq")}
+            label="Minimum order quantity"
             type="number"
             min={1}
             inputMode="numeric"
@@ -334,7 +328,7 @@ export function ProductFormModal({
             error={errors.moq}
           />
           <Input
-            label={t("catalogue.form.stock")}
+            label="Stock"
             type="number"
             min={0}
             inputMode="numeric"
@@ -351,7 +345,7 @@ export function ProductFormModal({
             onChange={(e) => setIsAvailable(e.target.checked)}
             className="h-5 w-5 rounded border-neutral-300"
           />
-          {t("catalogue.form.isAvailable")}
+          Available for sale
         </label>
 
         {submitError && (
@@ -363,10 +357,10 @@ export function ProductFormModal({
 
         <div className="flex gap-3">
           <Button type="button" variant="outline" size="touch" fullWidth onClick={onClose}>
-            {savedProduct ? t("common.close") : t("common.cancel")}
+            {savedProduct ? "Close" : "Cancel"}
           </Button>
           <Button type="submit" size="touch" fullWidth isLoading={submitting}>
-            {t("common.save")}
+            Save
           </Button>
         </div>
       </form>

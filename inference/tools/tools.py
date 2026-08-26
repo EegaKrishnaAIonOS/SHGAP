@@ -1,2 +1,2 @@
 from tools.navigator import INTERFACE_DIR, get_all_files, read_file
-from tools.database import *
+from tools.database import func__init_credential, func__select_credential, func__insert_credential, func__update_credential, func__init_commodity, func__select_commodity, func__insert_commodity, func__update_commodity, func__delete_commodity, func__init_catalog, func__select_catalog, func__insert_catalog, func__update_catalog, func__delete_catalog

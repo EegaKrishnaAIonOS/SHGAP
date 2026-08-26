@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { cn } from "../lib/cn";
-import { LanguageToggle } from "../components/LanguageToggle";
 
 /**
  * Desktop-oriented shell for official / power-user screens (the five
@@ -12,17 +10,16 @@ import { LanguageToggle } from "../components/LanguageToggle";
  * viewports) and a wide content area instead of a single centred column.
  */
 export function DashboardShell() {
-  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const links = [
-    { to: "/dashboards/district", label: t("nav.districtDashboard") },
-    { to: "/dashboards/ulb", label: t("nav.ulbDashboard") },
-    { to: "/dashboards/shg", label: t("nav.shgDashboard") },
-    { to: "/dashboards/product", label: t("nav.productDashboard") },
-    { to: "/dashboards/buyer", label: t("nav.buyerDashboard") },
-    { to: "/dashboards/government", label: t("nav.governmentDashboard") },
-    { to: "/admin", label: t("nav.admin") },
+    { to: "/dashboards/district", label: "District Dashboard" },
+    { to: "/dashboards/ulb", label: "ULB Dashboard" },
+    { to: "/dashboards/shg", label: "SHG Dashboard" },
+    { to: "/dashboards/product", label: "Product Dashboard" },
+    { to: "/dashboards/buyer", label: "Buyer Dashboard" },
+    { to: "/dashboards/government", label: "Government Dashboard" },
+    { to: "/admin", label: "Admin" },
   ];
 
   return (
@@ -36,10 +33,9 @@ export function DashboardShell() {
           className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100"
         >
           <span aria-hidden="true">☰</span>
-          <span className="sr-only">{t("nav.dashboards")}</span>
+          <span className="sr-only">Dashboards</span>
         </button>
-        <span className="font-semibold text-neutral-900">{t("common.appName")}</span>
-        <LanguageToggle />
+        <span className="font-semibold text-neutral-900">lakshmi</span>
       </header>
 
       <aside
@@ -51,10 +47,10 @@ export function DashboardShell() {
       >
         <div className="hidden items-center justify-between px-4 py-4 lg:flex">
           <NavLink to="/" className="font-semibold text-neutral-900">
-            {t("common.appName")}
+            lakshmi
           </NavLink>
         </div>
-        <nav aria-label={t("nav.dashboards")} className="p-3">
+        <nav aria-label="Dashboards" className="p-3">
           <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.to}>
@@ -76,9 +72,6 @@ export function DashboardShell() {
             ))}
           </ul>
         </nav>
-        <div className="hidden px-4 py-4 lg:block">
-          <LanguageToggle />
-        </div>
       </aside>
 
       <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">

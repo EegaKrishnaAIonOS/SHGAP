@@ -31,6 +31,7 @@ export default {
       fontFamily: {
         sans: fontFamily.sans,
         telugu: fontFamily.telugu,
+        devanagari: fontFamily.devanagari,
         mono: fontFamily.mono,
       },
       fontSize: fontSize,

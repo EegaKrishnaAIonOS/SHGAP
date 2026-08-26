@@ -1,9 +1,7 @@
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { MobileShell } from "./layouts/MobileShell";
 import { DashboardShell } from "./layouts/DashboardShell";
-import { useHtmlLangSync } from "./i18n/useHtmlLangSync";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { RequireRole } from "./components/RequireRole";
@@ -58,15 +56,10 @@ const GovernmentDashboardPage = lazy(() =>
 const ADMIN_PORTAL_ROLES = ["ADMIN", "STATE_OFFICIAL", "DISTRICT_OFFICIAL", "ULB_OFFICIAL"];
 
 function DashboardFallback() {
-  const { t } = useTranslation();
-  return <div className="p-6 text-sm text-neutral-500">{t("common.loading")}</div>;
+  return <div className="p-6 text-sm text-neutral-500">Loading...</div>;
 }
 
 function App() {
-  // Keeps <html lang> (and therefore the Telugu font-stack CSS rule) in
-  // sync with the active i18next language across the whole app.
-  useHtmlLangSync();
-
   // Replays any queued offline mutations as soon as the browser reports
   // it's back online (and once at startup if already online).
   useEffect(() => {
@@ -79,11 +72,10 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/_dev" element={<DevIndexPage />} />
-          {/* Login/register now surface as a popup on the homepage (blurred
-              backdrop) instead of a full navigation to interface/*.html. */}
+          {/* Login now surfaces as a popup on the homepage (blurred backdrop)
+              instead of a full navigation to interface/*.html. There's no
+              separate registration page. */}
           <Route path="/login" element={<Navigate to="/?auth=login" replace />} />
-          <Route path="/signup" element={<Navigate to="/?auth=register" replace />} />
-          <Route path="/register" element={<Navigate to="/?auth=register" replace />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />

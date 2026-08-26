@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { createPortal } from "react-dom";
 import { cn } from "../../lib/cn";
 import { speakText, transcribeAudio } from "../../lib/api/voice";
 import { requestGuidance } from "../../lib/api/guidance";
+import { publishChatWidgetBridge } from "../../lib/chatWidgetBridge";
+import { CloseIcon } from "../icons/CloseIcon";
 
 type FooterMode = "default" | "text" | "voice";
 
@@ -39,34 +41,12 @@ const SILENCE_CHECK_INTERVAL_MS = 300;
 // silence) below which the mic input counts as "no speech" - ambient
 // room/phone-mic noise typically sits well under this.
 const SILENCE_RMS_THRESHOLD = 0.02;
-
-function ChatBubbleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-      <path
-        d="M4 12c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8c-1.13 0-2.2-.23-3.17-.66L4 20l1.02-4.24A7.94 7.94 0 0 1 4 12Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function PointerIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-      <path
-        d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+// applyGuidanceHighlight's box-shadow override toggles on/off at this
+// interval for as long as it stays applied - the caller (flushChunk) keeps
+// it running for the duration of the guidance message's spoken audio, then
+// clears it once that audio ends.
+const GUIDANCE_HIGHLIGHT_BLINK_INTERVAL_MS = 120;
+const GUIDANCE_HIGHLIGHT_BOX_SHADOW = "0 0 10px 4px gray";
 
 function HistoryIcon() {
   return (
@@ -92,19 +72,6 @@ function BackIcon() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-      <path
-        d="M5 5l10 10M15 5 5 15"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
       />
     </svg>
   );
@@ -238,13 +205,21 @@ function captureRecorderChunk(recorder: MediaRecorder): Promise<Blob> {
   });
 }
 
-/** Plays a one-off audio Blob (the guidance agent's spoken message) and
- * releases its object URL once playback ends or fails to start. */
-function playAudioBlob(blob: Blob) {
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  audio.addEventListener("ended", () => URL.revokeObjectURL(url), { once: true });
-  void audio.play().catch(() => URL.revokeObjectURL(url));
+/** Plays a one-off audio Blob (the guidance agent's spoken message),
+ * releasing its object URL once playback ends or fails to start, and
+ * resolving at that same point - callers use this to know when the
+ * guidance highlight should stop blinking. */
+function playAudioBlob(blob: Blob): Promise<void> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    const finish = () => {
+      URL.revokeObjectURL(url);
+      resolve();
+    };
+    audio.addEventListener("ended", finish, { once: true });
+    void audio.play().catch(finish);
+  });
 }
 
 /**
@@ -261,8 +236,18 @@ function playAudioBlob(blob: Blob) {
  * it (and drop the mic stream) on navigation.
  */
 export function FloatingChatWidget() {
-  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  // When AppShell's iframe layout provides a docked slot (id="chat-panel-slot",
+  // sized 20% of the main area beside the iframe — see AppShell.tsx), the
+  // panel portals into it instead of floating over the page. Looked up once
+  // on mount: the slot is always rendered by AppShell regardless of open
+  // state (just zero-width when closed), so it already exists by the time
+  // this effect runs. Routes without an AppShell simply have no slot, and
+  // the panel falls back to its original floating position.
+  const [chatPanelSlot, setChatPanelSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setChatPanelSlot(document.getElementById("chat-panel-slot"));
+  }, []);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [footerMode, setFooterMode] = useState<FooterMode>("default");
   const [textValue, setTextValue] = useState("");
@@ -270,6 +255,7 @@ export function FloatingChatWidget() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isAnalyzingPage, setIsAnalyzingPage] = useState(false);
   const [elapsedSec, setElapsedSec] = useState(0);
   const [micError, setMicError] = useState<string | null>(null);
   const elapsedSecRef = useRef(0);
@@ -342,12 +328,12 @@ export function FloatingChatWidget() {
   }, []);
 
   const sendBotReply = useCallback(
-    (replyKey: string) => {
+    (replyText: string) => {
       window.setTimeout(() => {
-        appendMessage({ sender: "bot", kind: "text", text: t(replyKey) });
+        appendMessage({ sender: "bot", kind: "text", text: replyText });
       }, 600);
     },
-    [appendMessage, t],
+    [appendMessage],
   );
 
   const stopSilenceWatcher = useCallback(() => {
@@ -370,29 +356,40 @@ export function FloatingChatWidget() {
     recorder.start();
   }, []);
 
-  // Highlights the element the guidance agent pointed to, until either it
-  // gets focused or the long-press session ends (clearGuidanceHighlightRef
-  // is also invoked from handleStopRecording). Deliberately does NOT eval()
-  // the agent's `override_code` string - that's LLM-generated text arriving
-  // over the network, and executing it as code would be a real injection
-  // risk. Reproducing the same visual effect (a gray glow) directly from the
-  // structured `elementId` field alone gets the identical result safely.
+  // Highlights the element the guidance agent pointed to, blinking its
+  // box-shadow override continuously until the caller explicitly clears it
+  // (flushChunk keeps it running for as long as the guidance message's
+  // spoken audio is playing, then clears it once that audio ends) - or
+  // until it gets focused or the long-press session ends early
+  // (clearGuidanceHighlightRef is also invoked from handleStopRecording).
+  // Deliberately does NOT eval() the agent's `override_code` string - that's
+  // LLM-generated text arriving over the network, and executing it as code
+  // would be a real injection risk. Reproducing the same visual effect (a
+  // gray glow) directly from the structured `elementId` field alone gets
+  // the identical result safely.
   const applyGuidanceHighlight = useCallback((elementId: string) => {
     clearGuidanceHighlightRef.current?.();
-    // The login/register popup renders interface/*.html in its own iframe
-    // (a separate document), so an element the guidance agent points to
-    // there (e.g. "passwordForm") won't be found via the top document's
-    // getElementById - fall back to looking inside that same-origin iframe.
+    // The whole app body (LandingPage's AppShell) renders interface/*.html
+    // in a persistent iframe (a separate document), so an element the
+    // guidance agent points to there (e.g. "passwordForm") won't be found
+    // via the top document's getElementById - fall back to looking inside
+    // that same-origin iframe.
     const el =
       document.getElementById(elementId) ??
       document
-        .querySelector<HTMLIFrameElement>("#auth-popup-iframe")
+        .querySelector<HTMLIFrameElement>("#app-body-iframe")
         ?.contentDocument?.getElementById(elementId) ??
       null;
     if (!el) return;
     const originalBoxShadow = el.style.boxShadow;
-    el.style.boxShadow = "0 0 10px 4px gray";
+    let isHighlighted = true;
+    el.style.boxShadow = GUIDANCE_HIGHLIGHT_BOX_SHADOW;
+    const intervalId = window.setInterval(() => {
+      isHighlighted = !isHighlighted;
+      el.style.boxShadow = isHighlighted ? GUIDANCE_HIGHLIGHT_BOX_SHADOW : originalBoxShadow;
+    }, GUIDANCE_HIGHLIGHT_BLINK_INTERVAL_MS);
     const clear = () => {
+      window.clearInterval(intervalId);
       el.style.boxShadow = originalBoxShadow;
       el.removeEventListener("focus", clear);
       clearGuidanceHighlightRef.current = null;
@@ -425,8 +422,15 @@ export function FloatingChatWidget() {
         if (isFinal && duration > 0 && !isFlushingChunkRef.current) {
           elapsedSecRef.current = 0;
           setElapsedSec(0);
-          appendMessage({ sender: "user", kind: "voice", durationSec: duration });
-          if (!skipBotReply) sendBotReply("chatbot.autoReplyVoice");
+          // Long-press dictation feeds the guidance agent, not the chat
+          // assistant - these are different functionalities, so it never
+          // touches the chat's own message list/bot-reply flow.
+          if (!skipBotReply) {
+            appendMessage({ sender: "user", kind: "voice", durationSec: duration });
+            sendBotReply(
+              "Thanks for your voice message! Our support team will get back to you shortly.",
+            );
+          }
         }
         return;
       }
@@ -443,48 +447,70 @@ export function FloatingChatWidget() {
           startRecorderSegment(stream);
         }
         if (blob.size > 0 && hadSpeech) {
-          const transcript = await transcribeAudio(blob);
-          if (skipBotReply) {
-            // Long-press is pure dictation, feeding the guidance agent
-            // (inference/route.py) rather than the mocked chat reply - the
-            // transcript becomes its `question`, and the agent's response
-            // (which page element it thinks you meant, if any) is what gets
-            // surfaced here, not the raw transcript.
-            if (transcript) {
-              const guidance = await requestGuidance(transcript);
-              console.log(guidance);
-              if (guidance?.element_id) {
-                applyGuidanceHighlight(guidance.element_id);
+          // The "analyzing the page" overlay only makes sense for the
+          // dictation flow below, which is the only one that goes on to
+          // call /api/guidance - toggled on right as its /api/transcribe
+          // call fires, off once the /api/guidance round-trip settles
+          // (success, no-match, or error - the finally below covers all).
+          if (skipBotReply) setIsAnalyzingPage(true);
+          try {
+            const transcript = await transcribeAudio(blob);
+            if (skipBotReply) {
+              // Long-press is pure dictation, feeding the guidance agent
+              // (inference/route.py) rather than the mocked chat reply - the
+              // transcript becomes its `question`, and the agent's response
+              // (which page element it thinks you meant, if any) is what gets
+              // surfaced here, not the raw transcript.
+              if (transcript) {
+                const guidance = await requestGuidance(transcript);
+                console.log("[chatbot] /api/guidance response:", guidance);
+                if (guidance?.element_id && guidance.message) {
+                  const audioBlob = await speakText(guidance.message, "en");
+                  // Keep the "analyzing" overlay running through the
+                  // /api/speak round-trip too, stopping right as the blink
+                  // takes over - stopping any earlier (e.g. right after
+                  // /api/guidance) left a visible gap between the two
+                  // animations while /api/speak was still in flight.
+                  setIsAnalyzingPage(false);
+                  if (audioBlob) {
+                    applyGuidanceHighlight(guidance.element_id);
+                    await playAudioBlob(audioBlob);
+                    clearGuidanceHighlightRef.current?.();
+                  }
+                } else {
+                  setIsAnalyzingPage(false);
+                }
               }
-              if (guidance?.message) {
-                const audioBlob = await speakText(
-                  guidance.message,
-                  i18n.language === "te" ? "te" : "en",
-                );
-                if (audioBlob) playAudioBlob(audioBlob);
-              }
+            } else {
+              console.log("[chatbot] transcribed chunk:", transcript);
             }
-          } else {
-            console.log("[chatbot] transcribed chunk:", transcript);
+            // Same separation as above - only the regular chat flow appends
+            // to the chat's message list / gets a bot reply.
+            if ((transcript || isFinal) && !skipBotReply) {
+              appendMessage({
+                sender: "user",
+                kind: "voice",
+                durationSec: duration,
+                transcript: transcript || undefined,
+              });
+              sendBotReply(
+                "Thanks for your voice message! Our support team will get back to you shortly.",
+              );
+            }
+          } finally {
+            if (skipBotReply) setIsAnalyzingPage(false);
           }
-          if (transcript || isFinal) {
-            appendMessage({
-              sender: "user",
-              kind: "voice",
-              durationSec: duration,
-              transcript: transcript || undefined,
-            });
-            if (!skipBotReply) sendBotReply("chatbot.autoReplyVoice");
-          }
-        } else if (isFinal && duration > 0) {
+        } else if (isFinal && duration > 0 && !skipBotReply) {
           appendMessage({ sender: "user", kind: "voice", durationSec: duration });
-          if (!skipBotReply) sendBotReply("chatbot.autoReplyVoice");
+          sendBotReply(
+            "Thanks for your voice message! Our support team will get back to you shortly.",
+          );
         }
       } finally {
         isFlushingChunkRef.current = false;
       }
     },
-    [appendMessage, sendBotReply, startRecorderSegment, applyGuidanceHighlight, i18n.language],
+    [appendMessage, sendBotReply, startRecorderSegment, applyGuidanceHighlight],
   );
 
   // Polls mic input volume every SILENCE_CHECK_INTERVAL_MS; once
@@ -592,7 +618,7 @@ export function FloatingChatWidget() {
     if (!trimmed) return;
     appendMessage({ sender: "user", kind: "text", text: trimmed });
     setTextValue("");
-    sendBotReply("chatbot.autoReplyText");
+    sendBotReply("Thanks for your message! Our support team will get back to you shortly.");
   };
 
   const handleStartRecording = async (fromLongPress: boolean) => {
@@ -600,7 +626,7 @@ export function FloatingChatWidget() {
     hasSpeechSinceFlushRef.current = false;
     setMicError(null);
     if (!navigator.mediaDevices?.getUserMedia) {
-      setMicError(t("chatbot.micUnsupported"));
+      setMicError("Voice messages aren't supported in this browser.");
       setIsListening(false);
       return;
     }
@@ -619,7 +645,9 @@ export function FloatingChatWidget() {
       }, 1000);
       startSilenceWatcher(stream);
     } catch {
-      setMicError(t("chatbot.micDenied"));
+      setMicError(
+        "Microphone access was denied. Please allow microphone access to send a voice message.",
+      );
       setIsListening(false);
     }
   };
@@ -666,6 +694,29 @@ export function FloatingChatWidget() {
     handleToggleOpen();
   };
 
+  // Publishes the launcher's state/handlers so PageAssistantTrigger (mounted
+  // in a page's own header/footer, a separate part of the tree) can drive
+  // this same open/close and long-press-to-dictate behavior without this
+  // widget's recording state/refs being lifted out of it.
+  useEffect(() => {
+    publishChatWidgetBridge({
+      isOpen,
+      isListening,
+      isRecording,
+      isAnalyzingPage,
+      onTriggerClick: handleLauncherClick,
+      onTriggerPointerDown: handleLauncherPointerDown,
+      onTriggerPointerUp: handleLauncherPointerUp,
+    });
+  });
+
+  // Unpublish only on true unmount — the effect above already refreshes the
+  // published state after every render, so this must not re-run per render
+  // (it would otherwise flip the bridge to null and back on every one).
+  useEffect(() => {
+    return () => publishChatWidgetBridge(null);
+  }, []);
+
   const persistCurrentSession = useCallback((currentMessages: ChatMessage[]) => {
     if (currentMessages.length === 0) return;
     const session: ChatSession = {
@@ -699,6 +750,216 @@ export function FloatingChatWidget() {
     setFooterMode("default");
   };
 
+  const dialog = isOpen && (
+    <div
+      role="dialog"
+      aria-label="SHG Assistant"
+      className={
+        chatPanelSlot
+          ? // Docked beside the iframe (AppShell's chat-panel-slot already
+            // sizes/borders the column) — fill it exactly, no floating-card
+            // chrome. absolute+inset-0 (not h-full/w-full) because the slot's
+            // own height comes from flex-stretch, which h-full's percentage
+            // resolution doesn't reliably see — see AppShell.tsx's comment
+            // on the same pattern for the iframe itself.
+            "absolute inset-0 flex flex-col overflow-hidden bg-white"
+          : "relative flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white shadow-modal"
+      }
+    >
+      <div className="flex items-center justify-between bg-brand-400 px-4 py-3 text-white">
+        <button
+          type="button"
+          onClick={handleOpenHistory}
+          aria-label="Chat history"
+          className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <HistoryIcon />
+        </button>
+        <span className="text-base font-semibold">SHG Assistant</span>
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label="Close"
+          className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+
+      <div ref={bodyRef} className="flex-1 space-y-3 overflow-y-auto bg-neutral-50 px-4 py-3">
+        {messages.length === 0 && (
+          <p className="mt-6 text-center text-sm text-neutral-400">
+            Ask us anything, by text or voice.
+          </p>
+        )}
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={cn("flex", message.sender === "user" ? "justify-end" : "justify-start")}
+          >
+            <div
+              className={cn(
+                "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                message.sender === "user"
+                  ? "bg-brand-400 text-white"
+                  : "bg-white text-neutral-800 shadow-card",
+              )}
+            >
+              {message.kind === "text" ? (
+                message.text
+              ) : (
+                <span className="flex items-center gap-2">
+                  <MicIcon className="h-4 w-4 shrink-0" />
+                  {message.transcript ||
+                    `Voice message (${formatDuration(message.durationSec ?? 0)})`}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-neutral-200 bg-white px-3 py-3">
+        {micError && (
+          <p role="alert" className="mb-2 text-xs text-danger-500">
+            {micError}
+          </p>
+        )}
+
+        {footerMode === "default" && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setFooterMode("text")}
+              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              Text
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleStartRecording(false)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-400 px-3 py-2 text-sm font-medium text-white hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+            >
+              <MicIcon className="h-4 w-4" />
+              Voice
+            </button>
+          </div>
+        )}
+
+        {footerMode === "text" && (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFooterMode("default")}
+              aria-label="Back to input options"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              <BackIcon />
+            </button>
+            <input
+              ref={textInputRef}
+              type="text"
+              value={textValue}
+              onChange={(event) => setTextValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") handleSendText();
+                if (event.key === "Escape") setFooterMode("default");
+              }}
+              placeholder="Type your message..."
+              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            />
+            <button
+              type="button"
+              onClick={handleSendText}
+              disabled={!textValue.trim()}
+              aria-label="Send"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-400 text-white disabled:bg-neutral-300"
+            >
+              <SendIcon className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {footerMode === "voice" && (
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-3 w-3 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-500 opacity-75" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-danger-500" />
+            </span>
+            <span className="flex-1 text-sm font-medium text-neutral-700">
+              Recording &middot; {formatDuration(elapsedSec)}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleStopRecording(true)}
+              aria-label="Stop recording"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger-500 text-white hover:bg-danger-700"
+            >
+              <StopIcon className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {isHistoryOpen && (
+        <div className="absolute inset-0 flex flex-col bg-white">
+          <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(false)}
+              aria-label="Back to chat"
+              className="rounded p-1.5 text-neutral-600 hover:bg-neutral-100"
+            >
+              <BackIcon />
+            </button>
+            <span className="text-sm font-semibold text-neutral-800">Previous conversations</span>
+            <button
+              type="button"
+              onClick={handleStartNewChat}
+              className="text-sm font-medium text-brand-500 hover:text-brand-600"
+            >
+              New chat
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {sessions.length === 0 ? (
+              <p className="mt-6 text-center text-sm text-neutral-400">
+                No previous conversations yet.
+              </p>
+            ) : (
+              sessions.map((session) => {
+                const preview =
+                  session.messages.find((m) => m.kind === "text")?.text ?? "Voice message";
+                return (
+                  <button
+                    key={session.id}
+                    type="button"
+                    onClick={() => handleViewSession(session)}
+                    className="flex w-full flex-col gap-0.5 border-b border-neutral-100 px-4 py-3 text-left hover:bg-neutral-50"
+                  >
+                    <span className="truncate text-sm text-neutral-800">{preview}</span>
+                    <span className="text-xs text-neutral-400">
+                      {new Date(session.startedAt).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (chatPanelSlot) {
+    return createPortal(dialog, chatPanelSlot);
+  }
+
   return (
     <div
       className={cn(
@@ -713,264 +974,7 @@ export function FloatingChatWidget() {
         "bottom-[calc(2.5rem_+_var(--mobile-shell-nav-height,0px))] sm:bottom-[calc(3.5rem_+_var(--mobile-shell-nav-height,0px))]",
       )}
     >
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-label={t("chatbot.title")}
-          className="relative flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white shadow-modal"
-        >
-          <div className="flex items-center justify-between bg-brand-400 px-4 py-3 text-white">
-            <button
-              type="button"
-              onClick={handleOpenHistory}
-              aria-label={t("chatbot.historyLabel")}
-              className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <HistoryIcon />
-            </button>
-            <span className="text-base font-semibold">{t("chatbot.title")}</span>
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label={t("common.close")}
-              className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-
-          <div ref={bodyRef} className="flex-1 space-y-3 overflow-y-auto bg-neutral-50 px-4 py-3">
-            {messages.length === 0 && (
-              <p className="mt-6 text-center text-sm text-neutral-400">{t("chatbot.emptyState")}</p>
-            )}
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn("flex", message.sender === "user" ? "justify-end" : "justify-start")}
-              >
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
-                    message.sender === "user"
-                      ? "bg-brand-400 text-white"
-                      : "bg-white text-neutral-800 shadow-card",
-                  )}
-                >
-                  {message.kind === "text" ? (
-                    message.text
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <MicIcon className="h-4 w-4 shrink-0" />
-                      {message.transcript ||
-                        t("chatbot.voiceMessage", {
-                          duration: formatDuration(message.durationSec ?? 0),
-                        })}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-neutral-200 bg-white px-3 py-3">
-            {micError && (
-              <p role="alert" className="mb-2 text-xs text-danger-500">
-                {micError}
-              </p>
-            )}
-
-            {footerMode === "default" && (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFooterMode("text")}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-                >
-                  {t("chatbot.textOption")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleStartRecording(false)}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-400 px-3 py-2 text-sm font-medium text-white hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
-                >
-                  <MicIcon className="h-4 w-4" />
-                  {t("chatbot.voiceOption")}
-                </button>
-              </div>
-            )}
-
-            {footerMode === "text" && (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFooterMode("default")}
-                  aria-label={t("chatbot.backToOptions")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-                >
-                  <BackIcon />
-                </button>
-                <input
-                  ref={textInputRef}
-                  type="text"
-                  value={textValue}
-                  onChange={(event) => setTextValue(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") handleSendText();
-                    if (event.key === "Escape") setFooterMode("default");
-                  }}
-                  placeholder={t("chatbot.inputPlaceholder")}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-                />
-                <button
-                  type="button"
-                  onClick={handleSendText}
-                  disabled={!textValue.trim()}
-                  aria-label={t("chatbot.send")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-400 text-white disabled:bg-neutral-300"
-                >
-                  <SendIcon className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-
-            {footerMode === "voice" && (
-              <div className="flex items-center gap-3">
-                <span className="relative flex h-3 w-3 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-500 opacity-75" />
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-danger-500" />
-                </span>
-                <span className="flex-1 text-sm font-medium text-neutral-700">
-                  {t("chatbot.recording")} &middot; {formatDuration(elapsedSec)}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleStopRecording(true)}
-                  aria-label={t("chatbot.stopRecording")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger-500 text-white hover:bg-danger-700"
-                >
-                  <StopIcon className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {isHistoryOpen && (
-            <div className="absolute inset-0 flex flex-col bg-white">
-              <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
-                <button
-                  type="button"
-                  onClick={() => setIsHistoryOpen(false)}
-                  aria-label={t("chatbot.backToChat")}
-                  className="rounded p-1.5 text-neutral-600 hover:bg-neutral-100"
-                >
-                  <BackIcon />
-                </button>
-                <span className="text-sm font-semibold text-neutral-800">
-                  {t("chatbot.historyTitle")}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleStartNewChat}
-                  className="text-sm font-medium text-brand-500 hover:text-brand-600"
-                >
-                  {t("chatbot.newChat")}
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                {sessions.length === 0 ? (
-                  <p className="mt-6 text-center text-sm text-neutral-400">
-                    {t("chatbot.noHistory")}
-                  </p>
-                ) : (
-                  sessions.map((session) => {
-                    const preview =
-                      session.messages.find((m) => m.kind === "text")?.text ??
-                      t("chatbot.voiceMessagePreview");
-                    return (
-                      <button
-                        key={session.id}
-                        type="button"
-                        onClick={() => handleViewSession(session)}
-                        className="flex w-full flex-col gap-0.5 border-b border-neutral-100 px-4 py-3 text-left hover:bg-neutral-50"
-                      >
-                        <span className="truncate text-sm text-neutral-800">{preview}</span>
-                        <span className="text-xs text-neutral-400">
-                          {new Date(session.startedAt).toLocaleString(i18n.language, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      <button
-        type="button"
-        onClick={handleLauncherClick}
-        onPointerDown={handleLauncherPointerDown}
-        onPointerUp={handleLauncherPointerUp}
-        onPointerLeave={handleLauncherPointerUp}
-        onPointerCancel={handleLauncherPointerUp}
-        onContextMenu={(event) => event.preventDefault()}
-        aria-label={
-          isListening || isRecording
-            ? t("chatbot.stopRecording")
-            : isOpen
-              ? t("common.close")
-              : t("chatbot.openLabel")
-        }
-        aria-expanded={isOpen}
-        aria-pressed={isListening || isRecording}
-        className="relative flex h-14 w-14 select-none items-center justify-center overflow-hidden rounded-full border border-brand-200 bg-brand-50 text-brand-500 shadow-raised transition-transform hover:scale-105 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
-        style={{ touchAction: "manipulation" }}
-      >
-        {isListening && (
-          <>
-            {/* Tailwind's animate-ping only defines the 75%-100% keyframe and
-                lets the browser interpolate the rest from an implicit start
-                state, and resets at full opacity every loop — with 4 staggered
-                copies that reset moment reads as a blink. An explicit
-                start->end keyframe (defined once, below) avoids both issues. */}
-            <style>{`
-              @keyframes chatbot-ripple {
-                0% { transform: scale(0.4); opacity: 0.6; }
-                100% { transform: scale(1.8); opacity: 0; }
-              }
-            `}</style>
-            {[0, 1, 2, 3].map((i) => (
-              <span
-                key={i}
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-full border-2 border-neutral-400"
-                style={{
-                  animationName: "chatbot-ripple",
-                  animationDuration: "2.4s",
-                  animationTimingFunction: "ease-out",
-                  animationIterationCount: "infinite",
-                  animationDelay: `${i * 600}ms`,
-                }}
-              />
-            ))}
-          </>
-        )}
-        <span className="relative z-10">
-          {isOpen ? (
-            <CloseIcon />
-          ) : isListening || isRecording ? (
-            <PointerIcon />
-          ) : (
-            <ChatBubbleIcon />
-          )}
-        </span>
-      </button>
+      {dialog}
     </div>
   );
 }

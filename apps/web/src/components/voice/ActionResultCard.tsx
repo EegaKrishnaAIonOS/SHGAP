@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Card } from "../ui/Card";
 import { cn } from "../../lib/cn";
 
@@ -11,18 +10,13 @@ import { cn } from "../../lib/cn";
  * so it degrades gracefully if a handler's result shape changes.
  */
 export function ActionResultCard({ result }: { result: unknown }) {
-  const { t } = useTranslation();
-
   if (!result || typeof result !== "object") return null;
   const data = result as Record<string, unknown>;
 
   if (data.status === "created" && typeof data.product_name === "string") {
     return (
       <ActionCardShell tone="success">
-        {t("voice.action.productRegistered", {
-          name: data.product_name,
-          category: data.category_name,
-        })}
+        {`Registered "${data.product_name}" under ${data.category_name}.`}
       </ActionCardShell>
     );
   }
@@ -34,13 +28,7 @@ export function ActionResultCard({ result }: { result: unknown }) {
           {data.products.map((p, i) => {
             const product = p as { name: string; price: number; stock: number };
             return (
-              <li key={i}>
-                {t("voice.action.priceLine", {
-                  name: product.name,
-                  price: product.price,
-                  stock: product.stock,
-                })}
-              </li>
+              <li key={i}>{`${product.name}: Rs ${product.price} (${product.stock} in stock)`}</li>
             );
           })}
         </ul>
@@ -49,7 +37,7 @@ export function ActionResultCard({ result }: { result: unknown }) {
   }
 
   if (data.status === "not_found") {
-    return <ActionCardShell tone="neutral">{t("voice.action.priceNotFound")}</ActionCardShell>;
+    return <ActionCardShell tone="neutral">No matching product found.</ActionCardShell>;
   }
 
   if (data.status === "found" && Array.isArray(data.chunks)) {
@@ -72,12 +60,16 @@ export function ActionResultCard({ result }: { result: unknown }) {
   }
 
   if (data.error === "no_shg_registered") {
-    return <ActionCardShell tone="warning">{t("voice.action.noShgRegistered")}</ActionCardShell>;
+    return (
+      <ActionCardShell tone="warning">
+        You need to register your SHG in the app before adding products.
+      </ActionCardShell>
+    );
   }
 
   if (data.status === "no_match" || typeof data.error === "string") {
     const message =
-      typeof data.message === "string" ? data.message : t("voice.action.genericError");
+      typeof data.message === "string" ? data.message : "Something went wrong with that request.";
     return <ActionCardShell tone="warning">{message}</ActionCardShell>;
   }
 

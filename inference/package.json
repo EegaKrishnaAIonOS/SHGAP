@@ -3,6 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "python -m uvicorn route:app --port 8090"
+    "dev": "python -m uvicorn route:route --port 8008"
   }
 }

@@ -27,32 +27,6 @@ export function getMe(): Promise<UserProfile> {
   return authFetch<UserProfile>("/users/me");
 }
 
-export interface RegisterPayload {
-  fullName: string;
-  email: string;
-  mobileNumber: string;
-  password: string;
-  confirmPassword: string;
-  role: SelfRegisterableRole;
-  termsAccepted: boolean;
-}
-
-export interface RegisterResponse {
-  status: UserStatus;
-  role: SelfRegisterableRole;
-  message: string;
-}
-
-/** Self-registration for the SHG/Distributor/Consumer personas — a separate
- * account-creation path from the phone-OTP flow above. Never returns tokens:
- * the caller must still log in afterwards via loginWithPassword. */
-export function register(payload: RegisterPayload): Promise<RegisterResponse> {
-  return publicFetch<RegisterResponse>("/auth/register", {
-    method: "POST",
-    body: payload,
-  });
-}
-
 export function loginWithPassword(
   email: string,
   password: string,

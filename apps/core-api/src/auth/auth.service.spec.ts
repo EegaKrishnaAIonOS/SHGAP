@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
@@ -213,98 +209,6 @@ describe('AuthService', () => {
 
     it('does not throw for an already-invalid refresh token', async () => {
       await expect(service.logout('garbage')).resolves.toBeUndefined();
-    });
-  });
-
-  describe('registerWithPassword', () => {
-    const input = {
-      fullName: 'Lakshmi Devi',
-      email: 'lakshmi@example.com',
-      mobileNumber: '9876543210',
-      password: 'Str0ngPass!',
-      role: 'CONSUMER' as const,
-    };
-
-    beforeEach(() => {
-      prisma.user.findUnique.mockResolvedValue(null); // no existing email/phone
-    });
-
-    it('creates every role as PENDING_VERIFICATION and emails a verification link', async () => {
-      prisma.user.create.mockResolvedValueOnce({
-        id: 'user-2',
-        status: 'PENDING_VERIFICATION',
-      });
-
-      const result = await service.registerWithPassword(input);
-
-      expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            phone: input.mobileNumber,
-            email: input.email,
-            name: input.fullName,
-            status: 'PENDING_VERIFICATION',
-          }),
-        }),
-      );
-      expect(prisma.userRole.create).toHaveBeenCalledWith({
-        data: { userId: 'user-2', roleId: 'role-1' },
-      });
-      expect(redis.set).toHaveBeenCalledWith(
-        expect.stringMatching(/^emailverify:/),
-        'user-2',
-        'EX',
-        86400,
-      );
-      expect(mailProvider.sendVerificationEmail).toHaveBeenCalledWith(
-        'user-2',
-        input.email,
-        expect.stringContaining('http://localhost:5173/verify-email?token='),
-        86400,
-      );
-      expect(result).toEqual({
-        status: 'PENDING_VERIFICATION',
-        role: 'CONSUMER',
-      });
-    });
-
-    it('creates an SHG/DISTRIBUTOR as PENDING_VERIFICATION too (approval comes after email verification)', async () => {
-      prisma.user.create.mockResolvedValueOnce({
-        id: 'user-3',
-        status: 'PENDING_VERIFICATION',
-      });
-
-      const result = await service.registerWithPassword({
-        ...input,
-        role: 'DISTRIBUTOR',
-      });
-
-      expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ status: 'PENDING_VERIFICATION' }),
-        }),
-      );
-      expect(result.status).toBe('PENDING_VERIFICATION');
-    });
-
-    it('rejects a duplicate email without creating a user', async () => {
-      prisma.user.findUnique.mockResolvedValueOnce({ id: 'existing' }); // email lookup
-
-      await expect(service.registerWithPassword(input)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(prisma.user.create).not.toHaveBeenCalled();
-    });
-
-    it('rejects a duplicate mobile number without creating a user', async () => {
-      prisma.user.findUnique
-        .mockResolvedValueOnce(null) // email lookup: free
-        .mockResolvedValueOnce({ id: 'existing' }); // phone lookup: taken
-
-      await expect(service.registerWithPassword(input)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(prisma.user.create).not.toHaveBeenCalled();
     });
   });
 

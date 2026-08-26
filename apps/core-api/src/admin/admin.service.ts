@@ -95,8 +95,7 @@ export class AdminService {
   }
 
   /** Self-registered SHG/DISTRIBUTOR accounts awaiting review (T25) — CONSUMER
-   * self-registrations skip this entirely (see AuthService.registerWithPassword)
-   * and never appear here. */
+   * self-registrations skip this entirely and never appear here. */
   async listPendingUsers() {
     const users = await this.prisma.user.findMany({
       where: {

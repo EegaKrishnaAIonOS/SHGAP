@@ -55,6 +55,21 @@ function notify(): void {
   listeners.forEach((listener) => listener());
 }
 
+// interface/*.html's own login flow (a separate vanilla-JS document running
+// inside AppShell's iframe — see LandingPage.tsx) writes to this same
+// storage key directly rather than calling setAuth() below, since it has no
+// access to this module. The `storage` event is what lets this window pick
+// that up: same-origin browsing contexts (a page and its same-origin iframe
+// included) receive it on every OTHER context's write, never their own, so
+// this only ever fires here in response to the iframe's login/logout.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key !== null && event.key !== STORAGE_KEY) return;
+    current = loadFromStorage();
+    notify();
+  });
+}
+
 export function getAuth(): StoredAuth | null {
   return current;
 }

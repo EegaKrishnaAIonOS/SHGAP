@@ -4,9 +4,7 @@ import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 export class LoginDto {
   // require_tld: false — internal officials/admin accounts (e.g.
   // admin@technical) are provisioned with a short, TLD-less identifier
-  // rather than a real mailbox; RegisterDto's public self-registration path
-  // keeps the stricter default since those really are personal email
-  // addresses.
+  // rather than a real mailbox.
   @ApiProperty({ example: 'lakshmi@example.com' })
   @IsEmail(
     { require_tld: false },

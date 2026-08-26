@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import {
   DashboardFilters,
@@ -55,7 +54,6 @@ function formatUptime(seconds: number): string {
  * since the pilot only has a handful of real geo-tagged points today.
  */
 export function GovernmentDashboardPage() {
-  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
   const [districtId, setDistrictId] = useState("");
   const dateFrom = useMemo(() => dateRangeToDateFrom(dateRange), [dateRange]);
@@ -67,7 +65,7 @@ export function GovernmentDashboardPage() {
   } = useAsyncData(
     () => getDistrictSales({ dateFrom }),
     [dateFrom],
-    t("governmentDashboard.loadError"),
+    "Couldn't load state overview data. Please try again.",
   );
 
   const { data: recommendations } = useAsyncData(
@@ -117,15 +115,15 @@ export function GovernmentDashboardPage() {
 
   const districtColumns: Column<DistrictSalesRollup & { rank: number }>[] = [
     { key: "rank", header: "#", render: (row) => row.rank },
-    { key: "name", header: t("dashboard.name"), render: (row) => row.districtName },
+    { key: "name", header: "Name", render: (row) => row.districtName },
     {
       key: "orders",
-      header: t("dashboard.orders"),
+      header: "Orders",
       render: (row) => row.orderCount.toLocaleString(),
     },
     {
       key: "sales",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => `₹${row.totalAmount.toLocaleString()}`,
     },
   ];
@@ -135,37 +133,37 @@ export function GovernmentDashboardPage() {
 
   const productColumns: Column<ProductRollup & { rank: number }>[] = [
     { key: "rank", header: "#", render: (row) => row.rank },
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
+    { key: "name", header: "Name", render: (row) => row.name },
     { key: "shg", header: "SHG", render: (row) => row.shgName },
     {
       key: "unitsSold",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => row.unitsSold.toLocaleString(),
     },
     {
       key: "revenue",
-      header: t("dashboard.totalSales"),
+      header: "Total sales",
       render: (row) => `₹${row.totalRevenue.toLocaleString()}`,
     },
   ];
   const rankedProducts = (products?.items ?? []).map((p, i) => ({ ...p, rank: i + 1 }));
 
   const marketPriceColumns: Column<MarketPriceRecord>[] = [
-    { key: "district", header: t("dashboard.district"), render: (row) => row.district },
+    { key: "district", header: "District", render: (row) => row.district },
     {
       key: "commodity",
-      header: t("governmentDashboard.commodity"),
+      header: "Commodity",
       render: (row) => row.commodity,
     },
-    { key: "date", header: t("governmentDashboard.arrivalDate"), render: (row) => row.arrivalDate },
+    { key: "date", header: "Date", render: (row) => row.arrivalDate },
     {
       key: "modalPrice",
-      header: t("governmentDashboard.modalPrice"),
+      header: "Modal price",
       render: (row) => `₹${row.modalPrice.toLocaleString()}`,
     },
     {
       key: "range",
-      header: t("governmentDashboard.priceRange"),
+      header: "Price range",
       render: (row) => `₹${row.minPrice.toLocaleString()} – ₹${row.maxPrice.toLocaleString()}`,
     },
   ];
@@ -176,18 +174,18 @@ export function GovernmentDashboardPage() {
 
   const recommendationBreakdown = recommendations
     ? [
-        { status: t("dashboard.pending"), value: recommendations.pending },
-        { status: t("dashboard.accepted"), value: recommendations.accepted },
-        { status: t("dashboard.rejected"), value: recommendations.rejected },
-        { status: t("dashboard.expired"), value: recommendations.expired },
+        { status: "Pending", value: recommendations.pending },
+        { status: "Accepted", value: recommendations.accepted },
+        { status: "Rejected", value: recommendations.rejected },
+        { status: "Expired", value: recommendations.expired },
       ]
     : [];
 
   return (
     <div>
       <PageHeader
-        title={t("governmentDashboard.title")}
-        subtitle={t("governmentDashboard.subtitle")}
+        title="Government Dashboard"
+        subtitle="State-level (MEPMA HQ) view across all districts — Module 7 policy & monitoring dashboard."
         wireframe={false}
       />
       <DashboardFilters
@@ -196,11 +194,11 @@ export function GovernmentDashboardPage() {
         extra={[
           {
             key: "district",
-            label: t("dashboard.district"),
+            label: "District",
             value: districtId,
             onChange: setDistrictId,
             options: [
-              { value: "", label: t("dashboard.allDistricts") },
+              { value: "", label: "All districts" },
               ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
             ],
           },
@@ -209,72 +207,51 @@ export function GovernmentDashboardPage() {
 
       {districtsError && <p className="mb-3 text-sm text-danger-500">{districtsError}</p>}
 
-      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.platformKpis")}
-      </h2>
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">Platform KPIs</h2>
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard label={t("governmentDashboard.registeredShgs")} value={shgs?.total ?? 0} />
-        <StatCard label={t("dashboard.productsListed")} value={products?.total ?? 0} />
+        <StatCard label="Registered SHGs" value={shgs?.total ?? 0} />
+        <StatCard label="Products listed" value={products?.total ?? 0} />
+        <StatCard label="Enquiries generated" value={enquiries?.total ?? 0} />
         <StatCard
-          label={t("governmentDashboard.enquiriesGenerated")}
-          value={enquiries?.total ?? 0}
-        />
-        <StatCard
-          label={t("governmentDashboard.apiUptime")}
+          label="API uptime"
           value={health ? formatUptime(health.uptimeSeconds) : "—"}
-          delta={t("governmentDashboard.uptimeCaveat")}
+          delta="Since last deploy — no SLA monitoring yet"
         />
         <StatCard
-          label={t("governmentDashboard.satisfaction")}
+          label="SHG/buyer satisfaction"
           value="—"
-          delta={t("governmentDashboard.satisfactionCaveat")}
+          delta="Not tracked yet — no survey data exists"
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.stateOverview")}
-      </h2>
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">State overview</h2>
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <StatCard
-          label={t("dashboard.totalSales")}
-          value={`₹${(totalSales / 10000000).toFixed(2)} Cr`}
-        />
-        <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard
-          label={t("governmentDashboard.districtsCovered")}
-          value={visibleDistricts.length}
-        />
+        <StatCard label="Total sales" value={`₹${(totalSales / 10000000).toFixed(2)} Cr`} />
+        <StatCard label="Total orders" value={totalOrders.toLocaleString()} />
+        <StatCard label="Districts covered" value={visibleDistricts.length} />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimpleBarChart
-          title={t("governmentDashboard.districtComparison")}
+          title="District comparison"
           data={visibleDistricts.map((d) => ({ district: d.districtName, sales: d.totalAmount }))}
           xKey="district"
-          series={[{ key: "sales", label: t("dashboard.sales") }]}
+          series={[{ key: "sales", label: "Sales" }]}
         />
         <SimpleBarChart
-          title={t("governmentDashboard.productPerformance")}
+          title="Product performance"
           data={rankedProducts.map((p) => ({ name: p.name, revenue: p.totalRevenue }))}
           xKey="name"
-          series={[{ key: "revenue", label: t("dashboard.totalSales") }]}
+          series={[{ key: "revenue", label: "Total sales" }]}
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.marketLinkage")}
-      </h2>
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">Market linkage</h2>
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="SHGs linked to a buyer" value={recommendations?.shgsLinked ?? 0} />
+        <StatCard label="Buyers linked to an SHG" value={recommendations?.buyersLinked ?? 0} />
         <StatCard
-          label={t("governmentDashboard.shgsLinked")}
-          value={recommendations?.shgsLinked ?? 0}
-        />
-        <StatCard
-          label={t("governmentDashboard.buyersLinked")}
-          value={recommendations?.buyersLinked ?? 0}
-        />
-        <StatCard
-          label={t("dashboard.acceptanceRate")}
+          label="Acceptance rate"
           value={
             recommendations?.acceptanceRate == null
               ? "—"
@@ -282,7 +259,7 @@ export function GovernmentDashboardPage() {
           }
         />
         <StatCard
-          label={t("governmentDashboard.avgMatchScore")}
+          label="Avg. match score"
           value={
             recommendations?.avgMatchScore == null
               ? "—"
@@ -293,22 +270,22 @@ export function GovernmentDashboardPage() {
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimplePieChart
-          title={t("governmentDashboard.recommendationSummary")}
+          title="Recommendation outcomes"
           data={recommendationBreakdown}
           nameKey="status"
           valueKey="value"
         />
         <Card>
-          <CardTitle className="mb-3">{t("governmentDashboard.topBuyers")}</CardTitle>
+          <CardTitle className="mb-3">Top buyers by activity</CardTitle>
           <ul className="divide-y divide-neutral-100 text-sm">
             {topBuyers.length === 0 && (
-              <li className="py-3 text-neutral-400">{t("dashboard.noData")}</li>
+              <li className="py-3 text-neutral-400">No data for the selected filters yet.</li>
             )}
             {topBuyers.map((b: BuyerActivityPoint) => (
               <li key={b.id} className="flex items-center justify-between py-2">
                 <span className="font-medium text-neutral-800">{b.name}</span>
                 <span className="text-neutral-500">
-                  {b.recommendationsReceived} {t("dashboard.recommendations").toLowerCase()}
+                  {b.recommendationsReceived} recommendations
                 </span>
               </li>
             ))}
@@ -318,7 +295,7 @@ export function GovernmentDashboardPage() {
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardTitle className="mb-3">{t("governmentDashboard.shgActivityMap")}</CardTitle>
+          <CardTitle className="mb-3">SHG sales activity</CardTitle>
           <ActivityMap
             color="#aa3bff"
             points={(geoActivity?.shgPoints ?? []).map((p) => ({
@@ -327,12 +304,12 @@ export function GovernmentDashboardPage() {
               lng: p.lng,
               label: `${p.name} (${p.districtName})`,
               value: p.totalSalesAmount,
-              valueLabel: `₹${p.totalSalesAmount.toLocaleString()} ${t("dashboard.sales").toLowerCase()}`,
+              valueLabel: `₹${p.totalSalesAmount.toLocaleString()} sales`,
             }))}
           />
         </Card>
         <Card>
-          <CardTitle className="mb-3">{t("governmentDashboard.buyerActivityMap")}</CardTitle>
+          <CardTitle className="mb-3">Buyer recommendation activity</CardTitle>
           <ActivityMap
             color="#0ea5e9"
             points={(geoActivity?.buyerPoints ?? []).map((p) => ({
@@ -341,22 +318,20 @@ export function GovernmentDashboardPage() {
               lng: p.lng,
               label: `${p.name} (${p.type})`,
               value: p.recommendationsReceived,
-              valueLabel: `${p.recommendationsReceived} ${t("dashboard.recommendations").toLowerCase()}`,
+              valueLabel: `${p.recommendationsReceived} recommendations`,
             }))}
           />
         </Card>
       </div>
 
-      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.districtRanking")}
-      </h2>
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">District ranking</h2>
       <ExportButtons
-        title={t("governmentDashboard.districtRanking")}
+        title="District ranking"
         columns={[
           { header: "#", value: (r: DistrictSalesRollup & { rank: number }) => r.rank },
-          { header: t("dashboard.name"), value: (r: DistrictSalesRollup) => r.districtName },
-          { header: t("dashboard.orders"), value: (r: DistrictSalesRollup) => r.orderCount },
-          { header: t("dashboard.sales"), value: (r: DistrictSalesRollup) => r.totalAmount },
+          { header: "Name", value: (r: DistrictSalesRollup) => r.districtName },
+          { header: "Orders", value: (r: DistrictSalesRollup) => r.orderCount },
+          { header: "Sales", value: (r: DistrictSalesRollup) => r.totalAmount },
         ]}
         rows={rankedDistricts}
         filename="district-ranking"
@@ -366,22 +341,20 @@ export function GovernmentDashboardPage() {
           columns={districtColumns}
           rows={rankedDistricts}
           rowKey={(row) => row.districtId}
-          caption={t("governmentDashboard.districtRanking")}
-          emptyMessage={districtsLoading ? t("common.loading") : t("dashboard.noData")}
+          caption="District ranking"
+          emptyMessage={districtsLoading ? "Loading..." : "No data for the selected filters yet."}
         />
       </div>
 
-      <h2 className="mb-3 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.productPerformance")}
-      </h2>
+      <h2 className="mb-3 text-lg font-semibold text-neutral-900">Product performance</h2>
       <ExportButtons
-        title={t("governmentDashboard.productPerformance")}
+        title="Product performance"
         columns={[
           { header: "#", value: (r: ProductRollup & { rank: number }) => r.rank },
-          { header: t("dashboard.name"), value: (r: ProductRollup) => r.name },
+          { header: "Name", value: (r: ProductRollup) => r.name },
           { header: "SHG", value: (r: ProductRollup) => r.shgName },
-          { header: t("dashboard.sales"), value: (r: ProductRollup) => r.unitsSold },
-          { header: t("dashboard.totalSales"), value: (r: ProductRollup) => r.totalRevenue },
+          { header: "Sales", value: (r: ProductRollup) => r.unitsSold },
+          { header: "Total sales", value: (r: ProductRollup) => r.totalRevenue },
         ]}
         rows={rankedProducts}
         filename="product-performance"
@@ -390,22 +363,22 @@ export function GovernmentDashboardPage() {
         columns={productColumns}
         rows={rankedProducts}
         rowKey={(row) => row.id}
-        caption={t("governmentDashboard.productPerformance")}
-        emptyMessage={t("dashboard.noData")}
+        caption="Product performance"
+        emptyMessage="No data for the selected filters yet."
       />
 
       <h2 className="mb-3 mt-5 text-lg font-semibold text-neutral-900">
-        {t("governmentDashboard.marketPrices")}
+        Market prices (Agmarknet)
       </h2>
-      <p className="mb-3 text-sm text-neutral-500">{t("governmentDashboard.marketPricesNote")}</p>
+      <p className="mb-3 text-sm text-neutral-500">
+        Real government mandi prices, ingested since Sprint 3 — shown here for the first time.
+      </p>
       <DataTable
         columns={marketPriceColumns}
         rows={marketPrices ?? []}
         rowKey={(row) => `${row.market}-${row.commodity}-${row.arrivalDate}`}
-        caption={t("governmentDashboard.marketPrices")}
-        emptyMessage={
-          marketPricesLoading ? t("common.loading") : t("governmentDashboard.marketPricesEmpty")
-        }
+        caption="Market prices (Agmarknet)"
+        emptyMessage={marketPricesLoading ? "Loading..." : "No Agmarknet price data ingested yet."}
       />
     </div>
   );

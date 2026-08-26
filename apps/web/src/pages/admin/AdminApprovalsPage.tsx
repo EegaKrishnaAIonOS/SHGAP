@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -11,7 +10,6 @@ import type { UserProfile } from "../../lib/api/types";
  * only; Consumer accounts activate immediately and never appear here (see
  * AdminService.listPendingUsers on the backend). */
 export function AdminApprovalsPage() {
-  const { t } = useTranslation();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,11 +20,11 @@ export function AdminApprovalsPage() {
     setError(null);
     getPendingUsers()
       .then(setUsers)
-      .catch(() => setError(t("admin.approvals.loadError")))
+      .catch(() => setError("Couldn't load pending registrations. Please try again."))
       .finally(() => setLoading(false));
   }
 
-  useEffect(reload, [t]);
+  useEffect(reload, []);
 
   async function handleDecision(user: UserProfile, decision: "approve" | "reject") {
     setPendingId(user.id);
@@ -35,24 +33,24 @@ export function AdminApprovalsPage() {
       await (decision === "approve" ? approveUser(user.id) : rejectUser(user.id));
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
     } catch {
-      setError(t("admin.approvals.updateError"));
+      setError("Couldn't update this registration. Please try again.");
     } finally {
       setPendingId(null);
     }
   }
 
   const columns: Column<UserProfile>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name ?? "—" },
-    { key: "email", header: t("admin.approvals.email"), render: (row) => row.email ?? "—" },
-    { key: "phone", header: t("admin.phone"), render: (row) => row.phone },
+    { key: "name", header: "Name", render: (row) => row.name ?? "—" },
+    { key: "email", header: "Email", render: (row) => row.email ?? "—" },
+    { key: "phone", header: "Phone", render: (row) => row.phone },
     {
       key: "role",
-      header: t("admin.role"),
+      header: "Role",
       render: (row) => row.userRoles.map((ur) => ur.role.name).join(", ") || "—",
     },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <div className="flex gap-2">
           <Button
@@ -60,7 +58,7 @@ export function AdminApprovalsPage() {
             isLoading={pendingId === row.id}
             onClick={() => void handleDecision(row, "approve")}
           >
-            {t("admin.approvals.approve")}
+            Approve
           </Button>
           <Button
             size="sm"
@@ -68,7 +66,7 @@ export function AdminApprovalsPage() {
             isLoading={pendingId === row.id}
             onClick={() => void handleDecision(row, "reject")}
           >
-            {t("admin.approvals.reject")}
+            Reject
           </Button>
         </div>
       ),
@@ -78,8 +76,8 @@ export function AdminApprovalsPage() {
   return (
     <div>
       <PageHeader
-        title={t("admin.approvals.title")}
-        subtitle={t("admin.approvals.subtitle")}
+        title="Pending approvals"
+        subtitle="Self-registered SHG and Wholesale Distributor accounts awaiting review."
         wireframe={false}
       />
 
@@ -89,7 +87,7 @@ export function AdminApprovalsPage() {
           columns={columns}
           rows={users}
           rowKey={(row) => row.id}
-          emptyMessage={loading ? t("common.loading") : t("admin.approvals.noneFound")}
+          emptyMessage={loading ? "Loading..." : "No pending registrations."}
         />
       </Card>
     </div>

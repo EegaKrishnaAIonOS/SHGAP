@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/Button";
 import { Input, Select } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -31,7 +30,6 @@ function flatten(categories: Category[]): FlatCategory[] {
 }
 
 export function CategoriesTab() {
-  const { t } = useTranslation();
   const [tree, setTree] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +44,11 @@ export function CategoriesTab() {
     setLoading(true);
     getCategories()
       .then(setTree)
-      .catch(() => setError(t("admin.masterData.loadError")))
+      .catch(() => setError("Couldn't load this list. Please try again."))
       .finally(() => setLoading(false));
   }
 
-  useEffect(reload, [t]);
+  useEffect(reload, []);
 
   const rows = flatten(tree);
   const parentOptions = tree.map((c) => ({ value: c.id, label: c.name }));
@@ -82,40 +80,40 @@ export function CategoriesTab() {
       setModalOpen(false);
       reload();
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : t("admin.masterData.saveError"));
+      setFormError(err instanceof ApiError ? err.message : "Couldn't save. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(category: FlatCategory) {
-    if (!window.confirm(t("admin.masterData.confirmDelete", { name: category.name }))) return;
+    if (!window.confirm(`Delete "${category.name}"? This can't be undone.`)) return;
     try {
       await deleteCategory(category.id);
       reload();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("admin.masterData.deleteError"));
+      setError(err instanceof ApiError ? err.message : "Couldn't delete this. Please try again.");
     }
   }
 
   const columns: Column<FlatCategory>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
+    { key: "name", header: "Name", render: (row) => row.name },
     { key: "slug", header: "Slug", render: (row) => row.slug },
     {
       key: "parent",
-      header: t("catalogue.form.categoryGroup"),
+      header: "Category group",
       render: (row) => row.parentName ?? "—",
     },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <div className="flex gap-2">
           <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
-            {t("common.edit")}
+            Edit
           </Button>
           <Button size="sm" variant="ghost" onClick={() => void handleDelete(row)}>
-            {t("common.delete")}
+            Delete
           </Button>
         </div>
       ),
@@ -126,7 +124,7 @@ export function CategoriesTab() {
     <div>
       <div className="mb-3 flex justify-end">
         <Button size="sm" onClick={openCreate}>
-          {t("admin.masterData.addCategory")}
+          Add category
         </Button>
       </div>
 
@@ -136,34 +134,34 @@ export function CategoriesTab() {
         columns={columns}
         rows={rows}
         rowKey={(row) => row.id}
-        emptyMessage={loading ? t("common.loading") : t("admin.masterData.noneFound")}
+        emptyMessage={loading ? "Loading..." : "Nothing here yet."}
       />
 
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? t("admin.masterData.editCategory") : t("admin.masterData.addCategory")}
+        title={editing ? "Edit category" : "Add category"}
         footer={
           <>
             <Button variant="outline" onClick={() => setModalOpen(false)}>
-              {t("common.cancel")}
+              Cancel
             </Button>
             <Button isLoading={saving} onClick={() => void handleSubmit()}>
-              {t("common.save")}
+              Save
             </Button>
           </>
         }
       >
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
           <Select
-            label={t("catalogue.form.categoryGroup")}
+            label="Category group"
             options={parentOptions}
-            placeholder={t("admin.masterData.topLevelCategory")}
+            placeholder="Top-level category (no parent)"
             value={form.parentId}
             onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value }))}
           />
           <Input
-            label={t("dashboard.name")}
+            label="Name"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             required

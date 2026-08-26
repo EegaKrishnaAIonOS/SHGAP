@@ -1,8 +1,6 @@
 import { useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { cn } from "../lib/cn";
-import { LanguageToggle } from "../components/LanguageToggle";
 import { SyncStatusBanner } from "../components/SyncStatusBanner";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,23 +11,21 @@ import { useAuth } from "../context/AuthContext";
 const NAV_HEIGHT_VAR = "--mobile-shell-nav-height";
 
 /**
- * Mobile-first app shell for SHG-member-facing screens (registration,
- * catalogue, voice assistant). Optimised for low-end Android phones and
+ * Mobile-first app shell for SHG-member-facing screens (catalogue, voice
+ * assistant). Optimised for low-end Android phones and
  * low-digital-literacy users: a single-column layout, a minimal top bar,
  * and a bottom tab bar with large icon + label touch targets instead of a
  * hidden hamburger menu (which tests poorly with first-time smartphone
  * users).
  */
 export function MobileShell() {
-  const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
 
   const tabs = [
-    { to: "/register", icon: "📝", label: t("nav.registration") },
-    { to: "/catalogue", icon: "🛒", label: t("nav.catalogue") },
-    { to: "/voice-assistant", icon: "🎙️", label: t("nav.voiceAssistant") },
+    { to: "/catalogue", icon: "🛒", label: "Product Catalogue" },
+    { to: "/voice-assistant", icon: "🎙️", label: "Voice Assistant" },
   ];
 
   // Track the tab bar's real rendered height (it varies with label wrapping
@@ -52,10 +48,9 @@ export function MobileShell() {
     <div className="flex min-h-dvh flex-col bg-neutral-50">
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3">
         <NavLink to="/" className="text-base font-semibold text-neutral-900">
-          {t("common.appName")}
+          lakshmi
         </NavLink>
         <div className="flex items-center gap-2">
-          <LanguageToggle size="touch" />
           <button
             type="button"
             onClick={() => {
@@ -63,7 +58,7 @@ export function MobileShell() {
             }}
             className="min-h-touch-sm px-2 text-sm font-medium text-neutral-500"
           >
-            {t("nav.logout")}
+            Log out
           </button>
         </div>
       </header>
@@ -75,7 +70,7 @@ export function MobileShell() {
 
       <nav
         ref={navRef}
-        aria-label={t("nav.dashboards") ?? "primary"}
+        aria-label="Dashboards"
         className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-200 bg-white"
       >
         <ul className="mx-auto flex max-w-md">

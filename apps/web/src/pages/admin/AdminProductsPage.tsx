@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -13,7 +12,6 @@ const SEARCH_DEBOUNCE_MS = 400;
 const PAGE_SIZE = 20;
 
 export function AdminProductsPage() {
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,7 +34,7 @@ export function AdminProductsPage() {
           setTotal(result.total);
         })
         .catch(() => {
-          if (!cancelled) setError(t("admin.productsLoadError"));
+          if (!cancelled) setError("Couldn't load products. Please try again.");
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -46,7 +44,7 @@ export function AdminProductsPage() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [search, page, t]);
+  }, [search, page]);
 
   async function toggleAvailable(product: Product) {
     setPendingId(product.id);
@@ -55,22 +53,22 @@ export function AdminProductsPage() {
       if (result.status === "ok") {
         setProducts((prev) => prev.map((p) => (p.id === result.data.id ? result.data : p)));
       } else {
-        setError(t("admin.actionQueuedOffline"));
+        setError("You're offline — this change will sync automatically once you're back online.");
       }
     } catch {
-      setError(t("admin.productsUpdateError"));
+      setError("Couldn't update this product. Please try again.");
     } finally {
       setPendingId(null);
     }
   }
 
   const columns: Column<Product>[] = [
-    { key: "name", header: t("catalogue.form.name"), render: (row) => row.name },
+    { key: "name", header: "Product name", render: (row) => row.name },
     { key: "shg", header: "SHG", render: (row) => row.shg?.name ?? "—" },
-    { key: "price", header: t("catalogue.price"), render: (row) => row.price },
+    { key: "price", header: "Price", render: (row) => row.price },
     {
       key: "status",
-      header: t("common.status"),
+      header: "Status",
       render: (row) => (
         <span
           className={
@@ -79,13 +77,13 @@ export function AdminProductsPage() {
               : "rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500"
           }
         >
-          {row.isAvailable ? t("catalogue.available") : t("catalogue.unavailable")}
+          {row.isAvailable ? "Available" : "Unavailable"}
         </span>
       ),
     },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <Button
           size="sm"
@@ -93,7 +91,7 @@ export function AdminProductsPage() {
           isLoading={pendingId === row.id}
           onClick={() => void toggleAvailable(row)}
         >
-          {row.isAvailable ? t("admin.flag") : t("admin.reactivate")}
+          {row.isAvailable ? "Flag as unavailable" : "Reactivate"}
         </Button>
       ),
     },
@@ -101,18 +99,18 @@ export function AdminProductsPage() {
 
   return (
     <div>
-      <PageHeader title={t("admin.tabProducts")} wireframe={false} />
+      <PageHeader title="Products" wireframe={false} />
 
       <Card>
         <div className="mb-4 max-w-sm">
           <Input
-            label={t("common.search")}
+            label="Search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder={t("admin.productsSearchPlaceholder")}
+            placeholder="Search by product name"
           />
         </div>
 
@@ -122,7 +120,7 @@ export function AdminProductsPage() {
           columns={columns}
           rows={products}
           rowKey={(row) => row.id}
-          emptyMessage={loading ? t("common.loading") : t("admin.noProductsFound")}
+          emptyMessage={loading ? "Loading..." : "No products found."}
         />
 
         <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

@@ -1,5 +1,4 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/cn";
 
@@ -11,26 +10,25 @@ import { cn } from "../../lib/cn";
  * ADR-0018).
  */
 export function AdminLayout() {
-  const { t } = useTranslation();
   const { hasRole } = useAuth();
   const isAdmin = hasRole("ADMIN");
 
   const tabs = [
-    { to: "/admin", end: true, label: t("admin.tabOverview") },
-    { to: "/admin/users", label: t("admin.tabUsers") },
-    { to: "/admin/shgs", label: t("admin.tabShgs") },
-    { to: "/admin/products", label: t("admin.tabProducts") },
+    { to: "/admin", end: true, label: "Overview" },
+    { to: "/admin/users", label: "Users" },
+    { to: "/admin/shgs", label: "SHGs" },
+    { to: "/admin/products", label: "Products" },
     ...(isAdmin
       ? [
-          { to: "/admin/approvals", label: t("admin.tabApprovals") },
-          { to: "/admin/master-data", label: t("admin.tabMasterData") },
+          { to: "/admin/approvals", label: "Approvals" },
+          { to: "/admin/master-data", label: "Master data" },
         ]
       : []),
   ];
 
   return (
     <div>
-      <nav aria-label={t("admin.title")} className="mb-5 border-b border-neutral-200">
+      <nav aria-label="Admin overview" className="mb-5 border-b border-neutral-200">
         <ul className="flex flex-wrap gap-1">
           {tabs.map((tab) => (
             <li key={tab.to}>

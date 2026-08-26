@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshmi - An innovative SHG intelligent assistant</title>
+    <link rel="icon" type="image/png" href="/interface/favicon.png" />
+    <link rel="stylesheet" href="/interface/styles.css" />
+  </head>
+  <body class="shg-page">
+    <nav class="shg-tabs">
+      <div class="page-shell shg-tabs-inner">
+        <button type="button" class="shg-tab" data-tab="items">Items</button>
+        <!-- Not a real tab a member picks from this bar (which is itself
+             CSS-hidden — see .shg-tabs) — apps/web's DashboardProfileMenu
+             forwards its own icon's click to this button (see
+             LandingPage.tsx's handleOpenProfilePage), reusing the same
+             tab/panel switching interface/script.js already has instead of
+             a separate mechanism. Excluded from DashboardNav's own visible
+             tab list (see DashboardNav.tsx's visibleTabs filter). -->
+        <button type="button" class="shg-tab active" data-tab="profile">Profile</button>
+      </div>
+    </nav>
+
+    <main class="page-shell">
+      <section class="shg-panel" data-panel="items">
+        <div id="catalogGrid" class="shg-catalog-grid"></div>
+        <p id="itemsEmptyState" class="subtext" hidden>No items available.</p>
+      </section>
+
+      <section class="shg-panel active" data-panel="profile">
+        <div class="auth-card profile-panel-card">
+          <div class="form-grid">
+            <div class="field">
+              <img id="profileAvatar" src="/guest-avatar.svg" alt="" class="profile-avatar" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="profileEmail" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Passkey</label>
+              <input id="profilePasskey" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Role</label>
+              <input id="profileRole" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Mode</label>
+              <input id="profileMode" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Name</label>
+              <input id="profileName" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Contact</label>
+              <input id="profileContact" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input id="profileAddress" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Pincode</label>
+              <input id="profilePincode" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Nationality</label>
+              <input id="profileNationality" type="text" readonly tabindex="-1" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="consumerToast" class="shg-toast" hidden></div>
+
+    <script>
+      document.body.dataset.page = 'consumer-dashboard';
+    </script>
+    <script src="/interface/script.js"></script>
+  </body>
+</html>

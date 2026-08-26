@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../../components/PageHeader";
 import {
@@ -19,76 +18,76 @@ import type { ShgDetailRollup, ShgRollup } from "../../lib/api/types";
 const PAGE_SIZE = 20;
 
 function ShgDetailView({ shgId }: { shgId: string }) {
-  const { t } = useTranslation();
   const {
     data: shg,
     loading,
     error,
-  } = useAsyncData(() => getShgDetail(shgId), [shgId], t("shgDashboard.loadError"));
+  } = useAsyncData(() => getShgDetail(shgId), [shgId], "Couldn't load SHG data. Please try again.");
 
   const columns: Column<ShgDetailRollup["products"][number]>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "category", header: t("catalogue.title"), render: (row) => row.categoryName },
-    { key: "price", header: t("catalogue.price"), render: (row) => `₹${row.price}` },
-    { key: "unitsSold", header: t("dashboard.sales"), render: (row) => row.unitsSold },
+    { key: "name", header: "Name", render: (row) => row.name },
+    { key: "category", header: "Product Catalogue", render: (row) => row.categoryName },
+    { key: "price", header: "Price", render: (row) => `₹${row.price}` },
+    { key: "unitsSold", header: "Sales", render: (row) => row.unitsSold },
     {
       key: "revenue",
-      header: t("dashboard.totalSales"),
+      header: "Total sales",
       render: (row) => `₹${row.totalRevenue.toLocaleString()}`,
     },
   ];
 
   if (loading) {
-    return <p className="text-sm text-neutral-500">{t("common.loading")}</p>;
+    return <p className="text-sm text-neutral-500">Loading...</p>;
   }
   if (error || !shg) {
-    return <p className="text-sm text-danger-500">{error ?? t("shgDashboard.loadError")}</p>;
+    return (
+      <p className="text-sm text-danger-500">
+        {error ?? "Couldn't load SHG data. Please try again."}
+      </p>
+    );
   }
 
   return (
     <div>
       <PageHeader
-        title={`${t("shgDashboard.title")} — ${shg.name}`}
+        title={`SHG Dashboard — ${shg.name}`}
         subtitle={[shg.ulbName, shg.districtName].filter(Boolean).join(", ")}
         wireframe={false}
       />
       <p className="mb-4">
         <Link className="text-sm text-primary-600 hover:underline" to="/dashboards/shg">
-          {t("dashboard.backToList")}
+          ← Back to list
         </Link>
       </p>
 
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          label={t("dashboard.totalSales")}
-          value={`₹${shg.totalSalesAmount.toLocaleString()}`}
-        />
-        <StatCard label={t("dashboard.productsListed")} value={shg.products.length} />
-        <StatCard label={t("dashboard.totalOrders")} value={shg.orderCount.toLocaleString()} />
-        <StatCard label={t("dashboard.enquiries")} value={shg.enquiryCount.toLocaleString()} />
+        <StatCard label="Total sales" value={`₹${shg.totalSalesAmount.toLocaleString()}`} />
+        <StatCard label="Products listed" value={shg.products.length} />
+        <StatCard label="Total orders" value={shg.orderCount.toLocaleString()} />
+        <StatCard label="Enquiries" value={shg.enquiryCount.toLocaleString()} />
       </div>
 
       <ExportButtons
         title={shg.name}
         columns={[
           {
-            header: t("dashboard.name"),
+            header: "Name",
             value: (r: ShgDetailRollup["products"][number]) => r.name,
           },
           {
-            header: t("catalogue.title"),
+            header: "Product Catalogue",
             value: (r: ShgDetailRollup["products"][number]) => r.categoryName,
           },
           {
-            header: t("catalogue.price"),
+            header: "Price",
             value: (r: ShgDetailRollup["products"][number]) => r.price,
           },
           {
-            header: t("dashboard.sales"),
+            header: "Sales",
             value: (r: ShgDetailRollup["products"][number]) => r.unitsSold,
           },
           {
-            header: t("dashboard.totalSales"),
+            header: "Total sales",
             value: (r: ShgDetailRollup["products"][number]) => r.totalRevenue,
           },
         ]}
@@ -99,15 +98,14 @@ function ShgDetailView({ shgId }: { shgId: string }) {
         columns={columns}
         rows={shg.products}
         rowKey={(row) => row.id}
-        caption={t("dashboard.topProducts")}
-        emptyMessage={t("dashboard.noData")}
+        caption="Top products"
+        emptyMessage="No data for the selected filters yet."
       />
     </div>
   );
 }
 
 function ShgListView() {
-  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
   const [districtId, setDistrictId] = useState("");
   const [ulbId, setUlbId] = useState("");
@@ -138,7 +136,7 @@ function ShgListView() {
         pageSize: PAGE_SIZE,
       }),
     [dateFrom, districtId, ulbId, page],
-    t("shgDashboard.loadError"),
+    "Couldn't load SHG data. Please try again.",
   );
 
   const totalSales = (shgs?.items ?? []).reduce((sum, s) => sum + s.totalSalesAmount, 0);
@@ -147,7 +145,7 @@ function ShgListView() {
   const columns: Column<ShgRollup>[] = [
     {
       key: "name",
-      header: t("dashboard.name"),
+      header: "Name",
       render: (row) => (
         <Link
           className="font-medium text-primary-600 hover:underline"
@@ -157,17 +155,17 @@ function ShgListView() {
         </Link>
       ),
     },
-    { key: "district", header: t("dashboard.district"), render: (row) => row.districtName },
-    { key: "ulb", header: t("nav.ulbDashboard"), render: (row) => row.ulbName ?? "—" },
-    { key: "products", header: t("dashboard.productsListed"), render: (row) => row.productCount },
+    { key: "district", header: "District", render: (row) => row.districtName },
+    { key: "ulb", header: "ULB Dashboard", render: (row) => row.ulbName ?? "—" },
+    { key: "products", header: "Products listed", render: (row) => row.productCount },
     {
       key: "orders",
-      header: t("dashboard.orders"),
+      header: "Orders",
       render: (row) => row.orderCount.toLocaleString(),
     },
     {
       key: "sales",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => `₹${row.totalSalesAmount.toLocaleString()}`,
     },
   ];
@@ -175,8 +173,8 @@ function ShgListView() {
   return (
     <div>
       <PageHeader
-        title={t("shgDashboard.title")}
-        subtitle={t("shgDashboard.subtitle")}
+        title="SHG Dashboard"
+        subtitle="Per-SHG monitoring view — membership, product mix and sales for a single group."
         wireframe={false}
       />
       <DashboardFilters
@@ -185,24 +183,24 @@ function ShgListView() {
         extra={[
           {
             key: "district",
-            label: t("dashboard.district"),
+            label: "District",
             value: districtId,
             onChange: (value) => {
               setDistrictId(value);
               setUlbId("");
             },
             options: [
-              { value: "", label: t("dashboard.allDistricts") },
+              { value: "", label: "All districts" },
               ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
             ],
           },
           {
             key: "ulb",
-            label: t("nav.ulbDashboard"),
+            label: "ULB Dashboard",
             value: ulbId,
             onChange: setUlbId,
             options: [
-              { value: "", label: t("dashboard.allUlbs") },
+              { value: "", label: "All ULBs" },
               ...(ulbs ?? []).map((u) => ({ value: u.ulbId, label: u.ulbName })),
             ],
           },
@@ -212,36 +210,33 @@ function ShgListView() {
       {error && <p className="mb-3 text-sm text-danger-500">{error}</p>}
 
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Total sales" value={`₹${(totalSales / 100000).toFixed(1)}L`} />
+        <StatCard label="Total orders" value={totalOrders.toLocaleString()} />
+        <StatCard label="Total SHGs" value={shgs?.total ?? 0} />
         <StatCard
-          label={t("dashboard.totalSales")}
-          value={`₹${(totalSales / 100000).toFixed(1)}L`}
-        />
-        <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard label={t("shgDashboard.totalShgs")} value={shgs?.total ?? 0} />
-        <StatCard
-          label={t("dashboard.productsListed")}
+          label="Products listed"
           value={(shgs?.items ?? []).reduce((sum, s) => sum + s.productCount, 0)}
         />
       </div>
 
       <div className="mb-5">
         <SimpleBarChart
-          title={t("shgDashboard.salesChartTitle")}
+          title="Sales by SHG"
           data={(shgs?.items ?? []).map((s) => ({ name: s.name, sales: s.totalSalesAmount }))}
           xKey="name"
-          series={[{ key: "sales", label: t("dashboard.sales") }]}
+          series={[{ key: "sales", label: "Sales" }]}
         />
       </div>
 
       <ExportButtons
-        title={t("shgDashboard.title")}
+        title="SHG Dashboard"
         columns={[
-          { header: t("dashboard.name"), value: (r: ShgRollup) => r.name },
-          { header: t("dashboard.district"), value: (r: ShgRollup) => r.districtName },
-          { header: t("nav.ulbDashboard"), value: (r: ShgRollup) => r.ulbName ?? "" },
-          { header: t("dashboard.productsListed"), value: (r: ShgRollup) => r.productCount },
-          { header: t("dashboard.orders"), value: (r: ShgRollup) => r.orderCount },
-          { header: t("dashboard.sales"), value: (r: ShgRollup) => r.totalSalesAmount },
+          { header: "Name", value: (r: ShgRollup) => r.name },
+          { header: "District", value: (r: ShgRollup) => r.districtName },
+          { header: "ULB Dashboard", value: (r: ShgRollup) => r.ulbName ?? "" },
+          { header: "Products listed", value: (r: ShgRollup) => r.productCount },
+          { header: "Orders", value: (r: ShgRollup) => r.orderCount },
+          { header: "Sales", value: (r: ShgRollup) => r.totalSalesAmount },
         ]}
         rows={shgs?.items ?? []}
         filename="shg-list"
@@ -250,8 +245,8 @@ function ShgListView() {
         columns={columns}
         rows={shgs?.items ?? []}
         rowKey={(row) => row.id}
-        caption={t("shgDashboard.listCaption")}
-        emptyMessage={loading ? t("common.loading") : t("dashboard.noData")}
+        caption="SHG list"
+        emptyMessage={loading ? "Loading..." : "No data for the selected filters yet."}
       />
       <Pagination
         page={page}

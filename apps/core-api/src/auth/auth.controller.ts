@@ -1,16 +1,10 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
-import {
-  AuthService,
-  RegisterResult,
-  TokenPair,
-  VerifyEmailResult,
-} from './auth.service';
+import { AuthService, TokenPair, VerifyEmailResult } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { RegisterDto } from './dto/register.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -58,30 +52,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Revoke a refresh token' })
   async logout(@Body() dto: RefreshTokenDto): Promise<void> {
     await this.authService.logout(dto.refreshToken);
-  }
-
-  @Public()
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary:
-      'Self-register an SHG, Distributor, or Consumer account via email+password — starts PENDING_VERIFICATION until the emailed link is confirmed (see /auth/verify-email)',
-  })
-  async register(
-    @Body() dto: RegisterDto,
-  ): Promise<RegisterResult & { message: string }> {
-    const result = await this.authService.registerWithPassword({
-      fullName: dto.fullName,
-      email: dto.email,
-      mobileNumber: dto.mobileNumber,
-      password: dto.password,
-      role: dto.role,
-    });
-    return {
-      ...result,
-      message:
-        'Registration successful. Please check your email to verify your account.',
-    };
   }
 
   @Public()

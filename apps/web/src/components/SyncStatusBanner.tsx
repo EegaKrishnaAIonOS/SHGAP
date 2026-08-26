@@ -1,5 +1,4 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { useTranslation } from "react-i18next";
 import { getCachedQueueCount, subscribeQueue } from "../lib/offlineQueue/db";
 import { replayQueue } from "../lib/offlineQueue/sync";
 
@@ -11,7 +10,6 @@ import { replayQueue } from "../lib/offlineQueue/sync";
  * enough (e.g. flaky Wi-Fi that never cleanly fires the event).
  */
 export function SyncStatusBanner() {
-  const { t } = useTranslation();
   const pending = useSyncExternalStore(subscribeQueue, getCachedQueueCount);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncing, setSyncing] = useState(false);
@@ -36,10 +34,10 @@ export function SyncStatusBanner() {
     >
       <span>
         {!isOnline && pending > 0
-          ? t("sync.offlineWithPending", { count: pending })
+          ? `You're offline. ${pending} change(s) will sync once you're back online.`
           : !isOnline
-            ? t("sync.offline")
-            : t("sync.pending", { count: pending })}
+            ? "You're offline. Changes you make will be saved on this device."
+            : `${pending} change(s) waiting to sync.`}
       </span>
       {pending > 0 && isOnline && (
         <button
@@ -51,7 +49,7 @@ export function SyncStatusBanner() {
           }}
           className="shrink-0 font-medium underline underline-offset-2 disabled:opacity-60"
         >
-          {syncing ? t("common.loading") : t("sync.syncNow")}
+          {syncing ? "Loading..." : "Sync now"}
         </button>
       )}
     </div>

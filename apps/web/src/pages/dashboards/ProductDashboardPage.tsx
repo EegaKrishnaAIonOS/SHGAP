@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import {
   DashboardFilters,
@@ -18,7 +17,6 @@ import type { ProductRollup } from "../../lib/api/types";
 const PAGE_SIZE = 20;
 
 export function ProductDashboardPage() {
-  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
   const [districtId, setDistrictId] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -49,7 +47,7 @@ export function ProductDashboardPage() {
         pageSize: PAGE_SIZE,
       }),
     [dateFrom, districtId, categoryId, page],
-    t("productDashboard.loadError"),
+    "Couldn't load product data. Please try again.",
   );
 
   const items = products?.items ?? [];
@@ -59,18 +57,18 @@ export function ProductDashboardPage() {
     : 0;
 
   const columns: Column<ProductRollup>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "category", header: t("catalogue.title"), render: (row) => row.categoryName },
+    { key: "name", header: "Name", render: (row) => row.name },
+    { key: "category", header: "Product Catalogue", render: (row) => row.categoryName },
     { key: "shg", header: "SHG", render: (row) => row.shgName },
-    { key: "price", header: t("catalogue.price"), render: (row) => `₹${row.price}` },
+    { key: "price", header: "Price", render: (row) => `₹${row.price}` },
     {
       key: "unitsSold",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => row.unitsSold.toLocaleString(),
     },
     {
       key: "revenue",
-      header: t("dashboard.totalSales"),
+      header: "Total sales",
       render: (row) => `₹${row.totalRevenue.toLocaleString()}`,
     },
   ];
@@ -78,8 +76,8 @@ export function ProductDashboardPage() {
   return (
     <div>
       <PageHeader
-        title={t("productDashboard.title")}
-        subtitle={t("productDashboard.subtitle")}
+        title="Product Dashboard"
+        subtitle="Catalogue-wide view — category performance, pricing and inventory signals."
         wireframe={false}
       />
       <DashboardFilters
@@ -88,21 +86,21 @@ export function ProductDashboardPage() {
         extra={[
           {
             key: "district",
-            label: t("dashboard.district"),
+            label: "District",
             value: districtId,
             onChange: setDistrictId,
             options: [
-              { value: "", label: t("dashboard.allDistricts") },
+              { value: "", label: "All districts" },
               ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
             ],
           },
           {
             key: "category",
-            label: t("catalogue.title"),
+            label: "Product Catalogue",
             value: categoryId,
             onChange: setCategoryId,
             options: [
-              { value: "", label: t("dashboard.allCategories") },
+              { value: "", label: "All categories" },
               ...(categories ?? []).map((c) => ({ value: c.categoryId, label: c.categoryName })),
             ],
           },
@@ -112,24 +110,24 @@ export function ProductDashboardPage() {
       {error && <p className="mb-3 text-sm text-danger-500">{error}</p>}
 
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label={t("dashboard.productsListed")} value={products?.total ?? 0} />
-        <StatCard label={t("dashboard.sales")} value={totalUnits.toLocaleString()} />
-        <StatCard label={t("dashboard.topCategories")} value={(categories ?? []).length} />
-        <StatCard label={t("catalogue.price")} value={`₹${avgPrice}`} />
+        <StatCard label="Products listed" value={products?.total ?? 0} />
+        <StatCard label="Sales" value={totalUnits.toLocaleString()} />
+        <StatCard label="Top categories" value={(categories ?? []).length} />
+        <StatCard label="Price" value={`₹${avgPrice}`} />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimpleBarChart
-          title={t("dashboard.topProducts")}
+          title="Top products"
           data={[...items]
             .sort((a, b) => b.unitsSold - a.unitsSold)
             .slice(0, 10)
             .map((p) => ({ name: p.name, unitsSold: p.unitsSold }))}
           xKey="name"
-          series={[{ key: "unitsSold", label: t("dashboard.sales") }]}
+          series={[{ key: "unitsSold", label: "Sales" }]}
         />
         <SimplePieChart
-          title={t("dashboard.topCategories")}
+          title="Top categories"
           data={(categories ?? []).map((c) => ({ category: c.categoryName, value: c.totalAmount }))}
           nameKey="category"
           valueKey="value"
@@ -137,14 +135,14 @@ export function ProductDashboardPage() {
       </div>
 
       <ExportButtons
-        title={t("productDashboard.title")}
+        title="Product Dashboard"
         columns={[
-          { header: t("dashboard.name"), value: (r: ProductRollup) => r.name },
-          { header: t("catalogue.title"), value: (r: ProductRollup) => r.categoryName },
+          { header: "Name", value: (r: ProductRollup) => r.name },
+          { header: "Product Catalogue", value: (r: ProductRollup) => r.categoryName },
           { header: "SHG", value: (r: ProductRollup) => r.shgName },
-          { header: t("catalogue.price"), value: (r: ProductRollup) => r.price },
-          { header: t("dashboard.sales"), value: (r: ProductRollup) => r.unitsSold },
-          { header: t("dashboard.totalSales"), value: (r: ProductRollup) => r.totalRevenue },
+          { header: "Price", value: (r: ProductRollup) => r.price },
+          { header: "Sales", value: (r: ProductRollup) => r.unitsSold },
+          { header: "Total sales", value: (r: ProductRollup) => r.totalRevenue },
         ]}
         rows={items}
         filename="product-list"
@@ -153,8 +151,8 @@ export function ProductDashboardPage() {
         columns={columns}
         rows={items}
         rowKey={(row) => row.id}
-        caption={t("dashboard.topProducts")}
-        emptyMessage={loading ? t("common.loading") : t("dashboard.noData")}
+        caption="Top products"
+        emptyMessage={loading ? "Loading..." : "No data for the selected filters yet."}
       />
       <Pagination
         page={page}

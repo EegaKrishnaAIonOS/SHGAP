@@ -110,6 +110,8 @@ export const fontFamily = {
   // Telugu-script UI text. Falls back to Noto Sans / system UI for any
   // Latin characters mixed into the same string (product names, numerals).
   telugu: ['"Noto Sans Telugu"', '"Noto Sans"', "system-ui", "sans-serif"],
+  // Devanagari-script UI text (TranslateMenu's Hindi label).
+  devanagari: ['"Noto Sans Devanagari"', '"Noto Sans"', "system-ui", "sans-serif"],
   mono: ["ui-monospace", "Consolas", "monospace"],
 } as const;
 

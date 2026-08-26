@@ -21,8 +21,7 @@
     "seed": "tsx seed/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.20.0",
-    "argon2": "^0.45.1"
+    "@prisma/client": "^5.20.0"
   },
   "devDependencies": {
     "prisma": "^5.20.0",

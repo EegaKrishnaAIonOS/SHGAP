@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import {
   DashboardFilters,
@@ -18,7 +17,6 @@ import type { BuyerRollup } from "../../lib/api/types";
 const PAGE_SIZE = 20;
 
 export function BuyerDashboardPage() {
-  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
   const [districtId, setDistrictId] = useState("");
   const [page, setPage] = useState(1);
@@ -37,7 +35,7 @@ export function BuyerDashboardPage() {
   } = useAsyncData(
     () => getBuyers({ dateFrom, districtId: districtId || undefined, page, pageSize: PAGE_SIZE }),
     [dateFrom, districtId, page],
-    t("buyerDashboard.loadError"),
+    "Couldn't load buyer data. Please try again.",
   );
 
   const items = buyers?.items ?? [];
@@ -53,17 +51,17 @@ export function BuyerDashboardPage() {
   );
 
   const columns: Column<BuyerRollup>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "type", header: t("catalogue.title"), render: (row) => row.type },
-    { key: "orders", header: t("dashboard.orders"), render: (row) => row.orderCount },
+    { key: "name", header: "Name", render: (row) => row.name },
+    { key: "type", header: "Product Catalogue", render: (row) => row.type },
+    { key: "orders", header: "Orders", render: (row) => row.orderCount },
     {
       key: "totalSpend",
-      header: t("dashboard.totalSales"),
+      header: "Total sales",
       render: (row) => `₹${row.totalSpend.toLocaleString()}`,
     },
     {
       key: "recommendations",
-      header: t("dashboard.recommendations"),
+      header: "Recommendations",
       render: (row) => `${row.recommendationsAccepted}/${row.recommendationsReceived}`,
     },
   ];
@@ -71,8 +69,8 @@ export function BuyerDashboardPage() {
   return (
     <div>
       <PageHeader
-        title={t("buyerDashboard.title")}
-        subtitle={t("buyerDashboard.subtitle")}
+        title="Buyer Dashboard"
+        subtitle="Buyer engagement view — registered buyers, repeat orders and demand trends."
         wireframe={false}
       />
       <DashboardFilters
@@ -81,11 +79,11 @@ export function BuyerDashboardPage() {
         extra={[
           {
             key: "district",
-            label: t("dashboard.district"),
+            label: "District",
             value: districtId,
             onChange: setDistrictId,
             options: [
-              { value: "", label: t("dashboard.allDistricts") },
+              { value: "", label: "All districts" },
               ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
             ],
           },
@@ -95,36 +93,30 @@ export function BuyerDashboardPage() {
       {error && <p className="mb-3 text-sm text-danger-500">{error}</p>}
 
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label={t("dashboard.registeredBuyers")} value={buyers?.total ?? 0} />
-        <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard
-          label={t("dashboard.totalSales")}
-          value={`₹${(totalSpend / 100000).toFixed(1)}L`}
-        />
-        <StatCard
-          label={t("dashboard.recommendations")}
-          value={totalRecommendations.toLocaleString()}
-        />
+        <StatCard label="Registered buyers" value={buyers?.total ?? 0} />
+        <StatCard label="Total orders" value={totalOrders.toLocaleString()} />
+        <StatCard label="Total sales" value={`₹${(totalSpend / 100000).toFixed(1)}L`} />
+        <StatCard label="Recommendations" value={totalRecommendations.toLocaleString()} />
       </div>
 
       <div className="mb-5">
         <SimpleBarChart
-          title={t("dashboard.orders")}
+          title="Orders"
           data={ordersByType}
           xKey="type"
-          series={[{ key: "orders", label: t("dashboard.orders") }]}
+          series={[{ key: "orders", label: "Orders" }]}
         />
       </div>
 
       <ExportButtons
-        title={t("buyerDashboard.title")}
+        title="Buyer Dashboard"
         columns={[
-          { header: t("dashboard.name"), value: (r: BuyerRollup) => r.name },
-          { header: t("catalogue.title"), value: (r: BuyerRollup) => r.type },
-          { header: t("dashboard.orders"), value: (r: BuyerRollup) => r.orderCount },
-          { header: t("dashboard.totalSales"), value: (r: BuyerRollup) => r.totalSpend },
+          { header: "Name", value: (r: BuyerRollup) => r.name },
+          { header: "Product Catalogue", value: (r: BuyerRollup) => r.type },
+          { header: "Orders", value: (r: BuyerRollup) => r.orderCount },
+          { header: "Total sales", value: (r: BuyerRollup) => r.totalSpend },
           {
-            header: t("dashboard.recommendations"),
+            header: "Recommendations",
             value: (r: BuyerRollup) => `${r.recommendationsAccepted}/${r.recommendationsReceived}`,
           },
         ]}
@@ -135,8 +127,8 @@ export function BuyerDashboardPage() {
         columns={columns}
         rows={items}
         rowKey={(row) => row.id}
-        caption={t("dashboard.recentOrders")}
-        emptyMessage={loading ? t("common.loading") : t("dashboard.noData")}
+        caption="Recent orders"
+        emptyMessage={loading ? "Loading..." : "No data for the selected filters yet."}
       />
       <Pagination
         page={page}

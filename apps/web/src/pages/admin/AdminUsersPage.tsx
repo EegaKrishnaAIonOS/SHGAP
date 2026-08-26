@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -13,7 +12,6 @@ const SEARCH_DEBOUNCE_MS = 400;
 const PAGE_SIZE = 20;
 
 export function AdminUsersPage() {
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -36,7 +34,7 @@ export function AdminUsersPage() {
           setTotal(result.total);
         })
         .catch(() => {
-          if (!cancelled) setError(t("admin.usersLoadError"));
+          if (!cancelled) setError("Couldn't load users. Please try again.");
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -46,7 +44,7 @@ export function AdminUsersPage() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [search, page, t]);
+  }, [search, page]);
 
   async function toggleStatus(user: UserProfile) {
     setPendingId(user.id);
@@ -55,23 +53,23 @@ export function AdminUsersPage() {
       const updated = await updateUserStatus(user.id, nextStatus);
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
     } catch {
-      setError(t("admin.usersUpdateError"));
+      setError("Couldn't update this user. Please try again.");
     } finally {
       setPendingId(null);
     }
   }
 
   const columns: Column<UserProfile>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name ?? "—" },
-    { key: "phone", header: t("admin.phone"), render: (row) => row.phone },
+    { key: "name", header: "Name", render: (row) => row.name ?? "—" },
+    { key: "phone", header: "Phone", render: (row) => row.phone },
     {
       key: "roles",
-      header: t("admin.role"),
+      header: "Role",
       render: (row) => row.userRoles.map((ur) => ur.role.name).join(", ") || "—",
     },
     {
       key: "status",
-      header: t("common.status"),
+      header: "Status",
       render: (row) => (
         <span
           className={
@@ -86,7 +84,7 @@ export function AdminUsersPage() {
     },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <Button
           size="sm"
@@ -94,7 +92,7 @@ export function AdminUsersPage() {
           isLoading={pendingId === row.id}
           onClick={() => void toggleStatus(row)}
         >
-          {row.status === "SUSPENDED" ? t("admin.reactivate") : t("admin.suspend")}
+          {row.status === "SUSPENDED" ? "Reactivate" : "Suspend"}
         </Button>
       ),
     },
@@ -102,18 +100,18 @@ export function AdminUsersPage() {
 
   return (
     <div>
-      <PageHeader title={t("admin.tabUsers")} wireframe={false} />
+      <PageHeader title="Users" wireframe={false} />
 
       <Card>
         <div className="mb-4 max-w-sm">
           <Input
-            label={t("common.search")}
+            label="Search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder={t("admin.usersSearchPlaceholder")}
+            placeholder="Search by name or phone"
           />
         </div>
 
@@ -123,7 +121,7 @@ export function AdminUsersPage() {
           columns={columns}
           rows={users}
           rowKey={(row) => row.id}
-          emptyMessage={loading ? t("common.loading") : t("admin.noUsersFound")}
+          emptyMessage={loading ? "Loading..." : "No users found."}
         />
 
         <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

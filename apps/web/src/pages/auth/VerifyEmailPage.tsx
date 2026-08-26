@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { AuthLayout } from "../../components/AuthLayout";
 import { Button } from "../../components/ui/Button";
@@ -13,7 +12,6 @@ type Status = "verifying" | "success" | "error";
  * mount using the token in the URL (see AuthService.verifyEmail on the
  * backend). No form to fill in; this is a one-click confirmation page. */
 export function VerifyEmailPage() {
-  const { t } = useTranslation();
   const { verifyEmail, resendVerification } = useAuth();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -36,13 +34,15 @@ export function VerifyEmailPage() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setMessage(err instanceof ApiError ? err.message : t("verifyEmail.networkError"));
+        setMessage(
+          err instanceof ApiError ? err.message : "Couldn't reach the server. Please try again.",
+        );
         setStatus("error");
       });
     return () => {
       cancelled = true;
     };
-  }, [token, verifyEmail, t]);
+  }, [token, verifyEmail]);
 
   async function handleResend() {
     if (!resendEmail || resendSubmitting) return;
@@ -52,15 +52,15 @@ export function VerifyEmailPage() {
       const result = await resendVerification(resendEmail);
       setResendMessage(result.message);
     } catch {
-      setResendMessage(t("verifyEmail.networkError"));
+      setResendMessage("Couldn't reach the server. Please try again.");
     } finally {
       setResendSubmitting(false);
     }
   }
 
   return (
-    <AuthLayout title={t("verifyEmail.title")}>
-      {status === "verifying" && <p className="text-neutral-600">{t("verifyEmail.verifying")}</p>}
+    <AuthLayout title="Verify your email">
+      {status === "verifying" && <p className="text-neutral-600">Verifying your email...</p>}
 
       {status === "success" && (
         <>
@@ -69,7 +69,7 @@ export function VerifyEmailPage() {
             to="/login"
             className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-md bg-marketing-600 px-5 font-medium text-white hover:bg-marketing-700"
           >
-            {t("verifyEmail.goToLogin")}
+            Go to login
           </Link>
         </>
       )}
@@ -77,16 +77,18 @@ export function VerifyEmailPage() {
       {status === "error" && (
         <div className="flex flex-col gap-4">
           <p role="alert" className="text-danger-500">
-            {message ?? t("verifyEmail.missingToken")}
+            {message ?? "This verification link is invalid or has expired."}
           </p>
 
           {resendMessage ? (
             <p className="text-neutral-600">{resendMessage}</p>
           ) : (
             <>
-              <p className="text-sm text-neutral-500">{t("verifyEmail.resendHint")}</p>
+              <p className="text-sm text-neutral-500">
+                Enter your email to get a new verification link.
+              </p>
               <Input
-                label={t("verifyEmail.email")}
+                label="Email ID"
                 type="email"
                 value={resendEmail}
                 onChange={(e) => setResendEmail(e.target.value)}
@@ -97,7 +99,7 @@ export function VerifyEmailPage() {
                 fullWidth
                 className="!bg-marketing-600 hover:!bg-marketing-700"
               >
-                {t("verifyEmail.resendSubmit")}
+                Resend verification email
               </Button>
             </>
           )}

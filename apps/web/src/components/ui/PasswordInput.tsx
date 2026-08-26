@@ -1,6 +1,5 @@
 import { forwardRef, useId, useState } from "react";
 import type { InputHTMLAttributes } from "react";
-import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import type { FieldSize } from "./Input";
 
@@ -60,8 +59,13 @@ const STRENGTH_BAR_CLASSES: Record<PasswordStrength, string> = {
   strong: "w-full bg-success-500",
 };
 
+const STRENGTH_LABELS: Record<PasswordStrength, string> = {
+  weak: "Weak",
+  medium: "Medium",
+  strong: "Strong",
+};
+
 export function PasswordStrengthMeter({ password }: { password: string }) {
-  const { t } = useTranslation();
   const { strength } = scorePasswordStrength(password);
 
   if (!password) return null;
@@ -71,9 +75,7 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
         <div className={cn("h-full rounded-full transition-all", STRENGTH_BAR_CLASSES[strength])} />
       </div>
-      <span className="text-xs font-medium text-neutral-500">
-        {t(`password.strength.${strength}`)}
-      </span>
+      <span className="text-xs font-medium text-neutral-500">{STRENGTH_LABELS[strength]}</span>
     </div>
   );
 }
@@ -112,7 +114,6 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     },
     ref,
   ) {
-    const { t } = useTranslation();
     const [visible, setVisible] = useState(false);
     const autoId = useId();
     const inputId = id ?? autoId;
@@ -152,7 +153,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           <button
             type="button"
             onClick={() => setVisible((v) => !v)}
-            aria-label={visible ? t("password.hide") : t("password.show")}
+            aria-label={visible ? "Hide password" : "Show password"}
             aria-pressed={visible}
             className="absolute right-3 text-neutral-400 hover:text-neutral-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1 rounded"
           >

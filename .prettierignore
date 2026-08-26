@@ -6,5 +6,7 @@ coverage
 database/prisma/migrations
 docs/architecture/rendered
 docs/database/rendered
+datum
+package-lock.json
 *.svg
 *.png

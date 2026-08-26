@@ -29,6 +29,14 @@
 
 * {
   box-sizing: border-box;
+  /* Scrollbar hidden everywhere, scroll behavior unaffected — wheel/touch/
+     keyboard scroll and scrollIntoView all keep working. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge Chromium */
 }
 
 /* Several elements on this page set their own `display` (grid/flex) and
@@ -60,6 +68,39 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 20px 48px;
+}
+
+body[data-page="index"] {
+  background: #ffffff;
+}
+
+body[data-page="index"] .page-shell {
+  max-width: 100%;
+  /* Matches .hero-slider's own `margin: 0 6px` inset so every section
+     inside .page-shell (news-events, and anything added later) lines up
+     to the exact same width as the top image slider, instead of the
+     slider being ~14px narrower on each side than the rest of the page. */
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Every dashboard's outer chrome is apps/web's AppShell header — a separate
+   document with no max-width of its own, just `sm:px-4` (16px) on its flex
+   columns (see AppShell.tsx) — sitting above this iframe body. .page-shell's
+   own 1200px cap left each panel's content (the credential table on the
+   supervisory dashboards, the commodity/catalog cards on Retailer/SHG/
+   consumer) sitting in a centered column narrower than that header on any
+   viewport wider than ~1240px. Matching the header's own 16px inset here
+   instead keeps both edges lined up on every dashboard. */
+body[data-page="aionos-dashboard"] .page-shell,
+body[data-page="state-dashboard"] .page-shell,
+body[data-page="district-dashboard"] .page-shell,
+body[data-page="retailer-dashboard"] .page-shell,
+body[data-page="shg-dashboard"] .page-shell,
+body[data-page="consumer-dashboard"] .page-shell {
+  max-width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .topbar {
@@ -105,45 +146,79 @@ h3 {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.04);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-.hero {
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr;
-  gap: 24px;
-  padding: 28px;
-  margin-bottom: 26px;
+.hero-slider {
+  position: relative;
+  width: calc(100% - 12px);
+  margin: 0 6px;
+  aspect-ratio: 16 / 3.5;
+  min-height: 160px;
+  max-height: 360px;
+  overflow: hidden;
+  background: #0b1f1d;
 }
 
-.hero-copy {
-  padding-right: 12px;
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  transition: transform 0.9s ease;
 }
 
-.pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 12px;
-  background: var(--purple-soft);
-  border-radius: 999px;
-  color: var(--primary-dark);
-  font-weight: 700;
+.hero-slide.is-active {
+  transform: translateX(0);
+}
+
+.hero-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-slide-credit {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #d1d5db;
   font-size: 0.78rem;
-  letter-spacing: 0.02em;
+  border-radius: 3px;
+}
+
+.hero-slider-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.hero-slider-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.35);
+  padding: 0;
+  cursor: pointer;
+}
+
+.hero-slider-dot.is-active {
+  background: #ffffff;
 }
 
 .subtext {
   max-width: 640px;
   color: var(--muted);
   font-size: 1.04rem;
-}
-
-.cta-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 24px;
 }
 
 .primary-btn,
@@ -159,22 +234,24 @@ h3 {
 }
 
 .primary-btn {
-  background: var(--primary);
-  color: white;
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-weight: 700;
 }
 
 .primary-btn:hover {
-  background: var(--primary-dark);
+  background: var(--secondary);
+  color: black;
 }
 
 .secondary-btn {
   background: var(--secondary);
   color: var(--primary-dark);
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-weight: 600;
 }
 
@@ -190,40 +267,13 @@ h3 {
   font-weight: 700;
 }
 
-.hero-panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-  padding: 16px 8px 8px;
-}
-
-.mini-card {
-  background: linear-gradient(135deg, #e6f7f5, #eafaf8);
-  border: 1px solid #cdeae6;
-  border-radius: 18px;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.mini-card span,
-.mini-card small {
-  color: var(--muted);
-}
-
-.mini-card strong {
-  font-size: 2rem;
-}
-
 .chart-bars {
   display: flex;
   align-items: end;
   gap: 10px;
   height: 160px;
   padding: 18px 12px 0;
-  border-radius: 18px;
+  border-radius: 8px;
   background: linear-gradient(180deg, #f4faf9, #e9f6f4);
 }
 
@@ -231,7 +281,7 @@ h3 {
   flex: 1;
   display: block;
   background: linear-gradient(180deg, #14b8a6, #0f766e);
-  border-radius: 10px 10px 0 0;
+  border-radius: 3px 3px 0 0;
 }
 
 .stats-grid {
@@ -274,9 +324,98 @@ h3 {
 .section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   margin-bottom: 18px;
+  text-align: center;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 26px;
+}
+
+.news-events {
+  /* No horizontal padding here — .page-shell's own 6px already matches
+     .hero-slider's inset (see body[data-page="index"] .page-shell); adding
+     more on top of that made this section's content (and the table
+     specifically, with its visible header background) narrower than the
+     slider above it. */
+  padding: 26px 0;
+  margin-bottom: 26px;
+}
+
+.news-events-title {
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  margin-bottom: 0;
+}
+
+.news-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.news-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.news-table th,
+.news-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.news-table th {
+  background: var(--secondary);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.news-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.news-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.news-table tbody tr:hover {
+  background: #f4faf9;
+}
+
+.news-table .col-sno {
+  width: 56px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.news-table .col-source,
+.news-table .col-date {
+  text-align: center;
+}
+
+.news-table td {
+  color: var(--text);
+}
+
+.source-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .product-list {
@@ -296,7 +435,7 @@ h3 {
   padding: 14px 12px;
   background: #f4faf9;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 6px;
 }
 
 .product-list strong {
@@ -386,6 +525,14 @@ h3 {
 
 .auth-page {
   background: linear-gradient(180deg, #f2fbfa 0%, #eaf7f5 100%);
+  /* This page now fills the app shell's full-height persistent iframe body
+     (not the old, much shorter popup Modal), so the card is centered in
+     that whole height rather than sitting near the top with blank space
+     below it. */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* Hide the page scrollbar chrome when embedded in the homepage's auth
      popup iframe (the form itself is short enough it rarely needs it) —
      content still scrolls via wheel/touch/keyboard, just without the
@@ -407,15 +554,16 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .auth-shell {
   max-width: 520px;
-  margin: 48px auto;
+  width: 100%;
+  margin: 0 auto;
   padding: 24px 20px 40px;
 }
 
 .auth-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
   padding: 24px;
 }
 
@@ -438,7 +586,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
   margin-bottom: 16px;
   background: #eaf5f3;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 6px;
 }
 
@@ -448,7 +596,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
   background: transparent;
   color: var(--muted);
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 4px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -463,19 +611,68 @@ html:has(body.auth-page)::-webkit-scrollbar {
   gap: 16px;
 }
 
-/* login.html/register.html's top-level form is a direct child of
-   .auth-card - matches its border/padding, since guidance highlights (the
-   chatbot's long-press dictation feature) can box-shadow this form element
-   directly, and without its own matching border/padding it hugs the form
-   content tightly instead of reading as a consistent boxed area. Scoped to
-   the direct-child case deliberately: signup.html reuses .form-grid many
-   times as a plain field-grouping layout nested well inside .auth-card,
-   and giving every one of those its own border/padding would nest boxes
-   inside boxes there. */
-.auth-card > .form-grid {
+/* login.html's per-step form is a direct child of .auth-card > .step-panel -
+   matches its border/padding, since guidance highlights (the chatbot's
+   long-press dictation feature) can box-shadow this form element directly,
+   and without its own matching border/padding it hugs the form content
+   tightly instead of reading as a consistent boxed area. */
+.auth-card > .form-grid,
+.auth-card > .step-panel > .form-grid {
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 8px;
   padding: 24px;
+}
+
+/* Registration step's photo picker - a circular guest-avatar placeholder,
+   centered above the rest of the form, that opens the hidden file input
+   next to it on click and shows the chosen image in its place. */
+.avatar-upload {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  padding: 0;
+  margin: 0 auto;
+  background: white;
+  cursor: pointer;
+}
+
+.avatar-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Each dashboard's [data-panel="profile"] (see interface/console/*.html) —
+   a plain panel switched to the same way Catalog/Items are (not a popup),
+   with this read-only, registration-form-styled card centered within it. */
+.profile-panel-card {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+/* Same circular frame as .avatar-upload above, minus the button/file-input
+   behavior (this panel is read-only). */
+.profile-avatar {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  margin: 0 auto;
+  object-fit: cover;
+}
+
+/* The step-2 continue button only ever shows the arrow SVG (see
+   login.html/script.js) - centering already comes from .primary-btn's own
+   flex rules, this just gives the glyph some breathing room to match the
+   button's usual height. */
+.arrow-btn {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .field {
@@ -494,18 +691,24 @@ html:has(body.auth-page)::-webkit-scrollbar {
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 12px 14px;
   background: white;
   font: inherit;
   color: var(--text);
 }
 
+.field textarea {
+  resize: vertical;
+}
+
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   outline: 2px solid rgba(15, 118, 110, 0.2);
   border-color: var(--primary);
 }
@@ -593,6 +796,31 @@ html:has(body.auth-page)::-webkit-scrollbar {
   margin-top: 2px;
 }
 
+/* Radio groups (login.html's registration-step Operation/Mode pickers) -
+   .checkbox-row's flex-start alignment is meant for a checkbox next to
+   text that might wrap to multiple lines; these are always single-line, so
+   center-aligning the input against the label's full height instead is
+   what actually lines the circle up with the text next to it. */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+  accent-color: var(--primary);
+}
+
 .inline-links {
   display: flex;
   justify-content: space-between;
@@ -617,7 +845,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .status-box {
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--secondary);
   color: var(--primary-dark);
   margin-bottom: 12px;
@@ -675,7 +903,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .summary-box {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   background: #f4faf9;
   padding: 14px;
 }
@@ -705,8 +933,8 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .modal-card {
   background: var(--card);
-  border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
   padding: 32px 28px;
   max-width: 360px;
   width: 100%;
@@ -770,7 +998,6 @@ html:has(body.auth-page)::-webkit-scrollbar {
 }
 
 @media (max-width: 900px) {
-  .hero,
   .panel-grid,
   .stats-grid {
     grid-template-columns: 1fr;
@@ -806,56 +1033,15 @@ html:has(body.auth-page)::-webkit-scrollbar {
   background: var(--bg);
 }
 
-.shg-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-}
-
-.shg-navbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.shg-greeting {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.shg-greeting-word {
-  font-weight: 400;
-  text-transform: lowercase;
-  font-size: 1.2rem;
-  color: var(--primary);
-}
-
-.shg-brand {
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--primary);
-  text-decoration: none;
-  letter-spacing: -0.01em;
-}
-
-.shg-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--secondary);
-  flex-shrink: 0;
-}
-
 .shg-tabs {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
+  /* Hidden, not removed: apps/web's outer AppShell now mirrors these same
+     buttons in its persistent top bar (see DashboardNav.tsx) and drives
+     tab-switching by forwarding clicks to the (still-functional) buttons
+     here — see LandingPage.tsx's handleDashboardTabClick. Keeping them in
+     the DOM, just invisible, means all the actual switching logic (panel
+     toggling, the disabled tab's "Coming Soon" toast) stays in exactly one
+     place instead of being duplicated in the outer shell. */
+  display: none;
 }
 
 .shg-tabs-inner {
@@ -899,50 +1085,728 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .shg-panel {
   display: none;
-  padding-top: 28px;
+  /* No padding-top any more — this used to space panel content below the
+     visible .shg-tabs strip, but that's hidden now (the outer React
+     shell's DashboardNav replaced it — see interface/script.js and
+     apps/web/src/components/DashboardNav.tsx), so it was just adding a
+     redundant gap on top of .page-shell's own top padding. */
 }
 
 .shg-panel.active {
   display: block;
 }
 
+.shg-credential-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 72px 0;
+}
+
+.shg-credential-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: shg-credential-spin 0.8s linear infinite;
+}
+
+@keyframes shg-credential-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Raw column values (info's JSON blob especially) can be far longer than
+   their column is wide. Rather than wrapping onto extra lines — which grows
+   every row to fit whichever cell has the most text — each row stays a
+   fixed, single-line height and an overflowing cell scrolls horizontally
+   within itself. table-layout: fixed keeps columns from stretching to fit
+   that content instead of clipping/scrolling it. */
+.shg-credential-table {
+  table-layout: fixed;
+  /* Without an explicit per-column width, fixed layout just splits the
+     table's own width evenly across however many columns exist — fine for
+     credential's ~6 columns, but commodity/catalog's ~13 columns each got
+     squeezed down to an unreadable sliver. Giving columns a real baseline
+     width instead makes the table itself grow past the wrap's width when
+     there are many of them, so .news-table-wrap's own overflow-x scrolls
+     the whole table instead of every column collapsing to fit. */
+  width: auto;
+  min-width: 100%;
+}
+
+.shg-credential-table th,
+.shg-credential-table td {
+  width: 160px;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+}
+
+.shg-credential-table th:last-child,
+.shg-credential-table td:last-child {
+  border-right: none;
+}
+
+/* Row-hover blur — a scaled-down version of the "Add Product" card's own
+   confirm/cancel overlay (see .add-product-confirm-overlay below): each
+   cell gets a ::after layer that only turns on with a background tint +
+   backdrop-filter on hover, so the row's own text blurs underneath it
+   instead of a separate element that HTML can't legally place as a direct
+   child of <tr>. */
+.shg-credential-table td {
+  position: relative;
+}
+
+.shg-credential-table td::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: background-color 0.25s ease, backdrop-filter 0.25s ease;
+}
+
+.shg-credential-table td.is-cell-active::after {
+  background-color: rgba(14, 116, 144, 0.18);
+  backdrop-filter: blur(4px);
+}
+
+/* One shared floating pair, repositioned over the is_authenticated cell
+   whenever it's hovered (see renderCredentialTable's mouseover handler) —
+   centered on that single cell rather than reserving a permanently-visible
+   actions column. */
+.news-table-wrap {
+  position: relative;
+}
+
+.shg-credential-row-actions {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  gap: 8px;
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 2;
+}
+
+.shg-credential-row-actions.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* The +/- glyphs are drawn with ::before/::after bars instead of text
+   content — a "+"/"−" character's own ink isn't centered in its font's em
+   box the same way across fonts, which is barely visible at the 56px size
+   the "Add Product" card uses it at but obvious at this button's smaller
+   26px. Absolutely-positioned bars centered via top/left 50% + translate
+   sit dead-center regardless of font metrics. */
+.shg-credential-action-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  position: relative;
+  cursor: pointer;
+  /* Never auto outside .is-visible — the container itself always stays
+     pointer-events: none (see above) so its own box/gaps never block
+     hover from reaching the row underneath; only these buttons, and only
+     once actually shown, become real click targets. */
+  pointer-events: none;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.shg-credential-action-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.shg-credential-action-btn.confirm::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 11px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.shg-credential-row-actions.is-visible .shg-credential-action-btn {
+  pointer-events: auto;
+}
+
+.shg-credential-action-btn.confirm {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+.shg-credential-action-btn.confirm:hover {
+  background: var(--success);
+  color: #ffffff;
+  border-color: #15803d;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 0 16px 2px rgba(16, 185, 129, 0.65);
+}
+
+.shg-credential-action-btn.cancel {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.shg-credential-action-btn.cancel:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #991b1b;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.3), 0 0 16px 2px rgba(220, 38, 38, 0.65);
+}
+
+/* Column names are the raw response keys as-is — .news-table th's own
+   uppercase text-transform (fine for its hand-written "Description"/
+   "Source"/"Date" headers) would otherwise still relabel them visually. */
+.shg-credential-table th {
+  text-transform: none;
+}
+
+/* "Add Product" card — a left-side form (name/description, manufacture &
+   expiry/warranty dates, MRP, min-max cart quantity) beside a right-side
+   image-upload dropzone. The dropzone's full-height look is just flex's
+   default align-items: stretch — no explicit height rule needed, it
+   matches whichever side ends up taller. Shown above the catalog grid on
+   the SHG and Retailer dashboards' Catalog panel — see
+   interface/console/*.html and script.js's setupAddProductForm, shared
+   between both pages since neither has a real backend endpoint to create a
+   product against yet (submitting only confirms via a toast). */
+.add-product-card {
+  position: relative;
+  display: flex;
+  margin-bottom: 16px;
+  overflow: hidden;
+  /* Cancels most of .page-shell's own 32px top padding — that spacing
+     makes sense for page content generally, but this card should sit
+     close under the outer nav bar, not have a second, page-level gap
+     stacked underneath it. Left at 16px (not 0) so it isn't flush against
+     the nav bar. */
+  margin-top: -16px;
+  /* Breaks out of .page-shell's max-width:1200px auto-centered column
+     (used by everything else on this page) so this card's own left/right
+     edges land exactly where the outer React shell's persistent nav bar
+     (DashboardNav, a separate document wrapping this iframe — see
+     apps/web/src/components/DashboardNav.tsx) starts and ends its own
+     icons — not full-bleed to the true viewport edge with padding inside;
+     the card's actual border should sit at that inset, not further out.
+     That bar has no max-width of its own, so its icons are always 16px
+     from the real viewport edge, not from page-shell's centered column.
+     The actual width/margin-left are set in JS (see script.js's
+     alignAddProductCardWidth), not with the usual `width:100vw` CSS
+     trick — that trick measures the *layout* viewport, which in browsers
+     with a reserved-space (non-overlay) scrollbar is wider than the
+     visible area, which would throw this off by the scrollbar's width.
+     `clientWidth` in JS always excludes the scrollbar. */
+  box-sizing: border-box;
+}
+
+.add-product-fields {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+/* Tighter than the shared .field rules (login/signup use those too, at
+   their normal size) — this card needs to stay compact despite having
+   nine fields in it. */
+.add-product-fields .field {
+  gap: 4px;
+}
+
+.add-product-fields .field label {
+  font-size: 0.82rem;
+}
+
+.add-product-fields .field input,
+.add-product-fields .field textarea {
+  padding: 8px 10px;
+}
+
+/* Hides the native up/down spinner on number inputs (MRP, units, min/max
+   qty) — Chrome/Safari/Edge via the pseudo-elements, Firefox via
+   `appearance: textfield`. */
+.add-product-fields .field input[type="number"]::-webkit-inner-spin-button,
+.add-product-fields .field input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.add-product-fields .field input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Four side-by-side columns (name/category, mfg/exp dates, mrp/units,
+   min/max qty), each stacking its own two fields — collapses to two
+   columns then one as the card itself switches to a stacked layout below
+   (see the max-width: 640px block further down). */
+.add-product-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.add-product-col {
+  display: grid;
+  gap: 10px;
+}
+
+.add-product-upload {
+  flex-shrink: 0;
+  /* A fixed square (not stretched to match the fields grid's height) so a
+     cover-cropped photo always fills a 1:1 box — otherwise this zone's
+     height came from the taller fields column next to it, and cropping a
+     square-ish photo into that landscape shape zoomed in far more than
+     expected. align-self overrides the flex row's default stretch, which
+     would otherwise win over aspect-ratio here. */
+  width: 220px;
+  aspect-ratio: 1 / 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px;
+  border-left: 1px solid var(--border);
+  /* Deliberately not var(--bg) — that's the exact same color as the page
+     behind the card, so this zone blended into the page instead of
+     reading as part of it (looked like a gap next to the card, not a
+     zone inside it). */
+  background-color: var(--secondary);
+  background-size: cover;
+  background-position: center;
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+}
+
+.add-product-upload:hover {
+  background-color: var(--border);
+  color: var(--primary-dark);
+}
+
+/* White badge + black icon placeholder (Commodity on the Retailer
+   dashboard, Catalog on SHG's — see the icon markup in each
+   interface/console/*.html) shown until an image is actually picked. Fills
+   the entire upload zone (not just a centered circle within it) so there's
+   no light-teal margin visible around it — there's no caption text either. */
+.add-product-upload-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+.add-product-upload-icon {
+  width: 80%;
+  height: 80%;
+}
+
+.add-product-upload.has-image .add-product-upload-badge {
+  display: none;
+}
+
+/* Confirm (✕/+) / cancel (−) overlay, two different reveal triggers for
+   the two cards that share this same markup (see script.js):
+   - .add-product-card (the empty form up top) reveals it automatically,
+     not on hover, once every required field (name/category/dates/mrp/
+     units/qty/description — the image is optional, see buildFilledCard) is
+     actually filled in: updateValidityState toggles `.is-valid` on the
+     card as the form's real validity changes, then scheduleReveal() adds
+     `.is-blurred` a moment later and `.show-icons` after that, once the
+     blur has had time to fade in — see the two-stage transition below.
+   - .filled-product-card (an already-added/persisted product) instead
+     reveals purely on :hover, light-gray rather than teal-tinted to match
+     the commodity/catalog browsing cards' own hover stepper — see the
+     :hover rule further below.
+   Either way it sits over the whole card, not just the image side, since
+   +/- represent committing/discarding (or here, update/delete-ing) the
+   whole product, not just the photo. */
+.add-product-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  pointer-events: none;
+  transition: background-color 0.25s ease, backdrop-filter 0.25s ease;
+  z-index: 5;
+}
+
+.add-product-confirm-overlay.is-blurred {
+  background-color: rgba(14, 116, 144, 0.18);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.add-product-confirm-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  /* Fade/scale in only once .show-icons lands (after the blur above has
+     had time to finish) — not visible merely from .is-blurred alone. */
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.add-product-confirm-btn.confirm {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+.add-product-confirm-btn.confirm:hover {
+  background: var(--success);
+  color: #ffffff;
+  border-color: #15803d;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 0 16px 2px rgba(16, 185, 129, 0.65);
+}
+
+.add-product-confirm-btn.confirm.is-clicked {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.add-product-confirm-btn.cancel {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.add-product-confirm-btn.cancel:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #991b1b;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.3), 0 0 16px 2px rgba(220, 38, 38, 0.65);
+}
+
+.add-product-confirm-btn.cancel.is-clicked {
+  background: #991b1b;
+  color: #ffffff;
+}
+
+.add-product-confirm-overlay.show-icons .add-product-confirm-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* The .filled-product-card hover trigger (see the comment on
+   .add-product-confirm-overlay above) — same light-gray blur as
+   .commodity-cart-overlay further down, just over the whole card instead
+   of only the photo, and showing the update/delete pair instead of a
+   quantity stepper. Independent of the .is-blurred/.show-icons classes
+   above (those are add-product-card's own JS-driven timing, never applied
+   here), so this alone drives visibility. */
+.filled-product-card:hover .add-product-confirm-overlay {
+  background-color: rgba(209, 213, 219, 0.55);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.filled-product-card:hover .add-product-confirm-overlay .add-product-confirm-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Separates the "Add Product" card from the catalog grid below it —
+   clicking + prepends the just-added product right under this line (see
+   script.js's addProduct). */
+.add-product-divider {
+  border: none;
+  border-top: 2px solid var(--primary);
+  margin: 20px 0;
+}
+
+@media (max-width: 640px) {
+  .add-product-card {
+    flex-direction: column;
+  }
+
+  .add-product-columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .add-product-upload {
+    width: 100%;
+    /* Un-forces the desktop rule's 1:1 square — at full card width that
+       would make this zone as tall as it is wide, which is too tall on a
+       narrow phone screen. */
+    aspect-ratio: auto;
+    align-self: stretch;
+    min-height: 140px;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 420px) {
+  .add-product-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Read-only "filled" version of the add-product-card layout above — same
+   left-side label/value grid plus right-side circular photo, but showing a
+   just-added product's actual values instead of empty inputs. Built by
+   script.js's buildShowcaseCard once the "+" confirm button commits the
+   add-product form, so the resulting card still reads as "this form, now
+   filled in" rather than jumping to the original stacked .shg-product-card
+   look used for the rest of the catalog grid. */
+.filled-product-card {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  /* #catalogGrid is a CSS grid of narrow (min 260px) product tiles — this
+     card's four-column field grid needs the full row width instead of
+     being squeezed into one tile's column. */
+  grid-column: 1 / -1;
+}
+
+.filled-product-fields {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.filled-product-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.filled-product-col {
+  display: grid;
+  gap: 10px;
+}
+
+.filled-field {
+  display: grid;
+  gap: 4px;
+}
+
+.filled-field span:first-child {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.filled-field span:last-child,
+.filled-field input {
+  /* Same box look as .add-product-fields' own inputs above (border/
+     radius/padding/background) — a static value and a still-editable one
+     (see buildFilledCard in script.js — mfg/exp date, MRP, units, and
+     min/max qty stay live inputs after the product's added) sit in the
+     same shape either way. */
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: white;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.filled-field input:focus {
+  outline: 2px solid rgba(15, 118, 110, 0.2);
+  border-color: var(--primary);
+}
+
+.filled-field input[type="number"]::-webkit-inner-spin-button,
+.filled-field input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filled-field input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.filled-product-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-left: 1px solid var(--border);
+  background-color: var(--secondary);
+}
+
+.filled-product-photo img {
+  width: 70%;
+  max-width: 160px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* is_authenticated: 0 — set by func__insert_commodity/_catalog on every new
+   row (inference/tools/database.py) and cleared once a supervisory
+   dashboard approves it (see renderApprovableTable's own +/- further down).
+   Blurs the photo (real upload or the default badge icon alike) as a
+   pending-approval cue, on both a just-added card and one loaded back from
+   the database. */
+.filled-product-photo.is-pending img,
+.filled-product-photo.is-pending .add-product-upload-badge {
+  filter: blur(4px);
+}
+
+@media (max-width: 640px) {
+  .filled-product-card {
+    flex-direction: column;
+  }
+
+  .filled-product-columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filled-product-photo {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 420px) {
+  .filled-product-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hover order-quantity stepper for the SHG/consumer dashboards' read-only
+   commodity/catalog cards (see buildSupplyRowCard in script.js) — a
+   buy-side "how many am I ordering" control, not a commit/discard action,
+   so it blurs just the card's photo (not the whole field grid, unlike the
+   retailer's own commit/discard overlay above) behind a light-gray
+   backdrop and centers the -/qty/+ pill on top of it. Hidden until the
+   card is hovered, clamped to that row's min/max qty by script.js. */
+.commodity-cart-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(209, 213, 219, 0.55);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 6;
+}
+
+.filled-product-card.commodity-card:hover .commodity-cart-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.commodity-cart-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.commodity-cart-btn {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.commodity-cart-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.commodity-cart-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.commodity-cart-qty {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  /* Touch devices have no hover state to reveal the overlay above, so it's
+     shown flat and unblurred here instead of being unreachable — matches
+     the card's own stacked layout below 640px (see .filled-product-card). */
+  .commodity-cart-overlay {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    background: none;
+    backdrop-filter: none;
+    padding-top: 12px;
+  }
+}
+
 .shg-catalog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
-}
-
-.catalog-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.catalog-search-input {
-  flex: 1;
-  min-width: 220px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font: inherit;
-  background: white;
-  color: var(--text);
-}
-
-.catalog-search-input:focus {
-  outline: 2px solid rgba(14, 116, 144, 0.2);
-  border-color: var(--accent);
-}
-
-.catalog-filter-select {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font: inherit;
-  background: white;
-  color: var(--text);
 }
 
 .shg-product-card {
@@ -956,7 +1820,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: 14px;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--secondary);
 }
@@ -1018,13 +1882,6 @@ html:has(body.auth-page)::-webkit-scrollbar {
   text-transform: uppercase;
 }
 
-.shg-product-shg {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-  margin-top: -6px;
-}
-
 .shg-product-desc {
   color: var(--muted);
   font-size: 0.85rem;
@@ -1070,7 +1927,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
   justify-content: space-between;
   gap: 8px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 12px 14px;
   background: white;
   font: inherit;
@@ -1112,8 +1969,8 @@ html:has(body.auth-page)::-webkit-scrollbar {
   overflow-y: auto;
   background: white;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
   padding: 6px;
 }
 
@@ -1194,7 +2051,7 @@ html:has(body.auth-page)::-webkit-scrollbar {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   background: linear-gradient(135deg, #0a3d38 0%, var(--primary) 100%);
   display: flex;
@@ -1275,6 +2132,32 @@ html:has(body.auth-page)::-webkit-scrollbar {
   z-index: 50;
 }
 
+.login-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #b91c1c;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+  z-index: 50;
+}
+
+/* Pending-authentication notice (is_authenticated: 0) — informational, not
+   an error, so it gets a neutral gray instead of the default red. */
+.login-toast--neutral {
+  background: #4b5563;
+}
+
+/* is_authenticated: -1 — a distinct state from the pending (0) one above. */
+.login-toast--dark {
+  background: #000000;
+}
+
 @media (max-width: 800px) {
   .shg-insight-block {
     grid-template-columns: 1fr;
@@ -1289,38 +2172,5 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 .rt-page {
   background: var(--bg);
-}
-
-.rt-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-}
-
-.rt-navbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.rt-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--secondary);
-  flex-shrink: 0;
-}
-
-@media (max-width: 640px) {
-  .rt-navbar-inner {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
 }
 

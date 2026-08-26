@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import { PipecatClient } from "@pipecat-ai/client-js";
 import { SmallWebRTCTransport } from "@pipecat-ai/small-webrtc-transport";
 import {
@@ -61,7 +60,6 @@ export function VoiceAssistantPage() {
 }
 
 function VoiceAssistantContent() {
-  const { t, i18n } = useTranslation();
   const client = usePipecatClient();
   const transportState = usePipecatClientTransportState();
   const { enableMic, isMicEnabled } = usePipecatClientMicControl();
@@ -69,9 +67,7 @@ function VoiceAssistantContent() {
   const mediaState = useMediaState();
 
   const sessionId = useMemo(() => getOrCreateVoiceSessionId(), []);
-  const [language, setLanguage] = useState<VoiceLanguage>(
-    i18n.resolvedLanguage === "te" ? "te" : "en",
-  );
+  const [language, setLanguage] = useState<VoiceLanguage>("en");
   const [lowBandwidth, setLowBandwidth] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
@@ -96,9 +92,11 @@ function VoiceAssistantContent() {
         },
       });
     } catch (err) {
-      setPageError(err instanceof Error ? err.message : t("voice.connectFailed"));
+      setPageError(
+        err instanceof Error ? err.message : "Couldn't start the call. Please try again.",
+      );
     }
-  }, [client, sessionId, language, t]);
+  }, [client, sessionId, language]);
 
   const handleDisconnect = useCallback(() => {
     void client?.disconnect();
@@ -135,17 +133,22 @@ function VoiceAssistantContent() {
       });
       setLastToolResults(response.tool_results);
     } catch (err) {
-      setPageError(err instanceof Error ? err.message : t("voice.textSendFailed"));
+      setPageError(
+        err instanceof Error ? err.message : "Couldn't send your message. Please try again.",
+      );
     } finally {
       setSending(false);
     }
-  }, [textInput, sending, language, sessionId, injectMessage, t]);
+  }, [textInput, sending, language, sessionId, injectMessage]);
 
-  const micErrorMessage = mediaState.mic.state === "error" ? t("voice.micUnavailable") : null;
+  const micErrorMessage =
+    mediaState.mic.state === "error"
+      ? "Couldn't access your microphone. Check your browser's microphone permission and try again."
+      : null;
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="mb-1 text-xl font-semibold text-neutral-900">{t("voice.title")}</h1>
+      <h1 className="mb-1 text-xl font-semibold text-neutral-900">Voice Assistant</h1>
 
       <div className="mb-4 flex w-full flex-wrap items-center justify-center gap-2">
         <LanguageToggle
@@ -164,13 +167,13 @@ function VoiceAssistantContent() {
               : "border-neutral-200 bg-white text-neutral-600",
           )}
         >
-          {lowBandwidth ? t("voice.lowBandwidthOn") : t("voice.lowBandwidthOff")}
+          {lowBandwidth ? "Low-data mode: on" : "Low-data mode: off"}
         </button>
       </div>
 
       {lowBandwidth && (
         <p className="mb-4 max-w-md text-center text-sm text-neutral-500">
-          {t("voice.lowBandwidthHint")}
+          Voice calls are turned off to save data. Type your question below instead.
         </p>
       )}
 
@@ -183,7 +186,7 @@ function VoiceAssistantContent() {
               isLoading={isConnecting}
               disabled={isConnecting}
             >
-              {t("voice.startCall")}
+              Start voice call
             </Button>
           ) : (
             <>
@@ -198,11 +201,11 @@ function VoiceAssistantContent() {
               >
                 <span aria-hidden="true">🎙️</span>
                 <span className="sr-only">
-                  {isMicEnabled ? t("voice.micOn") : t("voice.micOff")}
+                  {isMicEnabled ? "Microphone on — tap to mute" : "Microphone off — tap to unmute"}
                 </span>
               </button>
               <p className="mt-3 text-lg font-medium text-neutral-700" aria-live="polite">
-                {isMicEnabled ? t("voice.listening") : t("voice.micOff")}
+                {isMicEnabled ? "Listening..." : "Microphone off — tap to unmute"}
               </p>
 
               <div className="mt-4 flex items-center justify-center gap-8">
@@ -225,7 +228,7 @@ function VoiceAssistantContent() {
               </div>
 
               <Button variant="outline" className="mt-4" onClick={handleDisconnect}>
-                {t("voice.endCall")}
+                End call
               </Button>
             </>
           )}
@@ -246,17 +249,17 @@ function VoiceAssistantContent() {
       <div
         className={cn(
           "mt-6 w-full flex-1 overflow-y-auto rounded-md border border-neutral-200 bg-white p-3",
-          // The call's own language toggle (above) is independent of the
-          // app's overall UI language (html[lang], see useHtmlLangSync) - so
-          // the transcript needs its own Telugu font switch here rather than
-          // relying on the global html[lang="te"] rule, which only follows
-          // the app's UI language and would miss a Telugu call started
-          // while the UI itself is in English.
+          // The call's own language toggle (above) selects the spoken
+          // language for this voice call only — independent of whatever
+          // script the rest of the UI is in — so the transcript switches to
+          // the Telugu font stack directly off that state.
           language === "te" && "font-telugu",
         )}
       >
         {messages.length === 0 ? (
-          <p className="text-center text-sm text-neutral-400">{t("voice.transcriptEmpty")}</p>
+          <p className="text-center text-sm text-neutral-400">
+            Your conversation will appear here.
+          </p>
         ) : (
           <ul className="flex flex-col gap-2">
             {messages.map((message, i) => {
@@ -294,7 +297,7 @@ function VoiceAssistantContent() {
 
       <div className="mt-3 flex w-full items-center gap-2">
         <label className="sr-only" htmlFor="voice-text-input">
-          {t("voice.textInputLabel")}
+          Type a message
         </label>
         <input
           id="voice-text-input"
@@ -304,7 +307,7 @@ function VoiceAssistantContent() {
           onKeyDown={(e) => {
             if (e.key === "Enter") void handleSendText();
           }}
-          placeholder={t("voice.textInputPlaceholder")}
+          placeholder="Type your question..."
           className="min-h-touch flex-1 rounded-md border border-neutral-300 bg-white px-4 text-base text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         />
         <Button
@@ -312,12 +315,15 @@ function VoiceAssistantContent() {
           isLoading={sending}
           disabled={!textInput.trim() || sending}
         >
-          {t("voice.send")}
+          Send
         </Button>
       </div>
 
       <div className="mt-6 w-full">
-        <Card className="text-sm text-neutral-500">{t("voice.quickCommandsHint")}</Card>
+        <Card className="text-sm text-neutral-500">
+          Try: "What is the price of turmeric powder?", "Add my new product", or "What loans are
+          available for my SHG?"
+        </Card>
       </div>
     </div>
   );
@@ -332,7 +338,6 @@ function LanguageToggle({
   onChange: (language: VoiceLanguage) => void;
   disabled: boolean;
 }) {
-  const { t } = useTranslation();
   return (
     <div className="inline-flex rounded-md border border-neutral-200 bg-white p-0.5">
       {(["te", "en"] as const).map((lang) => (
@@ -347,7 +352,7 @@ function LanguageToggle({
             language === lang ? "bg-brand-400 text-white" : "text-neutral-600",
           )}
         >
-          {lang === "te" ? t("common.telugu") : t("common.english")}
+          {lang === "te" ? "Telugu" : "English"}
         </button>
       ))}
     </div>

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "./Button";
 
 export interface PaginationProps {
@@ -10,15 +9,11 @@ export interface PaginationProps {
 
 /** Prev/next pager for admin data tables (T09) — the pilot's scale doesn't call for jump-to-page or page-size controls. */
 export function Pagination({ page, totalPages, total, onPageChange }: PaginationProps) {
-  const { t } = useTranslation();
-
   if (totalPages <= 1) return null;
 
   return (
     <div className="flex items-center justify-between gap-3 pt-3">
-      <p className="text-sm text-neutral-500">
-        {t("common.paginationSummary", { page, totalPages, total })}
-      </p>
+      <p className="text-sm text-neutral-500">{`Page ${page} of ${totalPages} (${total} total)`}</p>
       <div className="flex gap-2">
         <Button
           type="button"
@@ -27,7 +22,7 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
-          {t("common.previous")}
+          Previous
         </Button>
         <Button
           type="button"
@@ -36,7 +31,7 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
-          {t("common.next")}
+          Next
         </Button>
       </div>
     </div>

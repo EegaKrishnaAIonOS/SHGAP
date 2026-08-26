@@ -23,9 +23,9 @@ const apiProxy = {
     rewrite: (path: string) => path.replace(/^\/voice-api/, ""),
   },
   // inference/ (the Lakshmi guidance agent, run via the "inference" workspace's
-  // `dev` script on port 8090) - same same-origin-proxy reasoning as above.
+  // `dev` script on port 8008) - same same-origin-proxy reasoning as above.
   "/guidance-api": {
-    target: "http://127.0.0.1:8090",
+    target: "http://127.0.0.1:8008",
     changeOrigin: true,
     rewrite: (path: string) => path.replace(/^\/guidance-api/, ""),
   },

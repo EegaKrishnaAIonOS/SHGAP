@@ -10,33 +10,110 @@
   <body class="auth-page">
     <div class="auth-shell">
       <div class="auth-card">
-        <div class="inline-links" style="margin-bottom: 12px;">
-          <span>Test login:</span>
-          <a href="#" id="fillRetailer">Retailer</a>
-          <a href="#" id="fillShg">SHG</a>
-          <a href="#" id="fillConsumer">Consumer</a>
+        <div class="step-panel active" data-step="1">
+          <form id="passwordForm" class="form-grid">
+            <div class="field">
+              <label for="emailInput">Email</label>
+              <input id="emailInput" type="text" placeholder="abc.xyz@example.com" />
+            </div>
+            <div class="field">
+              <label for="passwordInput">Passkey</label>
+              <input id="passwordInput" type="text" placeholder="********" />
+            </div>
+            <button class="primary-btn" type="submit" style="width: 100%; margin-top: 18px;">login</button>
+          </form>
         </div>
-        <form id="passwordForm" class="form-grid">
-          <div class="field">
-            <label for="emailInput">Email</label>
-            <input id="emailInput" type="email" placeholder="you@example.com" />
-          </div>
-          <div class="field">
-            <label for="passwordInput">Password</label>
-            <input id="passwordInput" type="password" placeholder="Enter your password" />
-          </div>
-          <div class="inline-links">
-            <label class="checkbox-row"><input id="rememberMeInput" type="checkbox" /> Remember me</label>
-            <a href="#">Forgot password?</a>
-          </div>
-          <button class="primary-btn" type="submit" style="width: 100%; margin-top: 18px;">Login</button>
-        </form>
 
-        <div class="auth-footer">
-          New here? <a class="auth-link" href="signup.html">Create account</a>
+        <div class="step-panel" data-step="2">
+          <form id="registrationForm" class="form-grid" novalidate>
+            <div class="field">
+              <button type="button" id="avatarUploadBtn" class="avatar-upload" aria-label="Upload photo">
+                <img id="avatarPreview" src="/guest-avatar.svg" alt="" />
+              </button>
+              <input type="file" id="avatarUploadInput" accept="image/*" hidden />
+            </div>
+
+            <div class="field">
+              <label>Registration Operation</label>
+              <div class="radio-group">
+                <label class="radio-option"
+                  ><input type="radio" name="registrationOperation" value="RETAILER" required /> Retailer</label
+                >
+                <label class="radio-option"
+                  ><input type="radio" name="registrationOperation" value="SHG" required /> SHG</label
+                >
+                <label class="radio-option"
+                  ><input type="radio" name="registrationOperation" value="CONSUMER" required /> Consumer</label
+                >
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Operation Mode</label>
+              <div class="radio-group">
+                <label class="radio-option"
+                  ><input type="radio" name="operationMode" value="INDIVIDUAL" required /> Individual</label
+                >
+                <label class="radio-option"
+                  ><input type="radio" name="operationMode" value="COMMUNITY" required /> Community</label
+                >
+              </div>
+            </div>
+
+            <div class="field" id="individualFields">
+              <label for="memberName">Name of the Member</label>
+              <input id="memberName" type="text" placeholder="member-name" required />
+            </div>
+
+            <div class="form-grid" id="communityFields" hidden>
+              <div class="field">
+                <label for="entityName">Name of the Entity</label>
+                <input id="entityName" type="text" placeholder="community" />
+              </div>
+              <div class="field">
+                <label for="memberNames">Name(s) of the Members</label>
+                <input id="memberNames" type="text" placeholder="member-name-1, ..., member-name-n" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="contactNumber">Contact Number</label>
+              <input id="contactNumber" type="text" placeholder="contact number" required />
+            </div>
+
+            <div class="field">
+              <label for="addressInput">Address</label>
+              <input id="addressInput" type="text" placeholder="address" required />
+            </div>
+
+            <div class="field">
+              <label for="pinCodeInput">Pin Code</label>
+              <input id="pinCodeInput" type="text" placeholder="pin code" required />
+            </div>
+
+            <div class="field">
+              <label for="nationalityInput">Nationality</label>
+              <input id="nationalityInput" type="text" placeholder="nationality" required />
+            </div>
+
+            <button
+              class="primary-btn arrow-btn"
+              type="submit"
+              aria-label="Submit"
+              style="width: 100%; margin-top: 18px;"
+            >
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor"
+                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="12" x2="20" y2="12"></line>
+                <polyline points="13 5 20 12 13 19"></polyline>
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
+
+    <div id="loginToast" class="login-toast" hidden></div>
 
     <script>
       document.body.dataset.page = 'login';

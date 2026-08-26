@@ -1,103 +1,81 @@
 const page = document.body.dataset.page;
 
+// Same storage key/shape as apps/web's src/lib/auth/tokenStore.ts. Writing
+// here on login (see `page === "login"` below) is what lets the outer React
+// shell's AppShell header — a separate document wrapping this iframe, which
+// now owns showing "hello, <name>" for every dashboard — notice the login:
+// that module listens for the `storage` event, which fires on the parent
+// window whenever this same-origin iframe writes to localStorage/sessionStorage.
+const AUTH_STORAGE_KEY = "shgap.auth.v1";
+
+function persistAuthTokens(tokens, persist) {
+  try {
+    const serialized = JSON.stringify({ ...tokens, obtainedAt: Date.now() });
+    if (persist === "local") {
+      localStorage.setItem(AUTH_STORAGE_KEY, serialized);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(AUTH_STORAGE_KEY, serialized);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+  } catch {
+    // Storage unavailable (private browsing, quota) — the outer shell just
+    // won't learn about this login; the dashboard itself still works.
+  }
+}
+
+// Same storage key/shape as apps/web's src/lib/auth/guidanceSessionStore.ts.
+// Written by the login page below on a successful guidance-api credential
+// login, read back here (and by console/profile.html) so the dashboard's
+// profile page can show it without another network round trip. Shared at
+// top level (not scoped inside `page === "login"`) since more than one page
+// needs it.
+const GUIDANCE_SESSION_STORAGE_KEY = "shgap.guidanceSession.v1";
+
+// Shared at top level (not scoped inside one `if (page === ...)` block)
+// since every dashboard page, plus setupAddProductForm below, hits this
+// same guidance-api proxy path (see apps/web/vite.config.ts's apiProxy).
+const GUIDANCE_API_BASE = "/guidance-api";
+
+// Bare filenames only (both login.html at interface/'s root and
+// console/profile.html need this map, from two different relative depths —
+// see each caller for how it prefixes/doesn't prefix "console/").
+const ROLE_DASHBOARD_FILENAMES = {
+  SHG: "dashboard-shg.html",
+  RETAILER: "dashboard-retailer.html",
+  CONSUMER: "dashboard-consumer.html",
+  DISTRICT: "dashboard-district.html",
+  STATE: "dashboard-state.html",
+  AIONOS: "dashboard-aionos.html",
+};
+
+function persistGuidanceSession(email, passkey, info) {
+  try {
+    localStorage.setItem(GUIDANCE_SESSION_STORAGE_KEY, JSON.stringify({ email, passkey, info }));
+  } catch {
+    // Storage unavailable (private browsing, quota) — the outer shell just
+    // won't learn about this login; the dashboard itself still works.
+  }
+}
+
+function readGuidanceSession() {
+  try {
+    const raw = localStorage.getItem(GUIDANCE_SESSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
-// Shared product-catalog rendering (shg-dashboard + consumer-dashboard) —
-// both pages render the same real AP SHG catalog, fetched at runtime from
-// data/products.json (generated from datum/product_catalog/ap_shg_product_details.xlsx
-// via interface/data/build-products.mjs; re-run that script if the xlsx changes).
+// Shared product-catalog rendering (shg-dashboard + consumer-dashboard,
+// retailer-dashboard's raw-materials view) — the static demo catalog this
+// used to load from (data/products.json) has been removed. Not yet wired
+// to a real backend endpoint; that's a follow-up step.
 // ---------------------------------------------------------------------------
 
 async function loadProductCatalog() {
-  const response = await fetch("data/products.json");
-  if (!response.ok) throw new Error(`Failed to load product catalog (${response.status})`);
-  return response.json();
-}
-
-function hashString(text) {
-  let hash = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
-// Picks a stable item from `pool` for a given `seed` string — the same
-// seed always maps to the same pool entry, so names stay consistent across
-// re-renders/reloads instead of re-randomizing every time.
-function pickStable(pool, seed) {
-  return pool[hashString(seed) % pool.length];
-}
-
-// The catalog's "Images (JSON)" column links to retailer listing pages, not
-// direct image files, so real product photos are effectively never
-// available — every card falls back to a generated color swatch keyed by
-// category (stable across renders, distinct enough between categories).
-const CATEGORY_PALETTE = [
-  "#c2703d",
-  "#8a6642",
-  "#7c8a4a",
-  "#b5651d",
-  "#5f7a61",
-  "#a8763e",
-  "#3d6b91",
-  "#7a4a8a",
-  "#4a8a7c",
-  "#8a4a4a",
-  "#4a5f8a",
-  "#8a7c4a",
-];
-
-function colorForCategory(category) {
-  return CATEGORY_PALETTE[hashString(category) % CATEGORY_PALETTE.length];
-}
-
-// Neither retailer nor SHG identities exist in the xlsx catalog — these are
-// synthetic, stably assigned per material/product (via pickStable) so the
-// same material always shows the same retailer and the same product always
-// shows the same SHG, rather than reshuffling on every render.
-const RETAILER_NAMES = [
-  "Sri Lakshmi Traders",
-  "Kishan Traders",
-  "Ganesh Wholesale Suppliers",
-  "Annapurna Trading Co.",
-  "Balaji Enterprises",
-  "Sri Rama Suppliers",
-  "Vijaya Distributors",
-  "Mahalakshmi Traders",
-  "Sai Raw Materials Depot",
-  "Konaseema Agro Suppliers",
-];
-
-const SHG_NAMES = [
-  "Jyothi Self Help Group",
-  "Sri Durga SHG",
-  "Lakshmi Mahila Sangham",
-  "Indira Kranthi Patham SHG",
-  "Sneha Mahila Sangham",
-  "Vasavi Self Help Group",
-  "Bhavani SHG",
-  "Sai Mahila Sangham",
-  "Tirumala Women’s SHG",
-  "Godavari Self Help Group",
-];
-
-function retailerNameFor(material) {
-  return pickStable(RETAILER_NAMES, material);
-}
-
-function shgNameFor(productId) {
-  return pickStable(SHG_NAMES, productId);
-}
-
-// Raw material costs in the xlsx are ranges ("approx. ₹40-80/kg") — this
-// collapses that to a single average price ("₹60/kg") for display. Falls
-// back to the original text if it doesn't match the expected range format.
-function averageCost(costText) {
-  const match = /₹\s*([\d.]+)\s*-\s*([\d.]+)\s*\/\s*([a-zA-Z]+)/.exec(costText);
-  if (!match) return costText;
-  const [, low, high, unit] = match;
-  const avg = Math.round((parseFloat(low) + parseFloat(high)) / 2);
-  return `₹${avg}/${unit}`;
+  throw new Error("Product catalog is not yet connected to a backend.");
 }
 
 function escapeXml(text) {
@@ -108,306 +86,166 @@ function escapeXml(text) {
     .replace(/"/g, "&quot;");
 }
 
-function wrapLabel(label) {
-  if (label.length <= 16) return [label];
-  const words = label.split(" ");
-  let line1 = "";
-  let line2 = "";
-  words.forEach((word) => {
-    if (!line2 && (line1 + " " + word).trim().length <= 16) {
-      line1 = (line1 + " " + word).trim();
-    } else {
-      line2 = (line2 + " " + word).trim();
-    }
-  });
-  return line2 ? [line1, line2] : [line1];
+// Most recently touched commodity/catalog row first — every select route
+// (inference/route.py) returns rows in whatever order the database gives
+// them, not sorted, so every place that lists them (a member's own
+// listing, a supervisory dashboard's approve/reject table) sorts by this
+// same "modified" column itself. Mutates and returns `rows` in place, same
+// as Array.prototype.sort, so callers can use it inline.
+function sortByModifiedDesc(rows) {
+  return rows.sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime());
 }
 
-function svgPlaceholder(label, bgColor) {
-  const lines = wrapLabel(label);
-  const text = lines
-    .map((line, index) => {
-      const y = lines.length === 1 ? 50 : 42 + index * 16;
-      return `<text x="50%" y="${y}%" dominant-baseline="middle" text-anchor="middle" fill="rgba(255,255,255,0.94)" font-family="Inter, Segoe UI, sans-serif" font-size="19" font-weight="700">${escapeXml(line)}</text>`;
-    })
-    .join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="${bgColor}"/>${text}</svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-}
+// The retailer's own commodity icon (an ingot silhouette) — mirrors
+// CommodityIcon.tsx in apps/web and the placeholder shown in the
+// add-product upload zone on dashboard-retailer.html.
+const COMMODITY_PLACEHOLDER_ICON_PATH = "M7 5H13L16 8V15H4V8Z";
 
-function productMainImage(product) {
-  if (product.images.length > 0) return product.images[0];
-  return svgPlaceholder(product.name, colorForCategory(product.category));
-}
+// The SHG's own catalog icon (a coin, its inner ring a fillRule="evenodd"
+// cutout) — mirrors CatalogIcon.tsx in apps/web and the placeholder shown
+// in the add-product upload zone on dashboard-shg.html.
+const CATALOG_PLACEHOLDER_ICON_PATH =
+  "M10 17a7 7 0 1 0 0-14a7 7 0 1 0 0 14ZM10 13.5a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7Z";
 
-// onerror is a defensive fallback for the rare case a real image URL 404s —
-// harmless for the generated data URIs above, which can never fail to load.
-function imgWithFallback(src, alt, className, fallbackClassName, fallbackLabel) {
-  return `
-    <img
-      src="${src}"
-      alt="${alt}"
-      class="${className}"
-      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-    />
-    <div class="${fallbackClassName}" style="display: none;">${fallbackLabel}</div>
-  `;
-}
+// Read-only "commodity/catalog" row card — same detailed field-grid layout
+// buildFilledCard's own add-product form uses (name/category, mfg/exp date,
+// MRP, units, min/max qty, description, photo), plus a hover quantity
+// stepper clamped to that row's min/max qty and defaulting to its min. The
+// commodity and catalog tables share this exact row shape (see
+// inference/tools/database.py), so this one card template covers both
+// sides of the supply chain a member only browses rather than owns: the
+// SHG dashboard's Items tab (browsing a retailer's commodity rows) and the
+// consumer dashboard's Catalog tab (browsing an SHG's catalog rows) — a
+// listing looks the same whichever side it's viewed from, just with the
+// matching placeholder icon for whichever table it's reading from.
+function buildSupplyRowCard(row, { iconPath = COMMODITY_PLACEHOLDER_ICON_PATH } = {}) {
+  const minQty = Math.max(1, Number(row.min_qty_per_order) || 1);
+  const maxQty = Math.max(minQty, Number(row.max_qty_per_order) || minQty);
+  let qty = minQty;
 
-function renderProductCard(
-  product,
-  onBuy,
-  buttonLabel = "Buy Now",
-  showShgName = false,
-  showBuyButton = true,
-) {
   const card = document.createElement("article");
-  card.className = "card shg-product-card";
+  card.className = "card filled-product-card commodity-card";
   card.innerHTML = `
-    <div class="shg-gallery-main">
-      ${imgWithFallback(productMainImage(product), product.name, "shg-gallery-main-img", "shg-gallery-main-fallback", "Image unavailable")}
+    <div class="filled-product-fields">
+      <div class="filled-product-columns">
+        <div class="filled-product-col">
+          <div class="filled-field"><span>Product Name</span><span>${row.product_name}</span></div>
+          <div class="filled-field"><span>Product Category</span><span>${row.product_category}</span></div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field"><span>Mfg. Date</span><span>${row.mfg_date}</span></div>
+          <div class="filled-field"><span>Exp. Date</span><span>${row.exp_date}</span></div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field"><span>MRP / Unit (₹)</span><span>${row.mrp_per_unit}</span></div>
+          <div class="filled-field"><span>No. of Units</span><span>${row.n_units}</span></div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field"><span>Min. Qty. / Order</span><span>${row.min_qty_per_order}</span></div>
+          <div class="filled-field"><span>Max. Qty. / Order</span><span>${row.max_qty_per_order}</span></div>
+        </div>
+      </div>
+      <div class="filled-field"><span>Product Description</span><span>${row.product_description}</span></div>
     </div>
-    <p class="shg-product-name">${product.name}</p>
-    ${showShgName ? `<p class="shg-product-shg">Sold by ${shgNameFor(product.id)}</p>` : ""}
-    <p class="shg-product-desc">${product.description}</p>
-    <div class="shg-product-meta">
-      <span class="shg-product-price">₹${product.price} / unit</span>
-      <span class="shg-product-units">${product.orders.toLocaleString()} units</span>
+    <div class="filled-product-photo">
+      <span class="add-product-upload-badge" aria-hidden="true">
+        <!-- Neither the commodity nor the catalog table has an image
+             field, so every card here uses this same default per-table
+             placeholder rather than a generated per-product one. -->
+        <svg class="add-product-upload-icon" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="${iconPath}" fill="currentColor" fill-rule="evenodd" />
+        </svg>
+      </span>
+      <div class="commodity-cart-overlay">
+        <div class="commodity-cart-stepper">
+          <button type="button" class="commodity-cart-btn minus" aria-label="Decrease order quantity">&minus;</button>
+          <span class="commodity-cart-qty">${qty}</span>
+          <button type="button" class="commodity-cart-btn plus" aria-label="Increase order quantity">&plus;</button>
+        </div>
+      </div>
     </div>
-    <p class="shg-product-category">
-      <span>Category</span><span>:</span><span>${product.category}</span>
-    </p>
-    ${showBuyButton ? `<button type="button" class="primary-btn shg-buy-btn" style="width: 100%;">${buttonLabel}</button>` : ""}
   `;
 
-  if (showBuyButton) {
-    card.querySelector(".shg-buy-btn").addEventListener("click", () => onBuy(product));
+  const qtyEl = card.querySelector(".commodity-cart-qty");
+  const minusBtn = card.querySelector(".commodity-cart-btn.minus");
+  const plusBtn = card.querySelector(".commodity-cart-btn.plus");
+
+  function syncButtons() {
+    minusBtn.disabled = qty <= minQty;
+    plusBtn.disabled = qty >= maxQty;
   }
+  minusBtn.addEventListener("click", () => {
+    qty = Math.max(minQty, qty - 1);
+    qtyEl.textContent = qty;
+    syncButtons();
+  });
+  plusBtn.addEventListener("click", () => {
+    qty = Math.min(maxQty, qty + 1);
+    qtyEl.textContent = qty;
+    syncButtons();
+  });
+  syncButtons();
 
   return card;
 }
 
-function renderCatalogGrid(
-  container,
-  products,
-  onBuy,
-  buttonLabel = "Buy Now",
-  showShgName = false,
-  showBuyButton = true,
-) {
+function renderSupplyRowGrid(container, rows, options) {
   container.innerHTML = "";
-  if (products.length === 0) return;
-  products.forEach((product) =>
-    container.appendChild(
-      renderProductCard(product, onBuy, buttonLabel, showShgName, showBuyButton),
-    ),
-  );
+  rows.forEach((row) => container.appendChild(buildSupplyRowCard(row, options)));
+}
+
+if (page === "index") {
+  const slides = document.querySelectorAll(".hero-slide");
+  const dots = document.querySelectorAll(".hero-slider-dot");
+  let activeSlide = 0;
+
+  // Slides move right-to-left: the incoming slide is parked off-screen to
+  // the right (transition disabled for that jump), then both it and the
+  // outgoing slide are animated one step to the left — incoming goes from
+  // the right edge to center, outgoing goes from center to the left edge —
+  // so the whole strip appears to travel in one consistent direction.
+  function showSlide(index) {
+    const outgoing = slides[activeSlide];
+    const incoming = slides[index];
+
+    dots[activeSlide]?.classList.remove("is-active");
+    dots[index]?.classList.add("is-active");
+
+    if (incoming && incoming !== outgoing) {
+      incoming.style.transition = "none";
+      incoming.style.transform = "translateX(100%)";
+      incoming.getBoundingClientRect(); // force reflow before re-enabling the transition
+      incoming.style.transition = "";
+      incoming.style.transform = "translateX(0)";
+      incoming.classList.add("is-active");
+    }
+    if (outgoing && outgoing !== incoming) {
+      outgoing.style.transform = "translateX(-100%)";
+      outgoing.classList.remove("is-active");
+    }
+
+    activeSlide = index;
+  }
+
+  if (slides.length > 1) {
+    let autoSlide = setInterval(() => showSlide((activeSlide + 1) % slides.length), 4500);
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        clearInterval(autoSlide);
+        showSlide(index);
+        autoSlide = setInterval(() => showSlide((activeSlide + 1) % slides.length), 4500);
+      });
+    });
+  }
 }
 
 if (page === "login") {
   const emailInput = document.getElementById("emailInput");
   const passwordInput = document.getElementById("passwordInput");
-  const rememberMeInput = document.getElementById("rememberMeInput");
   const passwordForm = document.getElementById("passwordForm");
   const submitBtn = passwordForm.querySelector('button[type="submit"]');
-
-  // Where to land after login depends on the account's role — SHG/DISTRIBUTOR
-  // ("Retailer" in the signup UI)/CONSUMER each have their own dashboard
-  // mockup; ADMIN/officials don't have one here, so they just get a success
-  // message instead.
-  const ROLE_REDIRECTS = {
-    SHG: "shg-dashboard.html",
-    DISTRIBUTOR: "retailer-dashboard.html",
-    CONSUMER: "consumer-dashboard.html",
-  };
-
-  // Test-only autofill for the seeded demo accounts (database/seed/demo-data.ts).
-  const TEST_LOGINS = {
-    fillRetailer: { email: "retailer.email@example.com", password: "retailer#0000" },
-    fillShg: { email: "shg.email@example.com", password: "shg#4444" },
-    fillConsumer: { email: "consumer.email@example.com", password: "consumer#8888" },
-  };
-  Object.entries(TEST_LOGINS).forEach(([buttonId, creds]) => {
-    document.getElementById(buttonId)?.addEventListener("click", (event) => {
-      event.preventDefault();
-      emailInput.value = creds.email;
-      passwordInput.value = creds.password;
-    });
-  });
-
-  passwordForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!email.includes("@") || password.length < 6) {
-      alert("Please enter a valid email and password.");
-      return;
-    }
-
-    submitBtn.disabled = true;
-    try {
-      const loginResponse = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, rememberMe: rememberMeInput.checked }),
-      });
-      const loginData = await loginResponse.json().catch(() => ({}));
-      if (!loginResponse.ok) {
-        alert(
-          Array.isArray(loginData.message)
-            ? loginData.message.join(" ")
-            : loginData.message || "Login failed.",
-        );
-        return;
-      }
-
-      const meResponse = await fetch("/api/users/me", {
-        headers: { Authorization: `${loginData.tokenType} ${loginData.accessToken}` },
-      });
-      const me = await meResponse.json().catch(() => ({}));
-      const role = me.userRoles?.[0]?.role?.name;
-      const redirect = ROLE_REDIRECTS[role];
-
-      if (redirect) {
-        // Use window.top so a successful login inside the homepage's popup
-        // iframe navigates the whole page to the dashboard, not just the
-        // iframe itself. Equivalent to window.location when not framed.
-        window.top.location.href = redirect;
-      } else {
-        alert(`Login successful (${role ?? "this role"} doesn't have a dashboard here yet).`);
-      }
-    } catch (err) {
-      alert("Could not reach the server. Please try again.");
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
-}
-
-if (page === "signup") {
-  const form = document.getElementById("signupForm");
   const stepPanels = [...document.querySelectorAll(".step-panel")];
-  const continueBtn = document.getElementById("continueBtn");
-  const backBtn = document.getElementById("backBtn");
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const userTypeSelect = document.getElementById("userType");
-  const successModal = document.getElementById("successModal");
-  const successGoBtn = document.getElementById("successGoBtn");
-
-  successGoBtn.addEventListener("click", () => {
-    window.location.href = "login.html";
-  });
-
-  // Maps the mockup's User Type dropdown values to the actual RoleName
-  // values the backend's /auth/register accepts (see SELF_REGISTERABLE_ROLES
-  // in apps/core-api/src/auth/dto/register.dto.ts) — "Retailer" here means
-  // the wholesale DISTRIBUTOR role, "Consumer" the retail end-consumer role.
-  const ROLE_MAP = { SHG: "SHG", RETAILER: "DISTRIBUTOR", CONSUMER: "CONSUMER" };
-  const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
-  // All 26 districts of Andhra Pradesh (post the April 2022 reorganisation).
-  const AP_DISTRICTS = [
-    "Alluri Sitharama Raju",
-    "Anakapalli",
-    "Anantapur",
-    "Annamayya",
-    "Bapatla",
-    "Chittoor",
-    "Dr. B.R. Ambedkar Konaseema",
-    "East Godavari",
-    "Eluru",
-    "Guntur",
-    "Kakinada",
-    "Krishna",
-    "Kurnool",
-    "Nandyal",
-    "NTR",
-    "Palnadu",
-    "Parvathipuram Manyam",
-    "Prakasam",
-    "Sri Potti Sriramulu Nellore",
-    "Sri Sathya Sai",
-    "Srikakulam",
-    "Tirupati",
-    "Visakhapatnam",
-    "Vizianagaram",
-    "West Godavari",
-    "YSR Kadapa",
-  ];
-
-  const roleFieldSets = {
-    SHG: document.getElementById("fieldsSHG"),
-    RETAILER: document.getElementById("fieldsRETAILER"),
-    CONSUMER: document.getElementById("fieldsCONSUMER"),
-  };
-
-  function populateDistrictSelect(id) {
-    const select = document.getElementById(id);
-    if (!select) return;
-    select.innerHTML =
-      '<option value="">Select district</option>' +
-      AP_DISTRICTS.map((district) => `<option value="${district}">${district}</option>`).join("");
-  }
-  populateDistrictSelect("shgDistrict");
-  populateDistrictSelect("retailDistrict");
-  populateDistrictSelect("consumerDistrict");
-
-  // Live password strength meter — same signals as the backend's password
-  // policy (see PASSWORD_PATTERN above / RegisterDto): min length, upper,
-  // lower, number, special character.
-  const passwordInput = document.getElementById("password");
-  const strengthBar = document.getElementById("passwordStrengthBar");
-  const strengthLabel = document.getElementById("passwordStrengthLabel");
-  const requirementItems = [...document.querySelectorAll("#passwordRequirements li")];
-
-  // The missing-requirements list only appears once the user leaves the
-  // field (blur) with an incomplete password — nothing shows while they're
-  // still actively typing it for the first time. Once shown as an error,
-  // it keeps updating live so they can watch it clear while fixing it.
-  let requirementsRevealed = false;
-
-  function getPasswordChecks(value) {
-    return {
-      length: value.length >= 8,
-      upper: /[A-Z]/.test(value),
-      lower: /[a-z]/.test(value),
-      number: /\d/.test(value),
-      special: /[^A-Za-z0-9]/.test(value),
-    };
-  }
-
-  function updateStrengthBar(value, checks) {
-    const score = Object.values(checks).filter(Boolean).length;
-    const strength = !value ? "" : score <= 2 ? "weak" : score <= 4 ? "medium" : "strong";
-    strengthBar.className = "strength-bar" + (strength ? ` ${strength}` : "");
-    strengthBar.querySelector("span").style.width = value ? `${(score / 5) * 100}%` : "0%";
-    strengthLabel.textContent = strength
-      ? `Password strength: ${strength.charAt(0).toUpperCase()}${strength.slice(1)}`
-      : "";
-  }
-
-  function updateRequirementsList(checks) {
-    const allMet = Object.values(checks).every(Boolean);
-    requirementItems.forEach((item) => {
-      item.hidden = !requirementsRevealed || checks[item.dataset.rule];
-    });
-    if (allMet) requirementsRevealed = false;
-  }
-
-  passwordInput.addEventListener("input", () => {
-    const checks = getPasswordChecks(passwordInput.value);
-    updateStrengthBar(passwordInput.value, checks);
-    updateRequirementsList(checks);
-  });
-
-  passwordInput.addEventListener("blur", () => {
-    const checks = getPasswordChecks(passwordInput.value);
-    if (!Object.values(checks).every(Boolean)) requirementsRevealed = true;
-    updateRequirementsList(checks);
-  });
-
-  updateRequirementsList(getPasswordChecks(""));
 
   function goToStep(step) {
     stepPanels.forEach((panel) =>
@@ -415,293 +253,667 @@ if (page === "signup") {
     );
   }
 
-  function validateStepOne() {
-    const role = userTypeSelect.value;
-    const fullName = document.getElementById("fullName").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const mobile = document.getElementById("mobileNumber").value.trim();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+  const loginToast = document.getElementById("loginToast");
+  let loginToastTimer = null;
 
-    if (!fullName || !email.includes("@") || !/^[6-9]\d{9}$/.test(mobile)) {
-      alert("Please fill in valid details.");
-      return false;
-    }
-    if (!PASSWORD_PATTERN.test(password)) {
-      alert(
-        "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.",
-      );
-      return false;
-    }
-    if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return false;
-    }
-    if (!role) {
-      alert("Please select a user type.");
-      return false;
-    }
-    return true;
+  function showLoginToast(message, variant) {
+    loginToast.textContent = message;
+    loginToast.classList.toggle("login-toast--neutral", variant === "neutral");
+    loginToast.classList.toggle("login-toast--dark", variant === "dark");
+    loginToast.hidden = false;
+    clearTimeout(loginToastTimer);
+    loginToastTimer = setTimeout(() => {
+      loginToast.hidden = true;
+    }, 2000);
   }
 
-  // Step 2 is itself broken into per-role categories shown one at a time —
-  // e.g. SHG goes "SHG Fields" -> "Bank Account Details" -> "Address
-  // Details" — rather than one long flat list of fields.
-  const nextSubStepBtn = document.getElementById("nextSubStepBtn");
-  const createAccountBtn = document.getElementById("createAccountBtn");
-  const termsRow = document.getElementById("termsRow");
-  let currentSubStep = 0;
-
-  function getActiveFieldSet() {
-    return roleFieldSets[userTypeSelect.value];
+  function titleCase(text) {
+    return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-  function getSubSteps(fieldSet) {
-    return [...fieldSet.querySelectorAll(".sub-step")];
-  }
-
-  function showSubStep(index) {
-    const subSteps = getSubSteps(getActiveFieldSet());
-    subSteps.forEach((el) => el.classList.toggle("active", Number(el.dataset.substep) === index));
-
-    const isLast = index === subSteps.length - 1;
-    nextSubStepBtn.hidden = isLast;
-    createAccountBtn.hidden = !isLast;
-    termsRow.hidden = !isLast;
-  }
-
-  function validateSubStep(index) {
-    const subSteps = getSubSteps(getActiveFieldSet());
-    const fields = [...subSteps[index].querySelectorAll("input, select")];
-    const allFilled = fields.every((field) => field.value.trim() !== "");
-    if (!allFilled) alert("Please complete all the fields in this section.");
-    return allFilled;
-  }
-
-  continueBtn.addEventListener("click", () => {
-    if (!validateStepOne()) return;
-
-    const role = userTypeSelect.value;
-    Object.entries(roleFieldSets).forEach(([key, el]) => {
-      el.hidden = key !== role;
-    });
-    currentSubStep = 0;
-    showSubStep(currentSubStep);
-    goToStep(2);
-  });
-
-  nextSubStepBtn.addEventListener("click", () => {
-    if (!validateSubStep(currentSubStep)) return;
-    currentSubStep += 1;
-    showSubStep(currentSubStep);
-  });
-
-  backBtn.addEventListener("click", () => {
-    if (currentSubStep > 0) {
-      currentSubStep -= 1;
-      showSubStep(currentSubStep);
-      return;
+  // Which authority an unauthenticated account should be told to contact —
+  // the state authority for retailer/consumer accounts, or the SHG's own
+  // district authority (looked up from its pincode) for SHG accounts.
+  async function resolveAuthority(info) {
+    const role = (info.role || "").toUpperCase();
+    if (role === "RETAILER" || role === "CONSUMER") {
+      return "Andhra Pradesh State Authority";
     }
-    goToStep(1);
-  });
+    if (role === "SHG" && info.pincode) {
+      try {
+        const response = await fetch(
+          `${GUIDANCE_API_BASE}/route/get/district/pincode/${encodeURIComponent(info.pincode)}`,
+        );
+        const districtName = await response.json().catch(() => null);
+        if (districtName) return `${titleCase(districtName)} District Authority`;
+      } catch {
+        // fall through to the generic message below
+      }
+    }
+    return "the respective authority";
+  }
 
-  form.addEventListener("submit", async (event) => {
+  passwordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Hitting Enter in any text field submits the form natively (browsers
-    // pick createAccountBtn as the default submit target even while it's
-    // hidden) — e.g. after using Back to revisit an earlier category. Only
-    // actually create the account when Create Account is the visible,
-    // reached action for the current category.
-    if (createAccountBtn.hidden) return;
+    const email = emailInput.value.trim();
+    const passkey = passwordInput.value;
 
-    if (!validateStepOne()) {
-      goToStep(1);
+    if (!email || !passkey) {
+      showLoginToast("Kindly enter the credentials to login");
       return;
     }
-
-    const role = userTypeSelect.value;
-    const activeFieldSet = roleFieldSets[role];
-    const roleFieldsValid = [...activeFieldSet.querySelectorAll("input, select")].every(
-      (field) => field.value.trim() !== "",
-    );
-    if (!roleFieldsValid) {
-      alert("Please complete all the fields for your user type.");
-      return;
-    }
-
-    const terms = document.getElementById("terms").checked;
-    if (!terms) {
-      alert("You must accept the terms.");
-      return;
-    }
-
-    const fullName = document.getElementById("fullName").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const mobile = document.getElementById("mobileNumber").value.trim();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
 
     submitBtn.disabled = true;
     try {
-      // NOTE: the User Type-specific fields captured above (SHG group/bank
-      // details, retailer GSTIN/PAN, consumer address, etc.) aren't sent
-      // here — /auth/register's DTO (apps/core-api/src/auth/dto/register.dto.ts)
-      // only accepts these base account fields today (its ValidationPipe has
-      // forbidNonWhitelisted: true, so extra fields would 400 the request).
-      // Collecting them here is UI-only until the backend grows a place to
-      // store them.
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName,
-          email,
-          mobileNumber: mobile,
-          password,
-          confirmPassword,
-          role: ROLE_MAP[role] ?? role,
-          termsAccepted: terms,
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        alert(
-          Array.isArray(data.message)
-            ? data.message.join(" ")
-            : data.message || "Registration failed.",
-        );
+      const response = await fetch(
+        `${GUIDANCE_API_BASE}/route/select/credential/email/${encodeURIComponent(email)}/passkey/${encodeURIComponent(passkey)}`,
+      );
+      const records = await response.json().catch(() => []);
+
+      if (!Array.isArray(records) || records.length === 0) {
+        // Government portal addresses (see inference/tools/database.py's
+        // func__init_credential, which seeds one per district plus this
+        // state-level one) aren't real self-service sign-ups — an
+        // unmatched one means its credentials haven't been provisioned
+        // yet, not "go register", so this branches before the registration
+        // fallback below.
+        if (email === "sAP.037@ap.gov.in") {
+          showLoginToast("Login Credentials are Missing. Kindly contact Support Authority", "dark");
+          return;
+        }
+        if (email.endsWith("@ap.gov.in")) {
+          showLoginToast(
+            "Login Credentials are Missing. Kindly contact Andhra Pradesh State Authority",
+            "neutral",
+          );
+          return;
+        }
+
+        // No matching account — straight to the registration step.
+        goToStep(2);
         return;
       }
-      form.reset();
-      successModal.hidden = false;
+
+      const record = records[0];
+      const info = Array.isArray(record.info) ? record.info[0] : (record.info ?? {});
+
+      if (record.is_authenticated === 0) {
+        const authority = await resolveAuthority(info);
+        showLoginToast(`Account yet to be authenticated. Kindly contact ${authority}.`, "neutral");
+        return;
+      }
+
+      if (record.is_authenticated === -1) {
+        const authority = await resolveAuthority(info);
+        showLoginToast(`Account yet to be authenticated. Kindly contact ${authority}.`, "dark");
+        return;
+      }
+
+      persistGuidanceSession(email, passkey, info);
+
+      // The AIONOS account (see inference/tools/database.py's
+      // func__init_credential) carries no `role` at all, just an
+      // `organisation` — it's identified that way instead rather than
+      // adding a role to the seeded credential itself.
+      const effectiveRole = info.role || (info.organisation === "AIONOS" ? "AIONOS" : "");
+      const dashboardFilename = ROLE_DASHBOARD_FILENAMES[effectiveRole.toUpperCase()];
+      if (dashboardFilename) {
+        // The persistent app shell keeps its header/footer/nav mounted
+        // outside this iframe — navigating this window (not window.top)
+        // keeps the shell in place and moves only the iframe's own content.
+        window.location.href = `console/${dashboardFilename}`;
+      } else {
+        showLoginToast(
+          `Login successful (${effectiveRole || "this role"} doesn't have a dashboard here yet).`,
+        );
+      }
     } catch (err) {
-      alert("Could not reach the server. Please try again.");
+      showLoginToast("Could not reach the server. Please try again.");
     } finally {
       submitBtn.disabled = false;
     }
   });
+
+  // Registration step's photo picker — clicking the placeholder avatar opens
+  // the hidden file input next to it, and the chosen image replaces the
+  // placeholder in place (same read-as-data-URL pattern as the "Add Product"
+  // image upload further down this file).
+  const avatarUploadBtn = document.getElementById("avatarUploadBtn");
+  const avatarUploadInput = document.getElementById("avatarUploadInput");
+  const avatarPreview = document.getElementById("avatarPreview");
+  avatarUploadBtn.addEventListener("click", () => avatarUploadInput.click());
+  avatarUploadInput.addEventListener("change", () => {
+    const file = avatarUploadInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      avatarPreview.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Operation Mode has no default *checked* radio, but the fields below it
+  // default to the Individual set until Community is explicitly chosen —
+  // switching back to Individual afterwards reverts them.
+  const operationModeInputs = [...document.querySelectorAll('input[name="operationMode"]')];
+  const individualFields = document.getElementById("individualFields");
+  const communityFields = document.getElementById("communityFields");
+  const memberNameInput = document.getElementById("memberName");
+  const entityNameInput = document.getElementById("entityName");
+  const memberNamesInput = document.getElementById("memberNames");
+  operationModeInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      const isCommunity = input.value === "COMMUNITY";
+      individualFields.hidden = isCommunity;
+      communityFields.hidden = !isCommunity;
+      // `required` has to follow `hidden` here, not just live in the static
+      // markup — a required field left behind in a hidden section still
+      // fails the form's checkValidity() even though it's invisible and
+      // unreachable, so it would silently block every submit.
+      memberNameInput.required = !isCommunity;
+      entityNameInput.required = isCommunity;
+      memberNamesInput.required = isCommunity;
+    });
+  });
+
+  // "Redirects to the login page" — this step lives inside login.html
+  // itself, so that's just switching back to step 1 rather than a full
+  // navigation. `novalidate` on the form (see login.html) suppresses the
+  // browser's own "please fill this out" bubble — checkValidity() (not
+  // reportValidity()) still gates this on the required fields, it just does
+  // it silently: an incomplete form leaves the click with no visible effect
+  // at all, rather than surfacing which field is missing.
+  const registrationForm = document.getElementById("registrationForm");
+  const registrationSubmitBtn = registrationForm.querySelector('button[type="submit"]');
+  registrationForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!registrationForm.checkValidity()) return;
+
+    const isCommunity = communityFields.hidden === false;
+    const info = [
+      {
+        avatar: "",
+        role: registrationForm.registrationOperation.value,
+        mode: titleCase(registrationForm.operationMode.value),
+        name: isCommunity ? entityNameInput.value : memberNameInput.value,
+        contact: document.getElementById("contactNumber").value,
+        address: document.getElementById("addressInput").value,
+        pincode: document.getElementById("pinCodeInput").value,
+        nationality: document.getElementById("nationalityInput").value,
+      },
+    ];
+
+    const email = emailInput.value.trim();
+    const passkey = passwordInput.value;
+
+    registrationSubmitBtn.disabled = true;
+    try {
+      const response = await fetch(
+        `${GUIDANCE_API_BASE}/route/insert/credential/email/${encodeURIComponent(email)}/passkey/${encodeURIComponent(passkey)}/info/${encodeURIComponent(JSON.stringify(info))}`,
+        { method: "POST" },
+      );
+      await response.json().catch(() => []);
+      goToStep(1);
+    } catch (err) {
+      showLoginToast("Could not reach the server. Please try again.");
+    } finally {
+      registrationSubmitBtn.disabled = false;
+    }
+  });
 }
 
-if (page === "register") {
-  const stepPanels = [...document.querySelectorAll(".step-panel")];
-  const stepIndicators = [...document.querySelectorAll(".stepper span")];
-  const form = document.getElementById("registrationForm");
-  const nextBtn = document.getElementById("nextBtn");
-  const backBtn = document.getElementById("backBtn");
-  const submitBtn = document.getElementById("submitBtn");
-  const stepLabel = document.getElementById("stepLabel");
+// ---------------------------------------------------------------------------
+// Dashboard tab/panel switching (interface/console/*.html's `.shg-tab` /
+// `.shg-panel` pairs) — shared by all three dashboards, since Retailer and
+// Consumer now also carry a hidden "profile" tab/panel pair (see below)
+// even though they only ever had one visible tab of their own before this.
+// `.shg-tabs` itself is CSS-hidden (see styles.css) — apps/web's
+// DashboardNav.tsx mirrors these same buttons in the outer shell's own nav
+// and forwards clicks down to the real ones here (LandingPage.tsx's
+// handleDashboardTabClick), so this stays the one place that actually
+// switches panels.
+// ---------------------------------------------------------------------------
 
-  let currentStep = 0;
+function setupDashboardTabSwitching(onDisabledTabClick) {
+  const tabs = [...document.querySelectorAll(".shg-tab")];
+  const panels = [...document.querySelectorAll(".shg-panel")];
 
-  const districtOptions = ["Anantapur", "Chittoor", "Guntur", "Kurnool", "Visakhapatnam"];
-  const ulbOptions = ["Tirupati", "Kurnool", "Vijayawada", "Rajahmundry"];
-  const mandalOptions = ["Madanapalle", "Puttur", "Amalapuram", "Kandukur"];
-
-  function populateSelect(id, values) {
-    const select = document.getElementById(id);
-    if (!select) return;
-    select.innerHTML =
-      '<option value="">Select</option>' +
-      values.map((value) => `<option value="${value}">${value}</option>`).join("");
+  function activate(tab) {
+    tabs.forEach((t) => t.classList.toggle("active", t === tab));
+    panels.forEach((panel) =>
+      panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab),
+    );
+    // The Catalog panel's "Add Product" card measures its own natural
+    // position (see alignToNavIconSpan) to align itself with the outer
+    // nav's icons — a measurement that only means anything once its panel
+    // is actually visible (display:block), not display:none behind
+    // whichever tab loaded active by default (now "profile", not
+    // "catalog"). Reusing the existing resize listener re-runs that
+    // measurement now that it can get a real answer, instead of adding a
+    // second, separate "recompute on tab switch" path.
+    window.dispatchEvent(new Event("resize"));
   }
 
-  populateSelect("districtSelect", districtOptions);
-  populateSelect("ulbSelect", ulbOptions);
-  populateSelect("mandalSelect", mandalOptions);
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      if (tab.classList.contains("shg-tab-disabled")) {
+        onDisabledTabClick?.(tab);
+        return;
+      }
+      activate(tab);
+    });
+  });
+}
 
-  function updateStep() {
-    stepPanels.forEach((panel, index) => panel.classList.toggle("active", index === currentStep));
-    stepIndicators.forEach((dot, index) => dot.classList.toggle("active", index <= currentStep));
-    stepLabel.textContent = `Step ${currentStep + 1} of ${stepPanels.length}`;
-    backBtn.style.display = currentStep === 0 ? "none" : "inline-flex";
-    if (currentStep === stepPanels.length - 1) {
-      nextBtn.style.display = "none";
-      submitBtn.style.display = "inline-flex";
-    } else {
-      nextBtn.style.display = "inline-flex";
-      submitBtn.style.display = "none";
+// Profile panel (interface/console/*.html's own [data-panel="profile"]) — a
+// plain panel switched to the same way Catalog/Items are, not a popup, so
+// the dashboard's own outer nav (apps/web's DashboardNav.tsx) stays exactly
+// as it is underneath. Same field order as the registration form (see
+// login.html): avatar, then email/passkey, then role/mode/name/contact/
+// address/pincode/nationality exactly as submitted.
+function setupProfilePanel() {
+  const session = readGuidanceSession();
+  if (!session) return;
+
+  const info = session.info || {};
+
+  document.getElementById("profileAvatar").src = info.avatar || "/guest-avatar.svg";
+  document.getElementById("profileEmail").value = session.email || "";
+  document.getElementById("profilePasskey").value = session.passkey || "";
+  document.getElementById("profileRole").value = info.role || "";
+  document.getElementById("profileMode").value = info.mode || "";
+  document.getElementById("profileName").value = info.name || "";
+  document.getElementById("profileContact").value = info.contact || "";
+  document.getElementById("profileAddress").value = info.address || "";
+  document.getElementById("profilePincode").value = info.pincode || "";
+  document.getElementById("profileNationality").value = info.nationality || "";
+}
+
+// ---------------------------------------------------------------------------
+// "Add Product" card (SHG + Retailer dashboards' Catalog panel) — same
+// markup/ids on both pages (see interface/console/*.html), and since
+// they're never in the DOM together one function covers both instead of
+// duplicating this per page. Neither dashboard has a real backend endpoint
+// to create a product against yet, so submitting only validates the
+// required fields and prepends a read-only "filled" card (see
+// buildShowcaseCard below) straight into that page's own grid — nothing is
+// actually persisted server-side.
+// ---------------------------------------------------------------------------
+
+// Sizes/positions the card so its own left/right edges sit exactly where
+// the outer shell's nav bar starts and ends its icons (16px in from each
+// side — px-3/sm:px-4 in apps/web/src/components/DashboardNav.tsx) —
+// cancelling .page-shell's centered max-width column (see the CSS comment
+// on .add-product-card). Deliberately done in JS with `clientWidth`
+// rather than the usual `width: 100vw` CSS trick — that trick sizes
+// against the *layout* viewport, which on a page with a reserved-space
+// (non-overlay) scrollbar is wider than what's actually visible, throwing
+// the inset off by the scrollbar's width. `clientWidth` always excludes
+// the scrollbar.
+const ADD_PRODUCT_NAV_ICON_INSET_PX = 16;
+
+function alignToNavIconSpan(el) {
+  if (!el) return;
+  el.style.width = "";
+  el.style.marginLeft = "";
+  const naturalLeft = el.getBoundingClientRect().left;
+  el.style.width = `${document.documentElement.clientWidth - ADD_PRODUCT_NAV_ICON_INSET_PX * 2}px`;
+  el.style.marginLeft = `${ADD_PRODUCT_NAV_ICON_INSET_PX - naturalLeft}px`;
+}
+
+// Aligns the card, the divider below it (see interface/console/*.html's
+// .add-product-divider), and every already-added .filled-product-card to
+// the same span, so they all match the card's width exactly instead of
+// following .page-shell's own (narrower, centered) content width — or, for
+// the filled cards, #catalogGrid's per-tile column width.
+function alignAddProductCardWidth() {
+  alignToNavIconSpan(document.getElementById("addProductForm"));
+  alignToNavIconSpan(document.querySelector(".add-product-divider"));
+  document.querySelectorAll(".filled-product-card").forEach(alignToNavIconSpan);
+}
+
+// Once every required field is filled (the image is optional — a card
+// with none falls back to the default placeholder, see buildFilledCard),
+// wait exactly this long, then reveal the pale-teal blur and the +/-
+// buttons together.
+const ADD_PRODUCT_REVEAL_DELAY_MS = 2000;
+
+// How long the confirm/cancel buttons stay in their dark "clicked" state
+// before the actual add/discard runs — a brief confirmation flash, not an
+// instant cut. The blur/icons are already showing by the time a click is
+// even possible (the overlay only accepts pointer events once revealed),
+// so this only needs to darken the button itself.
+const ADD_PRODUCT_CONFIRM_FLASH_MS = 350;
+
+function flashThenRun(button, action) {
+  button.classList.add("is-clicked");
+  window.setTimeout(() => {
+    button.classList.remove("is-clicked");
+    action();
+  }, ADD_PRODUCT_CONFIRM_FLASH_MS);
+}
+
+// Read-only echo of the add-product form itself (see .filled-product-card
+// in styles.css) — same label/value grid plus a circular photo, but with
+// every field carrying the value the SHG member actually typed, rather
+// than the original stacked shg-product-card look used elsewhere in the
+// catalog grid. This is what actually shows up under the divider once +
+// is clicked. Name/category/description/photo stay read-only, but
+// mfg/exp date, MRP, units, and min/max qty are live inputs the member
+// can edit any time — no separate "edit mode" needed for those. Hovering
+// the card (see .filled-product-card:hover .add-product-confirm-overlay in
+// styles.css) reveals Update (✕, just confirms/closes — the inputs above
+// are already the live values) and Delete (−, calls the real DELETE route
+// via data.uuid/data.entity when the card is backed by one) the same pair
+// of buttons the top form itself uses for Add/Discard. Also used (via
+// supplyRowToFilledCardData below) for a member's own already-persisted
+// commodity/catalog rows fetched by email, so a product looks and behaves
+// the same whether it was just added this session or loaded from the
+// database.
+function buildFilledCard(data) {
+  const card = document.createElement("article");
+  card.className = "card filled-product-card";
+  card.innerHTML = `
+    <div class="filled-product-fields">
+      <div class="filled-product-columns">
+        <div class="filled-product-col">
+          <div class="filled-field"><span>Product Name</span><span>${data.name}</span></div>
+          <div class="filled-field"><span>Product Category</span><span>${data.category}</span></div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field">
+            <span>Mfg. Date</span>
+            <input type="text" placeholder="YYYY-MM-DD" data-field="mfgDate" value="${data.mfgDate}" />
+          </div>
+          <div class="filled-field">
+            <span>Exp. Date</span>
+            <input type="text" placeholder="YYYY-MM-DD" data-field="expDate" value="${data.expDate}" />
+          </div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field">
+            <span>MRP / Unit (₹)</span>
+            <input type="number" step="any" min="0" data-field="mrp" value="${data.mrp}" />
+          </div>
+          <div class="filled-field">
+            <span>No. of Units</span>
+            <input type="number" step="1" min="0" data-field="units" value="${data.units}" />
+          </div>
+        </div>
+        <div class="filled-product-col">
+          <div class="filled-field">
+            <span>Min. Qty. / Order</span>
+            <input type="number" step="1" min="1" data-field="minQty" value="${data.minQty}" />
+          </div>
+          <div class="filled-field">
+            <span>Max. Qty. / Order</span>
+            <input type="number" step="1" min="1" data-field="maxQty" value="${data.maxQty}" />
+          </div>
+        </div>
+      </div>
+      <div class="filled-field"><span>Product Description</span><span>${data.description}</span></div>
+    </div>
+    <div class="filled-product-photo${data.isAuthenticated === 0 ? " is-pending" : ""}">
+      ${
+        data.imageDataUrl
+          ? `<img src="${data.imageDataUrl}" alt="${data.name}" />`
+          : `
+            <span class="add-product-upload-badge" aria-hidden="true">
+              <svg class="add-product-upload-icon" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="${data.iconPath}" fill="currentColor" fill-rule="evenodd" />
+              </svg>
+            </span>
+          `
+      }
+    </div>
+    <div class="add-product-confirm-overlay">
+      <button type="button" class="add-product-confirm-btn confirm" aria-label="Confirm edits">&times;</button>
+      <button type="button" class="add-product-confirm-btn cancel" aria-label="Delete product">&minus;</button>
+    </div>
+  `;
+
+  const updateBtn = card.querySelector(".add-product-confirm-btn.confirm");
+  const deleteBtn = card.querySelector(".add-product-confirm-btn.cancel");
+
+  // Unlike the add-product form's own overlay above (revealed once, timed,
+  // by its own JS), this one shows purely on :hover (see
+  // .filled-product-card:hover .add-product-confirm-overlay in styles.css)
+  // — no press-and-hold, no explicit dismiss needed, since moving off the
+  // card hides it again on its own.
+  updateBtn.addEventListener("click", () => flashThenRun(updateBtn, () => {}));
+  deleteBtn.addEventListener("click", () => {
+    flashThenRun(deleteBtn, () => {
+      if (!window.confirm(`Delete "${data.name}"? This cannot be undone.`)) return;
+      // data.uuid is only set for a card backed by a real row (see
+      // supplyRowToFilledCardData and addProduct's own post-insert
+      // showCard) — falls back to a local-only removal otherwise, same as
+      // before this card had any backend link at all.
+      if (data.uuid) {
+        fetch(
+          `${GUIDANCE_API_BASE}/route/delete/${data.entity}/uuid/${encodeURIComponent(data.uuid)}`,
+          {
+            method: "POST",
+          },
+        )
+          .catch((err) => console.error(err))
+          .finally(() => card.remove());
+      } else {
+        card.remove();
+      }
+    });
+  });
+
+  return card;
+}
+
+// Maps a commodity/catalog row (see inference/tools/database.py — both
+// tables share this exact shape) to buildFilledCard's own data shape, for
+// rendering a member's own already-persisted products with the same card
+// used for ones just added this session. Neither table has an image
+// field, so `imageDataUrl` is left unset — buildFilledCard falls back to
+// the same commodity/catalog placeholder badge buildSupplyRowCard shows
+// elsewhere, rather than a generated per-product one, so a retailer's own
+// commodity listing (or an SHG's own catalog listing) always shows the
+// same default photo whether it's browsed by someone else or by its owner.
+// `entity` and the row's own `uuid` are what buildFilledCard's delete
+// button needs to call the real DELETE route.
+function supplyRowToFilledCardData(
+  row,
+  iconPath = COMMODITY_PLACEHOLDER_ICON_PATH,
+  entity = "commodity",
+) {
+  return {
+    name: row.product_name,
+    category: row.product_category,
+    mfgDate: row.mfg_date ?? "",
+    expDate: row.exp_date ?? "",
+    mrp: row.mrp_per_unit,
+    units: row.n_units,
+    minQty: row.min_qty_per_order,
+    maxQty: row.max_qty_per_order,
+    description: row.product_description,
+    iconPath,
+    isAuthenticated: row.is_authenticated,
+    uuid: row.uuid,
+    entity,
+  };
+}
+
+function setupAddProductForm() {
+  const form = document.getElementById("addProductForm");
+  if (!form) return;
+
+  const imageInput = document.getElementById("newProductImage");
+  const uploadZone = document.getElementById("newProductUploadZone");
+  const overlay = form.querySelector(".add-product-confirm-overlay");
+  const confirmBtn = form.querySelector(".add-product-confirm-btn.confirm");
+  const cancelBtn = form.querySelector(".add-product-confirm-btn.cancel");
+  // Whichever grid this page has (#catalogGrid on SHG, #materialGrid on
+  // Retailer) — the just-added product is prepended straight into it, just
+  // under the divider (see interface/console/*.html), not persisted
+  // anywhere real.
+  const grid = document.getElementById("catalogGrid") || document.getElementById("materialGrid");
+  // Which table (and matching default placeholder icon, see buildFilledCard)
+  // this page's grid belongs to — consumer-dashboard also has a #catalogGrid,
+  // but it has no #addProductForm, so reaching this line at all already
+  // means SHG.
+  const entity = grid && grid.id === "catalogGrid" ? "catalog" : "commodity";
+  const iconPath =
+    entity === "catalog" ? CATALOG_PLACEHOLDER_ICON_PATH : COMMODITY_PLACEHOLDER_ICON_PATH;
+  let revealTimer = null;
+  let lastImageDataUrl = null;
+
+  function clearImagePreview() {
+    uploadZone.style.backgroundImage = "";
+    uploadZone.classList.remove("has-image");
+    lastImageDataUrl = null;
+  }
+
+  function cancelReveal() {
+    window.clearTimeout(revealTimer);
+    overlay.classList.remove("is-blurred", "show-icons");
+  }
+
+  function scheduleReveal() {
+    revealTimer = window.setTimeout(() => {
+      overlay.classList.add("is-blurred", "show-icons");
+    }, ADD_PRODUCT_REVEAL_DELAY_MS);
+  }
+
+  // Drives the blur-then-icons reveal above and gates addProduct() below —
+  // this is the form's real, live validity (the image input has no
+  // `required` of its own, so it's excluded), recomputed on every field
+  // change, not just at submit time.
+  function updateValidityState() {
+    const wasValid = form.classList.contains("is-valid");
+    const nowValid = form.checkValidity();
+    form.classList.toggle("is-valid", nowValid);
+    if (nowValid && !wasValid) {
+      scheduleReveal();
+    } else if (!nowValid) {
+      cancelReveal();
     }
   }
 
-  function validateCurrentStep() {
-    const currentPanel = stepPanels[currentStep];
-    const requiredFields = [...currentPanel.querySelectorAll('[data-required="true"]')];
+  function addProduct() {
+    // checkValidity() (not reportValidity()) — still gates this on the
+    // required fields, just without the native "Please fill out this
+    // field" browser tooltip popping up. In practice this is only ever
+    // reachable already-valid (the confirm button only ever shows once
+    // .is-valid is set, and the Enter-key path below checks it too), but
+    // kept as the actual gate rather than trusting that indirectly.
+    if (!form.checkValidity()) return;
+    if (grid) {
+      const row = {
+        product_name: document.getElementById("newProductName").value.trim(),
+        product_category: document.getElementById("newProductCategory").value.trim(),
+        product_description: document.getElementById("newProductDescription").value.trim(),
+        mfg_date: document.getElementById("newProductMfgDate").value.trim(),
+        exp_date: document.getElementById("newProductExpiry").value.trim(),
+        mrp_per_unit: document.getElementById("newProductMrp").value,
+        n_units: document.getElementById("newProductUnits").value,
+        min_qty_per_order: document.getElementById("newProductMinQty").value,
+        max_qty_per_order: document.getElementById("newProductMaxQty").value,
+      };
 
-    for (const field of requiredFields) {
-      const value = field.value ? field.value.trim() : "";
-      if (!value) {
-        alert("Please complete all required fields in this step.");
-        field.focus();
-        return false;
+      function showCard(uuid) {
+        const card = buildFilledCard({
+          name: row.product_name,
+          category: row.product_category,
+          mfgDate: row.mfg_date,
+          expDate: row.exp_date,
+          mrp: row.mrp_per_unit,
+          units: row.n_units,
+          minQty: row.min_qty_per_order,
+          maxQty: row.max_qty_per_order,
+          description: row.product_description,
+          imageDataUrl: lastImageDataUrl,
+          iconPath,
+          // The commodity/catalog insert always starts a new row at
+          // is_authenticated: 0 (see func__insert_commodity/_catalog in
+          // inference/tools/database.py) — pending a supervisory
+          // dashboard's approve/reject, so the photo shows blurred until
+          // then rather than waiting on a refetch to know that.
+          isAuthenticated: 0,
+          uuid,
+          entity,
+        });
+        grid.prepend(card);
+        // Needs the card in the DOM first — alignToNavIconSpan measures its
+        // current getBoundingClientRect().left before overriding it.
+        alignToNavIconSpan(card);
+      }
+
+      // Persists to the commodity/catalog table (see inference/route.py's
+      // insert routes) before showing the card, scoped to whichever member
+      // is logged in — the row's own product_name/../max_qty_per_order
+      // keys already match that route's path segment names 1:1. Without a
+      // session (shouldn't happen in practice, this page requires login)
+      // the card still shows locally rather than silently doing nothing —
+      // just without a uuid, so its own hover delete button falls back to
+      // a local-only removal (see buildFilledCard).
+      const email = readGuidanceSession()?.email;
+      if (email) {
+        const path = Object.entries({ ...row, email })
+          .map(([key, value]) => `${key}/${encodeURIComponent(value)}`)
+          .join("/");
+        fetch(`${GUIDANCE_API_BASE}/route/insert/${entity}/${path}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((inserted) => showCard(Array.isArray(inserted) ? inserted[0]?.uuid : undefined))
+          .catch((err) => {
+            console.error(err);
+            showCard();
+          });
+      } else {
+        console.warn("No logged-in email — product shown locally only, not persisted.");
+        showCard();
       }
     }
-
-    if (currentStep === 1 && document.getElementById("districtSelect").value === "") {
-      alert("Please select a district.");
-      return false;
-    }
-
-    return true;
+    form.reset();
+    clearImagePreview();
+    updateValidityState();
   }
 
-  nextBtn.addEventListener("click", () => {
-    if (!validateCurrentStep()) return;
-    currentStep += 1;
-    updateStep();
+  function discardProduct() {
+    form.reset();
+    clearImagePreview();
+    updateValidityState();
+  }
+
+  imageInput.addEventListener("change", () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      lastImageDataUrl = reader.result;
+      uploadZone.style.backgroundImage = `url(${reader.result})`;
+      uploadZone.classList.add("has-image");
+    };
+    reader.readAsDataURL(file);
   });
 
-  backBtn.addEventListener("click", () => {
-    currentStep -= 1;
-    updateStep();
+  form.addEventListener("input", updateValidityState);
+  form.addEventListener("change", updateValidityState);
+
+  confirmBtn.addEventListener("click", () => flashThenRun(confirmBtn, addProduct));
+  cancelBtn.addEventListener("click", () => flashThenRun(cancelBtn, discardProduct));
+
+  // Keyboard path (e.g. Enter in a text field) — same validity gate,
+  // immediate rather than the buttons' own click flash since it doesn't
+  // go through either button.
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addProduct();
   });
 
-  submitBtn.addEventListener("click", () => {
-    if (!validateCurrentStep()) return;
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value.trim();
-    const confirmPassword = document.getElementById("regConfirmPassword").value.trim();
-
-    if (!email.includes("@")) {
-      alert("Please enter a valid email.");
-      return;
-    }
-
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
-
-    const groupName = document.getElementById("groupName").value.trim();
-    const type = document.getElementById("groupType").value;
-    const summary = document.getElementById("summaryBox");
-    summary.innerHTML = `
-      <p><strong>Group:</strong> ${groupName}</p>
-      <p><strong>Type:</strong> ${type || "N/A"}</p>
-      <p><strong>District:</strong> ${document.getElementById("districtSelect").value || "Not selected"}</p>
-    `;
-    alert("SHG registration submitted successfully.");
-  });
-
-  document.getElementById("detectLocationBtn").addEventListener("click", () => {
-    const locationStatus = document.getElementById("locationStatus");
-    locationStatus.textContent = "Location suggested: Kurnool district";
-  });
-
-  updateStep();
+  updateValidityState();
+  alignAddProductCardWidth();
+  window.addEventListener("resize", alignAddProductCardWidth);
 }
 
 if (page === "shg-dashboard") {
-  const tabs = [...document.querySelectorAll(".shg-tab")];
-  const panels = [...document.querySelectorAll(".shg-panel")];
   const rawMaterialsGrid = document.getElementById("rawMaterialsGrid");
-  const itemsSearchInput = document.getElementById("itemsSearchInput");
-  const itemsCategoryFilter = document.getElementById("itemsCategoryFilter");
   const itemsEmptyState = document.getElementById("itemsEmptyState");
   const catalogGrid = document.getElementById("catalogGrid");
   const insightToggle = document.getElementById("insightSelectToggle");
@@ -720,117 +932,43 @@ if (page === "shg-dashboard") {
     }, 1800);
   }
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      if (tab.classList.contains("shg-tab-disabled")) {
-        showToast("Open Contributions — Coming Soon");
-        return;
-      }
-      tabs.forEach((t) => t.classList.toggle("active", t === tab));
-      panels.forEach((panel) =>
-        panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab),
-      );
-    });
+  setupAddProductForm();
+  // Each disabled tab carries its own reason in its title attribute (see the
+  // markup above) rather than one message hardcoded here, since there's now
+  // more than one disabled tab with different reasons.
+  setupDashboardTabSwitching((tab) => {
+    if (tab.title) showToast(tab.title);
   });
+  setupProfilePanel();
 
-  // Raw materials are per-product in the catalog data, so this dedupes them
-  // by name across the whole xlsx catalog and renders each with the same
-  // card template as the Product Catalog above — showing the raw material's
-  // own name, not the product it came from. The xlsx has no retailer/stock
-  // data, so retailerNameFor() (stable) and a random stock count fill that in.
-  function dedupeMaterials(products) {
-    const byName = new Map();
-    products.forEach((product) => {
-      // The xlsx's raw-material-image column occasionally resolves to the
-      // exact same photo as the product's own gallery (a finished-product
-      // shot, not a raw material) — drop those so a material never
-      // displays as if it were the finished product.
-      const productImages = new Set(product.images);
-      const images = product.rawMaterialImages.filter((url) => !productImages.has(url));
-      product.rawMaterials.forEach((m, index) => {
-        const key = m.material.toLowerCase();
-        if (byName.has(key)) return;
-        // rawMaterialImages isn't one-per-material (often fewer images than
-        // materials), so this cycles through by the material's own position
-        // instead of always taking image [0] for every material in the
-        // product — spreads distinct materials across distinct images
-        // instead of collapsing them all onto the same photo.
-        const image = images.length > 0 ? images[index % images.length] : null;
-        // Some products' xlsx rows have no raw-material-specific photo at
-        // all (the raw-material-image column just repeats the product
-        // photo, already filtered out above) — skip rather than show a
-        // material with no real photo; a later product with the same
-        // material name may still supply one, so this isn't marked "seen".
-        if (!image) return;
-        byName.set(key, {
-          material: m.material,
-          cost: m.cost,
-          category: product.category,
-          retailer: retailerNameFor(m.material),
-          image,
-          stock: 20 + Math.floor(Math.random() * 480),
-        });
+  // Items/raw-materials is what retailers list as commodities — the
+  // "Retailer=Commodity / SHG=Catalog" split this dashboard's own add-product
+  // upload icon comment refers to — so unlike Catalog/Insights below (still
+  // on the un-migrated xlsx-derived loadProductCatalog() stub), this tab
+  // fetches straight from the commodity table, scoped to this SHG's own
+  // role. Rendered with buildSupplyRowCard/renderSupplyRowGrid (see above) —
+  // the same detailed field-grid template + hover quantity stepper the
+  // consumer dashboard's own Catalog tab uses for the catalog table's
+  // identically-shaped rows, so a listing looks the same whichever side of
+  // the supply chain it's browsed from. Uses that function's default
+  // (commodity/ingot) placeholder icon, since these rows are commodities.
+
+  function renderRawMaterials(rows) {
+    renderSupplyRowGrid(rawMaterialsGrid, rows);
+    itemsEmptyState.hidden = rows.length > 0;
+  }
+
+  function loadRawMaterials() {
+    const info = { role: "SHG" };
+    fetch(
+      `${GUIDANCE_API_BASE}/route/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}`,
+    )
+      .then((response) => response.json())
+      .then((rows) => renderRawMaterials(Array.isArray(rows) ? rows : []))
+      .catch((err) => {
+        console.error(err);
+        renderRawMaterials([]);
       });
-    });
-    return [...byName.values()];
-  }
-
-  function renderRawMaterialCard(material) {
-    const image =
-      material.image ?? svgPlaceholder(material.material, colorForCategory(material.category));
-    const card = document.createElement("article");
-    card.className = "card shg-product-card";
-    card.innerHTML = `
-      <div class="shg-gallery-main">
-        ${imgWithFallback(image, material.material, "shg-gallery-main-img", "shg-gallery-main-fallback", "Image unavailable")}
-      </div>
-      <p class="shg-product-name">${material.material}</p>
-      <p class="shg-product-desc">Supplied by ${material.retailer}</p>
-      <div class="shg-product-meta">
-        <span class="shg-product-price">${averageCost(material.cost)}</span>
-        <span class="shg-product-units">${material.stock} in stock</span>
-      </div>
-      <p class="shg-product-category">
-        <span>Category</span><span>:</span><span>${material.category}</span>
-      </p>
-      <button type="button" class="primary-btn shg-buy-btn" style="width: 100%;">Buy Now</button>
-    `;
-    card
-      .querySelector(".shg-buy-btn")
-      .addEventListener("click", () => showToast(`Order placed for "${material.material}"`));
-    return card;
-  }
-
-  // Search (by name) + category filter, since Items now spans every
-  // category in the xlsx catalog rather than a single pinned one.
-  function setupItemsFilters(materials) {
-    const categories = [...new Set(materials.map((m) => m.category))].sort();
-    itemsCategoryFilter.insertAdjacentHTML(
-      "beforeend",
-      categories.map((c) => `<option value="${c}">${c}</option>`).join(""),
-    );
-
-    function applyFilters() {
-      const query = itemsSearchInput.value.trim().toLowerCase();
-      const category = itemsCategoryFilter.value;
-      const visible = materials.filter((material) => {
-        const matchesQuery = !query || material.material.toLowerCase().includes(query);
-        const matchesCategory = category === "all" || material.category === category;
-        return matchesQuery && matchesCategory;
-      });
-
-      rawMaterialsGrid.innerHTML = "";
-      visible.forEach((material) => rawMaterialsGrid.appendChild(renderRawMaterialCard(material)));
-      itemsEmptyState.hidden = visible.length > 0;
-    }
-
-    itemsSearchInput.addEventListener("input", applyFilters);
-    itemsCategoryFilter.addEventListener("change", applyFilters);
-    applyFilters();
-  }
-
-  function renderRawMaterials(products) {
-    setupItemsFilters(dedupeMaterials(products));
   }
 
   // Renders one insight block per selected product (stacked), now that
@@ -979,38 +1117,122 @@ if (page === "shg-dashboard") {
     refresh();
   }
 
+  loadRawMaterials();
+
+  // The SHG's own Catalog tab — this member's own already-added products,
+  // fetched by their own email (unlike the Items tab above, which browses
+  // a retailer's rows by role) so the listing survives a reload instead of
+  // only ever showing whatever the add-product form added this session.
+  // Rendered with buildFilledCard/supplyRowToFilledCardData (see above), the
+  // same template addProduct() itself uses for a just-added product, so a
+  // product looks and behaves the same whether it's fresh this session or
+  // loaded from the database.
+  function loadOwnCatalog() {
+    const session = readGuidanceSession();
+    if (!session?.email) return;
+    fetch(`${GUIDANCE_API_BASE}/route/select/catalog/email/${encodeURIComponent(session.email)}`)
+      .then((response) => response.json())
+      .then((rows) => {
+        sortByModifiedDesc(Array.isArray(rows) ? rows : []).forEach((row) => {
+          const card = buildFilledCard(
+            supplyRowToFilledCardData(row, CATALOG_PLACEHOLDER_ICON_PATH, "catalog"),
+          );
+          catalogGrid.appendChild(card);
+          alignToNavIconSpan(card);
+        });
+      })
+      .catch((err) => console.error(err));
+  }
+  loadOwnCatalog();
+
+  // Insight picker lists every product in the full xlsx catalog (all
+  // categories, not just pickles) — it's a separate exploration tool,
+  // unrelated to the storefront catalog above.
   loadProductCatalog()
-    .then((products) => {
-      const pickles = products
-        .filter((p) => p.category === "Pickles (Andhra Style)")
-        .sort((a, b) => a.id.localeCompare(b.id));
-      // Raw Materials sources from the full xlsx catalog (all categories),
-      // unlike the pickles-only Product Catalog below.
-      renderRawMaterials(products);
-      // Product Catalog shows a fixed sample of 8 from this SHG's one line
-      // of products — pinned to pickles for now (this demo SHG only makes
-      // pickles). Sorted by id (not shuffled) so the same 8 items show in
-      // the same order on every reload instead of a fresh random pick.
-      renderCatalogGrid(catalogGrid, pickles.slice(0, 8), null, undefined, false, false);
-      // Insight picker lists every product in the full xlsx catalog (all
-      // categories, not just pickles) — it's a separate exploration tool,
-      // not tied to the storefront's pickles-only curated subset above.
-      renderInsightSelect(products);
-    })
+    .then((products) => renderInsightSelect(products))
     .catch((err) => {
       console.error(err);
-      catalogGrid.innerHTML = "<p>Could not load the product catalog.</p>";
     });
 }
 
 if (page === "consumer-dashboard") {
-  // Same real catalog the SHG dashboard's Product Catalog showcases — this
-  // is the consumer-facing view of what SHGs have placed for sale.
+  // This is the consumer-facing view of what SHGs have placed for sale —
+  // fetched straight from the catalog table, scoped to the "consumer" role
+  // (func__select_catalog's own consumer branch), not the xlsx-derived
+  // loadProductCatalog() stub the SHG dashboard's own Catalog tab still
+  // uses. Rendered with buildSupplyRowCard/renderSupplyRowGrid (see above) —
+  // the same detailed field-grid template + hover quantity stepper the SHG
+  // dashboard's own Items tab uses for the commodity table's identically-
+  // shaped rows, so a listing looks the same whichever side of the supply
+  // chain it's browsed from — but with the catalog (coin) placeholder icon
+  // instead of the commodity (ingot) one, since these rows come from the
+  // catalog table, not commodity.
   const catalogGrid = document.getElementById("catalogGrid");
-  const itemsSearchInput = document.getElementById("itemsSearchInput");
-  const itemsCategoryFilter = document.getElementById("itemsCategoryFilter");
   const itemsEmptyState = document.getElementById("itemsEmptyState");
-  const toast = document.getElementById("consumerToast");
+
+  setupDashboardTabSwitching();
+  setupProfilePanel();
+
+  const info = { role: "consumer" };
+  fetch(
+    `${GUIDANCE_API_BASE}/route/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`,
+  )
+    .then((response) => response.json())
+    .then((rows) => {
+      const products = Array.isArray(rows) ? rows : [];
+      renderSupplyRowGrid(catalogGrid, products, { iconPath: CATALOG_PLACEHOLDER_ICON_PATH });
+      itemsEmptyState.hidden = products.length > 0;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+if (page === "retailer-dashboard") {
+  // Retailer is the top of this demo's supply chain — it only has a
+  // Catalog (what it supplies to the SHG), no "items" tab, since there's no
+  // layer above it to fetch from.
+  const materialGrid = document.getElementById("materialGrid");
+
+  setupAddProductForm();
+  setupDashboardTabSwitching();
+  setupProfilePanel();
+
+  // This retailer's own already-added commodities, fetched by their own
+  // email (there's only ever one retailer viewing this page, so email — not
+  // role — is what scopes "mine") so the listing survives a reload instead
+  // of only ever showing whatever the add-product form added this session.
+  // Rendered with buildFilledCard/supplyRowToFilledCardData (see above), the
+  // same template addProduct() itself uses for a just-added product, so a
+  // product looks and behaves the same whether it's fresh this session or
+  // loaded from the database.
+  function loadOwnCommodities() {
+    const session = readGuidanceSession();
+    if (!session?.email) return;
+    fetch(`${GUIDANCE_API_BASE}/route/select/commodity/email/${encodeURIComponent(session.email)}`)
+      .then((response) => response.json())
+      .then((rows) => {
+        sortByModifiedDesc(Array.isArray(rows) ? rows : []).forEach((row) => {
+          const card = buildFilledCard(supplyRowToFilledCardData(row));
+          materialGrid.appendChild(card);
+          alignToNavIconSpan(card);
+        });
+      })
+      .catch((err) => console.error(err));
+  }
+  loadOwnCommodities();
+}
+
+if (page === "district-dashboard" || page === "state-dashboard" || page === "aionos-dashboard") {
+  // Supervisory dashboards — apps/web's DashboardRoleNav renders each
+  // role's own credential/commodity/catalog items as a colored avatar's
+  // dropdown instead of a flat tab row, but every item is still just
+  // another .shg-tab/.shg-panel pair underneath (see
+  // interface/console/dashboard-{district,state,aionos}.html), so the same
+  // tab-switching + toast machinery every other dashboard uses covers them
+  // too. Configuration/Cart are marked shg-tab-disabled and just toast,
+  // same "Coming Soon" convention as any other not-yet-built tab.
+  const toast = document.getElementById("roleNavToast");
   let toastTimer = null;
 
   function showToast(message) {
@@ -1022,117 +1244,307 @@ if (page === "consumer-dashboard") {
     }, 1800);
   }
 
-  loadProductCatalog()
-    .then((products) => {
-      const categories = [...new Set(products.map((p) => p.category))].sort();
-      itemsCategoryFilter.insertAdjacentHTML(
-        "beforeend",
-        categories.map((c) => `<option value="${c}">${c}</option>`).join(""),
-      );
+  setupDashboardTabSwitching((tab) => {
+    if (tab.title) showToast(tab.title);
+  });
 
-      function applyFilters() {
-        const query = itemsSearchInput.value.trim().toLowerCase();
-        const category = itemsCategoryFilter.value;
-        const visible = products.filter((product) => {
-          const matchesQuery = !query || product.name.toLowerCase().includes(query);
-          const matchesCategory = category === "all" || product.category === category;
-          return matchesQuery && matchesCategory;
-        });
+  // Each avatar's own "Credential" tab queries guidance-api's info-only
+  // credential route (inference/route.py — no email/passkey needed, since
+  // this is a supervisory lookup by role, not a login) and tabulates
+  // whatever comes back. Fetched once per role and cached via the panel's
+  // own dataset flag so re-clicking a tab doesn't re-hit the API.
+  const ROLE_QUERY_BY_AVATAR_ROLE = { shg: "SHG" };
 
-        renderCatalogGrid(
-          catalogGrid,
-          visible,
-          (product) => showToast(`Order placed for "${product.name}"`),
-          "Buy Now",
-          true,
-        );
-        itemsEmptyState.hidden = visible.length > 0;
-      }
+  // A district authority only administers its own district's SHGs, so its
+  // SHG-avatar credential lookup is scoped to it — same {role, district_name}
+  // shape inference/tools/database.py's func__select_credential expects for
+  // a district-scoped query. State/AIONOS dashboards see every district, so
+  // this stays null there.
+  const currentDistrictName =
+    page === "district-dashboard" ? readGuidanceSession()?.info?.district_name : null;
 
-      itemsSearchInput.addEventListener("input", applyFilters);
-      itemsCategoryFilter.addEventListener("change", applyFilters);
-      applyFilters();
-    })
-    .catch((err) => {
-      console.error(err);
-      catalogGrid.innerHTML = "<p>Could not load the product catalog.</p>";
-    });
-}
-
-if (page === "retailer-dashboard") {
-  // Retailer is the top of this demo's supply chain — it only has a
-  // Catalog (what it supplies to the SHG), no "items" tab, since there's no
-  // layer above it to fetch from. Pinned to one category (Pickles) rather
-  // than a random pick each reload, mirroring how the SHG dashboard is
-  // pinned to the pickles it makes (these are the same goods the SHG's
-  // "Items" tab shows on the other end of the supply chain). Stock counts
-  // are synthetic — the xlsx has none — via a random count (not stable;
-  // this is meant to look like live inventory, not a fixed catalog fact).
-  const PICKLE_CATEGORY = "Pickles (Andhra Style)";
-  const materialGrid = document.getElementById("materialGrid");
-
-  function dedupeMaterials(products) {
-    const byName = new Map();
-    products
-      .filter((product) => product.category === PICKLE_CATEGORY)
-      .forEach((product) => {
-        // Same overlap check as the SHG dashboard's raw materials — don't
-        // show a finished-product photo mislabeled as a raw material.
-        const productImages = new Set(product.images);
-        const images = product.rawMaterialImages.filter((url) => !productImages.has(url));
-        product.rawMaterials.forEach((m, index) => {
-          const key = m.material.toLowerCase();
-          if (byName.has(key)) return;
-          const image = images.length > 0 ? images[index % images.length] : null;
-          if (!image) return;
-          byName.set(key, {
-            material: m.material,
-            cost: m.cost,
-            category: product.category,
-            image,
-            stock: 20 + Math.floor(Math.random() * 480),
-          });
-        });
-      });
-    return [...byName.values()].sort((a, b) => a.material.localeCompare(b.material));
+  // Raw as the API returned it — one row per record, `info` shown as its
+  // own column (not broken down into one column per field), no relabeling,
+  // no "—" placeholders, no field-level filtering. Admin-only dashboards,
+  // so every column (passkey included) is shown as-is.
+  function credentialCellValue(value) {
+    if (typeof value === "object" && value !== null) return JSON.stringify(value);
+    return String(value);
   }
 
-  // Same card template as the SHG dashboard's Items/Catalog tabs — single
-  // image (no badge overlay), name, price/stock — so a material card looks
-  // the same whichever side of the supply chain it's rendered on. No
-  // Category row for now — every card here is already pinned to Pickles,
-  // so it was pure repetition.
-  function renderMaterialCard(material) {
-    const image =
-      material.image ?? svgPlaceholder(material.material, colorForCategory(material.category));
-    const card = document.createElement("article");
-    card.className = "card shg-product-card";
-    card.innerHTML = `
-      <div class="shg-gallery-main">
-        ${imgWithFallback(image, material.material, "shg-gallery-main-img", "shg-gallery-main-fallback", "Image unavailable")}
-      </div>
-      <p class="shg-product-name">${material.material}</p>
-      <div class="shg-product-meta">
-        <span class="shg-product-price">${averageCost(material.cost)}</span>
-        <span class="shg-product-units">${material.stock} in stock</span>
+  // Shared by the credential/commodity/catalog panels below — same table
+  // markup and same floating approve/reject hover control, just pointed at
+  // a different update route and refresh callback per entity. `avatarRole`
+  // drives the same district-dashboard view-only rule credential always
+  // had: a district authority only administers its own district's SHGs, so
+  // only the SHG-avatar panel gets the hover control there — state/aionos
+  // see every avatar's panel and keep it everywhere.
+  function renderApprovableTable(panel, records, { avatarRole, entity, onRefresh }) {
+    const rows = sortByModifiedDesc(Array.isArray(records) ? records : []);
+
+    if (rows.length === 0) {
+      panel.innerHTML = "";
+      return;
+    }
+
+    const columns = [];
+    const seen = new Set();
+    rows.forEach((row) => {
+      Object.keys(row).forEach((key) => {
+        if (seen.has(key)) return;
+        seen.add(key);
+        columns.push(key);
+      });
+    });
+
+    panel.innerHTML = `
+      <div class="news-table-wrap">
+        <table class="news-table shg-credential-table">
+          <thead>
+            <tr>
+              ${columns.map((key) => `<th>${escapeXml(key)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows
+              .map(
+                (row) => `
+              <tr data-uuid="${escapeXml(credentialCellValue(row.uuid))}">
+                ${columns.map((key) => `<td${key === "is_authenticated" ? ' data-col="is_authenticated"' : ""}>${escapeXml(credentialCellValue(row[key]))}</td>`).join("")}
+              </tr>`,
+              )
+              .join("")}
+          </tbody>
+        </table>
       </div>
     `;
-    return card;
-  }
 
-  // Capped at 8, same as the SHG dashboard's own pinned pickle catalog —
-  // one simple grid, not a separate "featured" banner tier.
-  function renderMaterials(products) {
-    materialGrid.innerHTML = "";
-    dedupeMaterials(products)
-      .slice(0, 8)
-      .forEach((material) => materialGrid.appendChild(renderMaterialCard(material)));
-  }
+    // District dashboards restrict the hover approve/reject control to the
+    // SHG-avatar panel; every other avatar's panel there is view-only.
+    // State/AIONOS oversee multiple avatars, so they get the hover control
+    // on all of them.
+    if (avatarRole !== "SHG" && page === "district-dashboard") return;
 
-  loadProductCatalog()
-    .then((products) => renderMaterials(products))
-    .catch((err) => {
-      console.error(err);
-      materialGrid.innerHTML = "<p>Could not load the catalog.</p>";
+    // One floating +/- pair, repositioned over whichever row is hovered,
+    // rather than a permanently-reserved actions column that would sit
+    // there (visibly) even when nothing is hovered.
+    const wrap = panel.querySelector(".news-table-wrap");
+    const rowActions = document.createElement("div");
+    rowActions.className = "shg-credential-row-actions";
+    rowActions.innerHTML = `
+      <button type="button" class="shg-credential-action-btn confirm" aria-label="Approve"></button>
+      <button type="button" class="shg-credential-action-btn cancel" aria-label="Reject"></button>
+    `;
+    wrap.appendChild(rowActions);
+
+    // Delegated rather than one mouseenter/mouseleave pair per cell: since
+    // rowActions is centered directly over whichever cell it's showing for,
+    // it (or its buttons) can end up the topmost element under the cursor,
+    // which would make a plain per-cell mouseleave fire the instant the
+    // buttons themselves are hovered — hiding them right as you try to
+    // click. Checking event.target instead only ever hides/moves it when
+    // the pointer is genuinely over a *different* cell (or none), and never
+    // reacts to the pointer moving onto rowActions itself. The blur is
+    // driven off this same tracked cell (an `.is-cell-active` class) rather
+    // than plain CSS td:hover, for the same reason: hovering the buttons
+    // — a sibling of the cell, not a descendant — wouldn't otherwise keep
+    // the cell itself matching :hover, and the blur would drop right as
+    // the cursor reached them.
+    let activeCell = null;
+
+    function setActiveCell(cell) {
+      if (cell === activeCell) return;
+      if (activeCell) activeCell.classList.remove("is-cell-active");
+      activeCell = cell;
+      if (activeCell) activeCell.classList.add("is-cell-active");
+    }
+
+    wrap.addEventListener("mouseover", (event) => {
+      if (event.target.closest(".shg-credential-row-actions")) return;
+      const cell = event.target.closest('td[data-col="is_authenticated"]');
+      if (!cell) {
+        setActiveCell(null);
+        rowActions.classList.remove("is-visible");
+        return;
+      }
+      setActiveCell(cell);
+      const cellRect = cell.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      rowActions.style.top = `${cellRect.top - wrapRect.top + wrap.scrollTop + cellRect.height / 2}px`;
+      rowActions.style.left = `${cellRect.left - wrapRect.left + wrap.scrollLeft + cellRect.width / 2}px`;
+      rowActions.classList.add("is-visible");
     });
+    wrap.addEventListener("mouseleave", () => {
+      setActiveCell(null);
+      rowActions.classList.remove("is-visible");
+    });
+
+    // Approve/reject call the update route and then re-run the same
+    // select query, so the table always reflects what the database
+    // actually holds rather than an optimistic local edit.
+    function updateAuthentication(isAuthenticated) {
+      if (!activeCell) return;
+      const uuid = activeCell.closest("tr").dataset.uuid;
+      rowActions.classList.remove("is-visible");
+      fetch(
+        `${GUIDANCE_API_BASE}/route/update/${entity}/uuid/${encodeURIComponent(uuid)}/is_authenticated/${encodeURIComponent(isAuthenticated)}`,
+        { method: "POST" },
+      )
+        .catch(() => {})
+        .finally(onRefresh);
+    }
+
+    rowActions.querySelector(".confirm").addEventListener("click", () => updateAuthentication(1));
+    rowActions.querySelector(".cancel").addEventListener("click", () => updateAuthentication(-1));
+  }
+
+  function renderCredentialTable(panel, records, role) {
+    renderApprovableTable(panel, records, {
+      avatarRole: role,
+      entity: "credential",
+      onRefresh: () => fetchAndRenderCredentials(panel, role),
+    });
+  }
+
+  function fetchAndRenderCredentials(panel, role) {
+    panel.innerHTML = `
+      <div class="shg-credential-loading">
+        <div class="shg-credential-spinner" aria-hidden="true"></div>
+        <p class="subtext">Loading credential details…</p>
+      </div>
+    `;
+    const info =
+      role === "SHG" && currentDistrictName
+        ? { role, district_name: currentDistrictName }
+        : { role };
+    fetch(
+      `${GUIDANCE_API_BASE}/route/select/credential/info/${encodeURIComponent(JSON.stringify(info))}`,
+    )
+      .then((response) => response.json())
+      .then((records) => renderCredentialTable(panel, records, role))
+      .catch(() => {
+        panel.innerHTML = `<p class="subtext">Could not load credential details. Please try again.</p>`;
+        delete panel.dataset.credentialsLoaded;
+      });
+  }
+
+  function loadCredentialsForAvatar(avatar) {
+    const panel = document.querySelector(
+      `.shg-panel[data-panel="${avatar.dataset.role}-credential"]`,
+    );
+    if (!panel || panel.dataset.credentialsLoaded) return;
+    panel.dataset.credentialsLoaded = "true";
+    const role = ROLE_QUERY_BY_AVATAR_ROLE[avatar.dataset.role] || avatar.dataset.role;
+    fetchAndRenderCredentials(panel, role);
+  }
+
+  document.querySelectorAll(".shg-role-avatar").forEach((avatar) => {
+    const credentialTab = avatar.querySelector('.shg-tab[data-tab$="-credential"]');
+    if (!credentialTab) return;
+    credentialTab.addEventListener("click", () => loadCredentialsForAvatar(avatar));
+    if (credentialTab.classList.contains("active")) loadCredentialsForAvatar(avatar);
+  });
+
+  // The retailer-commodity tab only ever shows one avatar (there's no
+  // per-retailer view here), so what it returns depends on which
+  // supervisory dashboard is doing the viewing, not on any single
+  // retailer's email — state/aionos see every retailer's commodities,
+  // district gets its own district's retailers scoped by pincode (same
+  // {role, district_name} shape the credential query above uses). The
+  // info-only commodity route this calls (inference/route.py) mirrors the
+  // credential one already used above.
+  const CURRENT_DASHBOARD_ROLE = {
+    "district-dashboard": "district",
+    "state-dashboard": "state",
+    "aionos-dashboard": "AIONOS",
+  }[page];
+
+  function fetchAndRenderCommodities(panel) {
+    panel.innerHTML = `
+      <div class="shg-credential-loading">
+        <div class="shg-credential-spinner" aria-hidden="true"></div>
+        <p class="subtext">Loading commodity details…</p>
+      </div>
+    `;
+    const info =
+      CURRENT_DASHBOARD_ROLE === "district"
+        ? { role: CURRENT_DASHBOARD_ROLE, district_name: currentDistrictName }
+        : { role: CURRENT_DASHBOARD_ROLE };
+    fetch(
+      `${GUIDANCE_API_BASE}/route/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}`,
+    )
+      .then((response) => response.json())
+      .then((records) =>
+        renderApprovableTable(panel, records, {
+          avatarRole: "retailer",
+          entity: "commodity",
+          onRefresh: () => fetchAndRenderCommodities(panel),
+        }),
+      )
+      .catch(() => {
+        panel.innerHTML = `<p class="subtext">Could not load commodity details. Please try again.</p>`;
+        delete panel.dataset.commoditiesLoaded;
+      });
+  }
+
+  function loadCommodityForAvatar(avatar) {
+    const panel = document.querySelector(
+      `.shg-panel[data-panel="${avatar.dataset.role}-commodity"]`,
+    );
+    if (!panel || panel.dataset.commoditiesLoaded) return;
+    panel.dataset.commoditiesLoaded = "true";
+    fetchAndRenderCommodities(panel);
+  }
+
+  document.querySelectorAll(".shg-role-avatar").forEach((avatar) => {
+    const commodityTab = avatar.querySelector('.shg-tab[data-tab$="-commodity"]');
+    if (!commodityTab) return;
+    commodityTab.addEventListener("click", () => loadCommodityForAvatar(avatar));
+    if (commodityTab.classList.contains("active")) loadCommodityForAvatar(avatar);
+  });
+
+  // shg-catalog tab — same per-dashboard role dispatch as retailer-commodity
+  // above (there's one SHG avatar here too, not one per SHG), against
+  // func__select_catalog's matching {role}/{role, district_name} branches.
+  function fetchAndRenderCatalog(panel) {
+    panel.innerHTML = `
+      <div class="shg-credential-loading">
+        <div class="shg-credential-spinner" aria-hidden="true"></div>
+        <p class="subtext">Loading catalog details…</p>
+      </div>
+    `;
+    const info =
+      CURRENT_DASHBOARD_ROLE === "district"
+        ? { role: CURRENT_DASHBOARD_ROLE, district_name: currentDistrictName }
+        : { role: CURRENT_DASHBOARD_ROLE };
+    fetch(
+      `${GUIDANCE_API_BASE}/route/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`,
+    )
+      .then((response) => response.json())
+      .then((records) =>
+        renderApprovableTable(panel, records, {
+          avatarRole: "SHG",
+          entity: "catalog",
+          onRefresh: () => fetchAndRenderCatalog(panel),
+        }),
+      )
+      .catch(() => {
+        panel.innerHTML = `<p class="subtext">Could not load catalog details. Please try again.</p>`;
+        delete panel.dataset.catalogLoaded;
+      });
+  }
+
+  function loadCatalogForAvatar(avatar) {
+    const panel = document.querySelector(`.shg-panel[data-panel="${avatar.dataset.role}-catalog"]`);
+    if (!panel || panel.dataset.catalogLoaded) return;
+    panel.dataset.catalogLoaded = "true";
+    fetchAndRenderCatalog(panel);
+  }
+
+  document.querySelectorAll(".shg-role-avatar").forEach((avatar) => {
+    const catalogTab = avatar.querySelector('.shg-tab[data-tab$="-catalog"]');
+    if (!catalogTab) return;
+    catalogTab.addEventListener("click", () => loadCatalogForAvatar(avatar));
+    if (catalogTab.classList.contains("active")) loadCatalogForAvatar(avatar);
+  });
 }

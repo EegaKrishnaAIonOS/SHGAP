@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -10,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import * as crypto from 'node:crypto';
-import { UserStatus } from '@shgap/database';
+import { RoleName, UserStatus } from '@shgap/database';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import {
@@ -18,7 +17,6 @@ import {
   RefreshTokenPayload,
   RoleAssignment,
 } from '../common/interfaces/jwt-payload.interface';
-import { SelfRegisterableRole } from './dto/register.dto';
 import { MAIL_PROVIDER, MailProvider } from './mail/mail-provider.interface';
 import { OtpService } from './otp.service';
 import { SMS_PROVIDER, SmsProvider } from './sms/sms-provider.interface';
@@ -30,22 +28,9 @@ export interface TokenPair {
   expiresInSeconds: number;
 }
 
-export interface RegisterInput {
-  fullName: string;
-  email: string;
-  mobileNumber: string;
-  password: string;
-  role: SelfRegisterableRole;
-}
-
-export interface RegisterResult {
-  status: UserStatus;
-  role: SelfRegisterableRole;
-}
-
 export interface VerifyEmailResult {
   status: UserStatus;
-  role: SelfRegisterableRole;
+  role: RoleName;
 }
 
 @Injectable()
@@ -95,57 +80,6 @@ export class AuthService {
     return this.issueTokenPair(user.id, phone, roleAssignments);
   }
 
-  /** Self-registration for the SHG/DISTRIBUTOR/CONSUMER personas (T25) — a
-   * separate path from the phone-OTP flow above, which remains the only way
-   * officials/admins are provisioned. Never issues tokens: even a CONSUMER
-   * (ACTIVE immediately) must still log in via loginWithPassword afterwards. */
-  async registerWithPassword(input: RegisterInput): Promise<RegisterResult> {
-    const existingByEmail = await this.prisma.user.findUnique({
-      where: { email: input.email },
-    });
-    if (existingByEmail) {
-      throw new ConflictException('An account with this email already exists.');
-    }
-    const existingByPhone = await this.prisma.user.findUnique({
-      where: { phone: input.mobileNumber },
-    });
-    if (existingByPhone) {
-      throw new ConflictException(
-        'An account with this mobile number already exists.',
-      );
-    }
-
-    const role = await this.prisma.role.findUnique({
-      where: { name: input.role },
-    });
-    if (!role) {
-      throw new InternalServerErrorException(
-        `Role ${input.role} is not seeded — run the database seed script`,
-      );
-    }
-
-    const passwordHash = await argon2.hash(input.password);
-    // Every self-registered account starts here regardless of role — email
-    // ownership must be confirmed before CONSUMER goes ACTIVE or
-    // SHG/DISTRIBUTOR even reaches admin review (see verifyEmail).
-    const user = await this.prisma.user.create({
-      data: {
-        phone: input.mobileNumber,
-        email: input.email,
-        name: input.fullName,
-        passwordHash,
-        status: 'PENDING_VERIFICATION',
-      },
-    });
-    await this.prisma.userRole.create({
-      data: { userId: user.id, roleId: role.id },
-    });
-
-    await this.sendEmailVerification(user.id, input.email);
-
-    return { status: user.status, role: input.role };
-  }
-
   /** Confirms the token from the emailed verification link and moves the
    * account to its real starting status: ACTIVE immediately for CONSUMER,
    * PENDING_APPROVAL (awaiting admin review) for SHG/DISTRIBUTOR. Single-use,
@@ -162,7 +96,7 @@ export class AuthService {
     const roleAssignments = await this.loadRoleAssignments(userId);
     // Self-registration (the only path that ever creates a
     // PENDING_VERIFICATION user) assigns exactly one role.
-    const role = roleAssignments[0]?.role as SelfRegisterableRole | undefined;
+    const role = roleAssignments[0]?.role;
     if (!role) {
       throw new InternalServerErrorException(
         `User ${userId} has no role assignment to verify against`,

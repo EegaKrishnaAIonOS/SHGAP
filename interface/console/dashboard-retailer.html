@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshmi - An innovative SHG intelligent assistant</title>
+    <link rel="icon" type="image/png" href="/interface/favicon.png" />
+    <link rel="stylesheet" href="/interface/styles.css" />
+  </head>
+  <body class="shg-page rt-page">
+    <nav class="shg-tabs">
+      <div class="page-shell shg-tabs-inner">
+        <button type="button" class="shg-tab" data-tab="catalog">Catalog</button>
+        <!-- Not a real tab a member picks from this bar (which is itself
+             CSS-hidden — see .shg-tabs) — apps/web's DashboardProfileMenu
+             forwards its own icon's click to this button (see
+             LandingPage.tsx's handleOpenProfilePage), reusing the same
+             tab/panel switching interface/script.js already has instead of
+             a separate mechanism. Excluded from DashboardNav's own visible
+             tab list (see DashboardNav.tsx's visibleTabs filter). -->
+        <button type="button" class="shg-tab active" data-tab="profile">Profile</button>
+      </div>
+    </nav>
+
+    <main class="page-shell">
+      <section class="shg-panel" data-panel="catalog">
+        <form id="addProductForm" class="add-product-card card" novalidate>
+          <div class="add-product-fields">
+            <div class="add-product-columns">
+              <div class="add-product-col">
+                <div class="field">
+                  <label for="newProductName">Product Name</label>
+                  <input type="text" id="newProductName" placeholder="Name" required />
+                </div>
+                <div class="field">
+                  <label for="newProductCategory">Product Category</label>
+                  <input type="text" id="newProductCategory" placeholder="Category" required />
+                </div>
+              </div>
+              <div class="add-product-col">
+                <div class="field">
+                  <label for="newProductMfgDate">Mfg. Date</label>
+                  <input type="text" id="newProductMfgDate" placeholder="YYYY-MM-DD" required />
+                </div>
+                <div class="field">
+                  <label for="newProductExpiry">Exp. Date</label>
+                  <input type="text" id="newProductExpiry" placeholder="YYYY-MM-DD" />
+                </div>
+              </div>
+              <div class="add-product-col">
+                <div class="field">
+                  <label for="newProductMrp">MRP / Unit (₹)</label>
+                  <input type="number" id="newProductMrp" step="any" min="0" placeholder="01.10" required />
+                </div>
+                <div class="field">
+                  <label for="newProductUnits">No. of Units</label>
+                  <input type="number" id="newProductUnits" step="1" min="0" placeholder="1" required />
+                </div>
+              </div>
+              <div class="add-product-col">
+                <div class="field">
+                  <label for="newProductMinQty">Min. Qty. / Order</label>
+                  <input type="number" id="newProductMinQty" step="1" min="1" placeholder="1" required />
+                </div>
+                <div class="field">
+                  <label for="newProductMaxQty">Max. Qty. / Order</label>
+                  <input type="number" id="newProductMaxQty" step="1" min="1" placeholder="1" required />
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="newProductDescription">Product Description</label>
+              <input type="text" id="newProductDescription" placeholder="Description" required />
+            </div>
+          </div>
+
+          <label id="newProductUploadZone" class="add-product-upload" for="newProductImage">
+            <input type="file" id="newProductImage" accept="image/*" hidden />
+            <span class="add-product-upload-badge" aria-hidden="true">
+              <!-- Commodity icon (an ingot silhouette) — mirrors
+                   CommodityIcon.tsx in apps/web, this dashboard's own
+                   placeholder per the Retailer=Commodity / SHG=Catalog
+                   split. -->
+              <svg class="add-product-upload-icon" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M7 5H13L16 8V15H4V8Z" fill="currentColor" />
+              </svg>
+            </span>
+          </label>
+
+          <div class="add-product-confirm-overlay" aria-hidden="true">
+            <button type="button" class="add-product-confirm-btn confirm" aria-label="Add product">+</button>
+            <button type="button" class="add-product-confirm-btn cancel" aria-label="Discard">&minus;</button>
+          </div>
+        </form>
+
+        <hr class="add-product-divider" />
+
+        <div id="materialGrid" class="shg-catalog-grid"></div>
+      </section>
+
+      <section class="shg-panel active" data-panel="profile">
+        <div class="auth-card profile-panel-card">
+          <div class="form-grid">
+            <div class="field">
+              <img id="profileAvatar" src="/guest-avatar.svg" alt="" class="profile-avatar" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="profileEmail" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Passkey</label>
+              <input id="profilePasskey" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Role</label>
+              <input id="profileRole" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Mode</label>
+              <input id="profileMode" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Name</label>
+              <input id="profileName" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Contact</label>
+              <input id="profileContact" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input id="profileAddress" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Pincode</label>
+              <input id="profilePincode" type="text" readonly tabindex="-1" />
+            </div>
+            <div class="field">
+              <label>Nationality</label>
+              <input id="profileNationality" type="text" readonly tabindex="-1" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document.body.dataset.page = 'retailer-dashboard';
+    </script>
+    <script src="/interface/script.js"></script>
+  </body>
+</html>

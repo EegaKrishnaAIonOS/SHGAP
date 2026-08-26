@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Select } from "./ui/Input";
 import { Card } from "./ui/Card";
 
@@ -40,21 +39,19 @@ export function DashboardFilters({
   onDateRangeChange,
   extra = [],
 }: DashboardFiltersProps) {
-  const { t } = useTranslation();
-
   const dateRangeOptions = [
-    { value: "30d", label: t("dashboard.last30Days") },
-    { value: "90d", label: t("dashboard.last90Days") },
-    { value: "12m", label: t("dashboard.last12Months") },
+    { value: "30d", label: "Last 30 days" },
+    { value: "90d", label: "Last 90 days" },
+    { value: "12m", label: "Last 12 months" },
   ];
 
   return (
     <Card className="mb-5">
       <div className="flex flex-wrap items-end gap-4">
-        <span className="text-sm font-semibold text-neutral-500">{t("dashboard.filters")}</span>
+        <span className="text-sm font-semibold text-neutral-500">Filters</span>
         <div className="w-48">
           <Select
-            label={t("dashboard.dateRange")}
+            label="Date range"
             options={dateRangeOptions}
             value={dateRange}
             onChange={(e) => onDateRangeChange(e.target.value as DateRangeValue)}

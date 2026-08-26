@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { AuthLayout } from "../../components/AuthLayout";
 import { Button } from "../../components/ui/Button";
@@ -13,7 +12,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * response back — the same message whether or not the account exists, so
  * the UI can never be used to enumerate registered emails. */
 export function ForgotPasswordPage() {
-  const { t } = useTranslation();
   const { forgotPassword } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -25,7 +23,7 @@ export function ForgotPasswordPage() {
     event.preventDefault();
     setError(null);
     if (!EMAIL_PATTERN.test(email)) {
-      setError(t("forgotPassword.emailInvalid"));
+      setError("Please enter a valid email address.");
       return;
     }
     setSubmitting(true);
@@ -33,7 +31,7 @@ export function ForgotPasswordPage() {
       const result = await forgotPassword(email);
       setMessage(result.message);
     } catch {
-      setError(t("forgotPassword.networkError"));
+      setError("Couldn't reach the server. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -41,11 +39,11 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthLayout
-      title={t("forgotPassword.title")}
-      subtitle={t("forgotPassword.subtitle")}
+      title="Forgot password"
+      subtitle="Enter your email and we'll send you a link to reset your password."
       footer={
         <Link to="/login" className="font-medium text-marketing-700 hover:underline">
-          {t("forgotPassword.backToLogin")}
+          Back to login
         </Link>
       }
     >
@@ -54,7 +52,7 @@ export function ForgotPasswordPage() {
       ) : (
         <form className="flex flex-col gap-4" onSubmit={(e) => void handleSubmit(e)}>
           <Input
-            label={t("forgotPassword.email")}
+            label="Email ID"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -67,7 +65,7 @@ export function ForgotPasswordPage() {
             isLoading={submitting}
             className="!bg-marketing-600 hover:!bg-marketing-700"
           >
-            {t("forgotPassword.submit")}
+            Send reset link
           </Button>
         </form>
       )}

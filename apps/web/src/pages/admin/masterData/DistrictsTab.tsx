@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
@@ -16,7 +15,6 @@ import type { District } from "../../../lib/api/types";
 const emptyForm = { name: "", code: "" };
 
 export function DistrictsTab() {
-  const { t } = useTranslation();
   const [districts, setDistricts] = useState<District[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +29,11 @@ export function DistrictsTab() {
     setLoading(true);
     getDistricts()
       .then(setDistricts)
-      .catch(() => setError(t("admin.masterData.loadError")))
+      .catch(() => setError("Couldn't load this list. Please try again."))
       .finally(() => setLoading(false));
   }
 
-  useEffect(reload, [t]);
+  useEffect(reload, []);
 
   function openCreate() {
     setEditing(null);
@@ -63,35 +61,35 @@ export function DistrictsTab() {
       setModalOpen(false);
       reload();
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : t("admin.masterData.saveError"));
+      setFormError(err instanceof ApiError ? err.message : "Couldn't save. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(district: District) {
-    if (!window.confirm(t("admin.masterData.confirmDelete", { name: district.name }))) return;
+    if (!window.confirm(`Delete "${district.name}"? This can't be undone.`)) return;
     try {
       await deleteDistrict(district.id);
       reload();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("admin.masterData.deleteError"));
+      setError(err instanceof ApiError ? err.message : "Couldn't delete this. Please try again.");
     }
   }
 
   const columns: Column<District>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.name },
-    { key: "code", header: t("admin.masterData.code"), render: (row) => row.code },
+    { key: "name", header: "Name", render: (row) => row.name },
+    { key: "code", header: "Code", render: (row) => row.code },
     {
       key: "actions",
-      header: t("common.actions"),
+      header: "Actions",
       render: (row) => (
         <div className="flex gap-2">
           <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
-            {t("common.edit")}
+            Edit
           </Button>
           <Button size="sm" variant="ghost" onClick={() => void handleDelete(row)}>
-            {t("common.delete")}
+            Delete
           </Button>
         </div>
       ),
@@ -102,7 +100,7 @@ export function DistrictsTab() {
     <div>
       <div className="mb-3 flex justify-end">
         <Button size="sm" onClick={openCreate}>
-          {t("admin.masterData.addDistrict")}
+          Add district
         </Button>
       </div>
 
@@ -112,33 +110,33 @@ export function DistrictsTab() {
         columns={columns}
         rows={districts}
         rowKey={(row) => row.id}
-        emptyMessage={loading ? t("common.loading") : t("admin.masterData.noneFound")}
+        emptyMessage={loading ? "Loading..." : "Nothing here yet."}
       />
 
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? t("admin.masterData.editDistrict") : t("admin.masterData.addDistrict")}
+        title={editing ? "Edit district" : "Add district"}
         footer={
           <>
             <Button variant="outline" onClick={() => setModalOpen(false)}>
-              {t("common.cancel")}
+              Cancel
             </Button>
             <Button isLoading={saving} onClick={() => void handleSubmit()}>
-              {t("common.save")}
+              Save
             </Button>
           </>
         }
       >
         <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
           <Input
-            label={t("dashboard.name")}
+            label="Name"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             required
           />
           <Input
-            label={t("admin.masterData.code")}
+            label="Code"
             value={form.code}
             onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
             required

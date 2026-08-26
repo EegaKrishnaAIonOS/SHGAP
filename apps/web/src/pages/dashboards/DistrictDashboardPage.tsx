@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../components/PageHeader";
 import {
   DashboardFilters,
@@ -20,7 +19,6 @@ import {
 import type { DistrictSalesRollup, UlbSalesRollup } from "../../lib/api/types";
 
 export function DistrictDashboardPage() {
-  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRangeValue>("30d");
   const [districtId, setDistrictId] = useState("");
   const dateFrom = useMemo(() => dateRangeToDateFrom(dateRange), [dateRange]);
@@ -32,7 +30,7 @@ export function DistrictDashboardPage() {
   } = useAsyncData(
     () => getDistrictSales({ dateFrom }),
     [dateFrom],
-    t("districtDashboard.loadError"),
+    "Couldn't load district sales data. Please try again.",
   );
 
   const { data: ulbs, loading: ulbsLoading } = useAsyncData(
@@ -58,29 +56,29 @@ export function DistrictDashboardPage() {
   const totalOrders = visibleRows.reduce((sum, d) => sum + d.orderCount, 0);
 
   const districtColumns: Column<DistrictSalesRollup>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.districtName },
+    { key: "name", header: "Name", render: (row) => row.districtName },
     {
       key: "orders",
-      header: t("dashboard.orders"),
+      header: "Orders",
       render: (row) => row.orderCount.toLocaleString(),
     },
     {
       key: "sales",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => `₹${row.totalAmount.toLocaleString()}`,
     },
   ];
 
   const ulbColumns: Column<UlbSalesRollup>[] = [
-    { key: "name", header: t("dashboard.name"), render: (row) => row.ulbName },
+    { key: "name", header: "Name", render: (row) => row.ulbName },
     {
       key: "orders",
-      header: t("dashboard.orders"),
+      header: "Orders",
       render: (row) => row.orderCount.toLocaleString(),
     },
     {
       key: "sales",
-      header: t("dashboard.sales"),
+      header: "Sales",
       render: (row) => `₹${row.totalAmount.toLocaleString()}`,
     },
   ];
@@ -90,10 +88,10 @@ export function DistrictDashboardPage() {
       <PageHeader
         title={
           selectedDistrict
-            ? `${t("districtDashboard.title")} — ${selectedDistrict.districtName}`
-            : t("districtDashboard.title")
+            ? `District Dashboard — ${selectedDistrict.districtName}`
+            : "District Dashboard"
         }
-        subtitle={t("districtDashboard.subtitle")}
+        subtitle="MEPMA district officer view — SHG performance across ULBs and mandals."
         wireframe={false}
       />
       <DashboardFilters
@@ -102,11 +100,11 @@ export function DistrictDashboardPage() {
         extra={[
           {
             key: "district",
-            label: t("dashboard.district"),
+            label: "District",
             value: districtId,
             onChange: setDistrictId,
             options: [
-              { value: "", label: t("dashboard.allDistricts") },
+              { value: "", label: "All districts" },
               ...(districts ?? []).map((d) => ({ value: d.districtId, label: d.districtName })),
             ],
           },
@@ -116,21 +114,18 @@ export function DistrictDashboardPage() {
       {districtsError && <p className="mb-3 text-sm text-danger-500">{districtsError}</p>}
 
       <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Total sales" value={`₹${(totalSales / 100000).toFixed(1)}L`} />
+        <StatCard label="Total orders" value={totalOrders.toLocaleString()} />
         <StatCard
-          label={t("dashboard.totalSales")}
-          value={`₹${(totalSales / 100000).toFixed(1)}L`}
-        />
-        <StatCard label={t("dashboard.totalOrders")} value={totalOrders.toLocaleString()} />
-        <StatCard
-          label={t("nav.ulbDashboard")}
+          label="ULB Dashboard"
           value={districtId ? (ulbs ?? []).length : (districts ?? []).length}
         />
-        <StatCard label={t("dashboard.topCategories")} value={(categories ?? []).length} />
+        <StatCard label="Top categories" value={(categories ?? []).length} />
       </div>
 
       <div className="mb-5 grid gap-4 lg:grid-cols-2">
         <SimpleLineChart
-          title={t("dashboard.salesTrend")}
+          title="Sales trend"
           data={(trend ?? []).map((p) => ({
             month: new Date(p.bucket).toLocaleDateString(undefined, {
               month: "short",
@@ -139,10 +134,10 @@ export function DistrictDashboardPage() {
             sales: p.totalAmount,
           }))}
           xKey="month"
-          series={[{ key: "sales", label: t("dashboard.sales") }]}
+          series={[{ key: "sales", label: "Sales" }]}
         />
         <SimplePieChart
-          title={t("dashboard.topCategories")}
+          title="Top categories"
           data={(categories ?? []).map((c) => ({ category: c.categoryName, value: c.totalAmount }))}
           nameKey="category"
           valueKey="value"
@@ -152,11 +147,11 @@ export function DistrictDashboardPage() {
       {districtId ? (
         <>
           <ExportButtons
-            title={t("dashboard.ulbBreakdown")}
+            title="ULB-wise breakdown"
             columns={[
-              { header: t("dashboard.name"), value: (r: UlbSalesRollup) => r.ulbName },
-              { header: t("dashboard.orders"), value: (r: UlbSalesRollup) => r.orderCount },
-              { header: t("dashboard.sales"), value: (r: UlbSalesRollup) => r.totalAmount },
+              { header: "Name", value: (r: UlbSalesRollup) => r.ulbName },
+              { header: "Orders", value: (r: UlbSalesRollup) => r.orderCount },
+              { header: "Sales", value: (r: UlbSalesRollup) => r.totalAmount },
             ]}
             rows={ulbs ?? []}
             filename="ulb-breakdown"
@@ -165,18 +160,18 @@ export function DistrictDashboardPage() {
             columns={ulbColumns}
             rows={ulbs ?? []}
             rowKey={(row) => row.ulbId}
-            caption={t("dashboard.ulbBreakdown")}
-            emptyMessage={ulbsLoading ? t("common.loading") : t("dashboard.noUlbData")}
+            caption="ULB-wise breakdown"
+            emptyMessage={ulbsLoading ? "Loading..." : "No ULB data for the selected filters yet."}
           />
         </>
       ) : (
         <>
           <ExportButtons
-            title={t("dashboard.districtBreakdown")}
+            title="District-wise breakdown"
             columns={[
-              { header: t("dashboard.name"), value: (r: DistrictSalesRollup) => r.districtName },
-              { header: t("dashboard.orders"), value: (r: DistrictSalesRollup) => r.orderCount },
-              { header: t("dashboard.sales"), value: (r: DistrictSalesRollup) => r.totalAmount },
+              { header: "Name", value: (r: DistrictSalesRollup) => r.districtName },
+              { header: "Orders", value: (r: DistrictSalesRollup) => r.orderCount },
+              { header: "Sales", value: (r: DistrictSalesRollup) => r.totalAmount },
             ]}
             rows={districts ?? []}
             filename="district-breakdown"
@@ -185,8 +180,8 @@ export function DistrictDashboardPage() {
             columns={districtColumns}
             rows={districts ?? []}
             rowKey={(row) => row.districtId}
-            caption={t("dashboard.districtBreakdown")}
-            emptyMessage={districtsLoading ? t("common.loading") : t("dashboard.noData")}
+            caption="District-wise breakdown"
+            emptyMessage={districtsLoading ? "Loading..." : "No data for the selected filters yet."}
           />
         </>
       )}

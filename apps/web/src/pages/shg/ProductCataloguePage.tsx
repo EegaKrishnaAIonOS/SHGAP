@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card, CardFooter } from "../../components/ui/Card";
@@ -38,7 +36,6 @@ const LAUNCH_CATEGORY_SLUG = "pickles";
  * `ProductFormModal` -> `ProductImageCapture`.
  */
 export function ProductCataloguePage() {
-  const { t } = useTranslation();
   const [shg, setShg] = useState<Shg | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -65,7 +62,11 @@ export function ProductCataloguePage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setLoadError(err instanceof ApiError ? err.message : t("catalogue.loadFailed"));
+          setLoadError(
+            err instanceof ApiError
+              ? err.message
+              : "Couldn't load your catalogue. Please try again.",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -75,7 +76,7 @@ export function ProductCataloguePage() {
     return () => {
       cancelled = true;
     };
-  }, [t]);
+  }, []);
 
   const { nameByCategoryId, slugByCategoryId } = useMemo(
     () => buildCategoryLookup(categories),
@@ -100,16 +101,16 @@ export function ProductCataloguePage() {
   }
 
   async function handleDelete(product: Product) {
-    if (!window.confirm(t("catalogue.confirmDelete", { name: product.name }))) return;
+    if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
     const result = await deleteProduct(product.id);
     setProducts((prev) => prev.filter((p) => p.id !== product.id));
     if (result.status === "queued") {
-      setPageNotice(t("catalogue.deleteQueued"));
+      setPageNotice("You're offline — the delete will complete once you're back online.");
     }
   }
 
   if (loading) {
-    return <p className="text-neutral-500">{t("common.loading")}</p>;
+    return <p className="text-neutral-500">Loading...</p>;
   }
 
   if (!shg) {
@@ -118,13 +119,9 @@ export function ProductCataloguePage() {
         <span className="mb-2 block text-4xl" aria-hidden="true">
           🏷️
         </span>
-        <p className="mb-4 text-neutral-600">{t("catalogue.registerFirst")}</p>
-        <Link
-          to="/register"
-          className="inline-flex min-h-touch items-center justify-center rounded-md bg-brand-400 px-6 text-lg font-medium text-white"
-        >
-          {t("catalogue.registerFirstCta")}
-        </Link>
+        <p className="text-neutral-600">
+          Register your SHG before adding products to the catalogue.
+        </p>
       </Card>
     );
   }
@@ -132,7 +129,7 @@ export function ProductCataloguePage() {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold text-neutral-900">{t("catalogue.title")}</h1>
+        <h1 className="text-xl font-semibold text-neutral-900">Product Catalogue</h1>
         <Button
           size="sm"
           onClick={() => {
@@ -140,7 +137,7 @@ export function ProductCataloguePage() {
             setModalOpen(true);
           }}
         >
-          + {t("catalogue.addProduct")}
+          + Add product
         </Button>
       </div>
 
@@ -149,8 +146,8 @@ export function ProductCataloguePage() {
 
       <div className="mb-3">
         <Input
-          label={t("common.search")}
-          placeholder={t("catalogue.searchPlaceholder")}
+          label="Search"
+          placeholder="Search products..."
           fieldSize="touch"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -158,7 +155,9 @@ export function ProductCataloguePage() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-neutral-500">{t("catalogue.noProducts")}</p>
+        <p className="text-neutral-500">
+          No products yet. Tap "Add product" to list your first one.
+        </p>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {filtered.map((product) => (
@@ -170,7 +169,7 @@ export function ProductCataloguePage() {
                   setEditingProduct(product);
                   setModalOpen(true);
                 }}
-                aria-label={t("catalogue.edit")}
+                aria-label="Edit"
               >
                 {product.images[0] ? (
                   <img
@@ -190,11 +189,10 @@ export function ProductCataloguePage() {
                   {nameByCategoryId.get(product.categoryId) ?? ""}
                 </p>
                 <p className="mt-1 text-base font-semibold text-brand-500">
-                  {t("catalogue.price")}: ₹{product.price}
+                  Price: ₹{product.price}
                 </p>
                 <p className="mt-0.5 text-xs text-neutral-500">
-                  {t("catalogue.form.stock")}: {product.stock} ·{" "}
-                  {product.isAvailable ? t("catalogue.available") : t("catalogue.unavailable")}
+                  Stock: {product.stock} · {product.isAvailable ? "Available" : "Unavailable"}
                 </p>
                 <CardFooter className="mt-2 flex gap-2 border-t-0 p-0">
                   <Button
@@ -206,7 +204,7 @@ export function ProductCataloguePage() {
                       setModalOpen(true);
                     }}
                   >
-                    {t("catalogue.edit")}
+                    Edit
                   </Button>
                   <Button
                     size="sm"
@@ -214,7 +212,7 @@ export function ProductCataloguePage() {
                     fullWidth
                     onClick={() => void handleDelete(product)}
                   >
-                    {t("catalogue.delete")}
+                    Delete
                   </Button>
                 </CardFooter>
               </div>

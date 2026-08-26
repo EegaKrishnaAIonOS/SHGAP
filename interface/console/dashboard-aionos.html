@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lakshmi - An innovative SHG intelligent assistant</title>
+    <link rel="icon" type="image/png" href="/interface/favicon.png" />
+    <link rel="stylesheet" href="/interface/styles.css" />
+  </head>
+  <body class="shg-page">
+    <nav class="shg-tabs">
+      <div class="page-shell shg-tabs-inner">
+        <!-- Each .shg-role-avatar becomes one colored avatar button in
+             apps/web's DashboardRoleNav (see LandingPage.tsx's
+             readDashboardRoleNav) — data-color/data-label are read straight
+             off these attributes rather than a role→color map duplicated in
+             React, same "read it off the markup" approach DashboardNav
+             already takes with its own flat tabs. Aionos oversees every
+             role, so all five show here. -->
+        <div class="shg-role-avatar" data-role="state" data-label="State" data-color="purple">
+          <button type="button" class="shg-tab active" data-tab="state-credential">Credential</button>
+          <button type="button" class="shg-tab shg-tab-disabled" data-tab="state-configuration">
+            Configuration
+          </button>
+        </div>
+        <div class="shg-role-avatar" data-role="district" data-label="District" data-color="magenta">
+          <button type="button" class="shg-tab" data-tab="district-credential">Credential</button>
+          <button type="button" class="shg-tab shg-tab-disabled" data-tab="district-configuration">
+            Configuration
+          </button>
+        </div>
+        <div class="shg-role-avatar" data-role="retailer" data-label="Retailer" data-color="brown">
+          <button type="button" class="shg-tab" data-tab="retailer-credential">Credential</button>
+          <button type="button" class="shg-tab" data-tab="retailer-commodity">Commodity</button>
+        </div>
+        <div class="shg-role-avatar" data-role="shg" data-label="SHG" data-color="gray">
+          <button type="button" class="shg-tab" data-tab="shg-credential">Credential</button>
+          <button type="button" class="shg-tab" data-tab="shg-catalog">Catalog</button>
+        </div>
+        <div class="shg-role-avatar" data-role="consumer" data-label="Consumer" data-color="yellow">
+          <button type="button" class="shg-tab" data-tab="consumer-credential">Credential</button>
+          <button
+            type="button"
+            class="shg-tab shg-tab-disabled"
+            data-tab="consumer-cart"
+            title="Coming Soon"
+          >
+            Cart
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page-shell">
+      <!-- Placeholder panels only — real data for these lands once the
+           supervisory dashboards are wired up to the backend. No profile
+           panel here — these are authority-office accounts (see
+           inference/tools/database.py's func__init_credential), not an
+           individual member with their own credential fields worth
+           surfacing, and there's no DashboardProfileMenu icon on this
+           dashboard's outer nav (see DashboardRoleNav.tsx) that would ever
+           link to one. -->
+      <section class="shg-panel active" data-panel="state-credential"></section>
+      <section class="shg-panel" data-panel="district-credential"></section>
+      <section class="shg-panel" data-panel="retailer-credential"></section>
+      <section class="shg-panel" data-panel="retailer-commodity"></section>
+      <section class="shg-panel" data-panel="shg-credential"></section>
+      <section class="shg-panel" data-panel="shg-catalog"></section>
+      <section class="shg-panel" data-panel="consumer-credential"></section>
+    </main>
+
+    <div id="roleNavToast" class="shg-toast" hidden></div>
+
+    <script>
+      document.body.dataset.page = 'aionos-dashboard';
+    </script>
+    <script src="/interface/script.js"></script>
+  </body>
+</html>

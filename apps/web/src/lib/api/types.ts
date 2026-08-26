@@ -143,8 +143,8 @@ export interface UserProfile {
   }>;
 }
 
-/** The three account types a caller may self-select at /signup — mirrors
- * SELF_REGISTERABLE_ROLES in core-api's register.dto.ts. */
+/** The three account types eligible for the email+password self-registration
+ * flow — used to type the role returned by POST /auth/verify-email. */
 export const SELF_REGISTERABLE_ROLES = ["SHG", "DISTRIBUTOR", "CONSUMER"] as const;
 export type SelfRegisterableRole = (typeof SELF_REGISTERABLE_ROLES)[number];
 
