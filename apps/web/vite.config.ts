@@ -23,11 +23,13 @@ const apiProxy = {
     rewrite: (path: string) => path.replace(/^\/voice-api/, ""),
   },
   // inference/ (the Lakshmi guidance agent, run via the "inference" workspace's
-  // `dev` script on port 8008) - same same-origin-proxy reasoning as above.
-  "/guidance-api": {
+  // `dev` script on port 8008) - same same-origin-proxy reasoning as above,
+  // except inference's own route paths already start with "/route/" (see
+  // inference/route.py), so - unlike /api and /voice-api - this one must NOT
+  // strip the prefix before forwarding.
+  "/route": {
     target: "http://127.0.0.1:8008",
     changeOrigin: true,
-    rewrite: (path: string) => path.replace(/^\/guidance-api/, ""),
   },
 };
 
@@ -38,21 +40,12 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     proxy: apiProxy,
-    // Requests arrive with the EC2 public DNS name or the ALB's DNS name as
-    // Host (nginx passes it through as-is), which Vite's DNS-rebinding guard
-    // otherwise blocks.
-    allowedHosts: [
-      "ec2-18-205-10-153.compute-1.amazonaws.com",
-      "agent-lakshmi-shg-intelligence-161998846.us-east-1.elb.amazonaws.com",
-    ],
+    allowedHosts: [".trycloudflare.com"],
   },
   preview: {
     host: "0.0.0.0",
     proxy: apiProxy,
-    allowedHosts: [
-      "ec2-18-205-10-153.compute-1.amazonaws.com",
-      "agent-lakshmi-shg-intelligence-161998846.us-east-1.elb.amazonaws.com",
-    ],
+    allowedHosts: [".trycloudflare.com"],
   },
   plugins: [
     react(),

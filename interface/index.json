@@ -1,0 +1,2220 @@
+{
+  "description": "Index of every id and class found in interface/**/*.html, with a short description of what each element is/does. Generated to help an LLM (e.g. the guidance/navigator agent) map a natural-language question to the right DOM element.",
+  "files": [
+    "index.html",
+    "login.html",
+    "console/dashboard-aionos.html",
+    "console/dashboard-consumer.html",
+    "console/dashboard-district.html",
+    "console/dashboard-retailer.html",
+    "console/dashboard-shg.html",
+    "console/dashboard-state.html"
+  ],
+  "elements": [
+    {
+      "file": "index.html",
+      "type": "id",
+      "name": "hero-slider",
+      "tag": "section",
+      "description": "The rotating photo-highlights banner at the top of the public landing page, cycling through SHG showcase images with dot navigation below it."
+    },
+    {
+      "file": "index.html",
+      "type": "id",
+      "name": "news-events",
+      "tag": "section",
+      "description": "The 'News and Events' section on the landing page, containing the table of government circulars, events, and press mentions."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "hero-slider",
+      "tag": "section",
+      "description": "The rotating photo-highlights banner section itself, at the top of the landing page."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "hero-slide",
+      "tag": "div",
+      "description": "One photo slide in the landing page's rotating hero banner."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "is-active",
+      "tag": ["button", "div"],
+      "description": "State class marking the currently-shown hero slide or its matching nav dot."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "hero-slide-credit",
+      "tag": "span",
+      "description": "Small 'source: internet' credit line overlaid on a hero slide's photo."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "hero-slider-dots",
+      "tag": "div",
+      "description": "Row of dot buttons under the hero banner for jumping directly to a slide."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "hero-slider-dot",
+      "tag": "button",
+      "description": "One clickable dot in the hero banner's slide-navigation row; jumps to that slide."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": "main",
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "news-events",
+      "tag": "section",
+      "description": "The 'News and Events' section on the landing page."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "section-divider",
+      "tag": "hr",
+      "description": "Horizontal rule used above a landing-page section's heading."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "section-header",
+      "tag": "div",
+      "description": "Wrapper around a landing-page section's heading row."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "news-events-title",
+      "tag": "h2",
+      "description": "'News and Events' heading text style."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "news-table-wrap",
+      "tag": "div",
+      "description": "Scroll wrapper around the News and Events table, for narrow viewports."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "news-table",
+      "tag": "table",
+      "description": "The table of government circulars/events/press mentions on the landing page."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "col-sno",
+      "tag": ["td", "th"],
+      "description": "Table column style for the row-number ('S.No.') column in the News and Events table."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "col-source",
+      "tag": ["td", "th"],
+      "description": "Table column style for the 'Source' column in the News and Events table."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "col-date",
+      "tag": ["td", "th"],
+      "description": "Table column style for a 'Date' column in the News and Events table."
+    },
+    {
+      "file": "index.html",
+      "type": "class",
+      "name": "source-tag",
+      "tag": "span",
+      "description": "Small pill/badge labeling a News and Events row's source type (Circular, Event, Speech, News Papers)."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "auth-shell",
+      "tag": "div",
+      "description": "Outer wrapper of the login/registration page that centers the auth card on screen."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "auth-card",
+      "tag": "div",
+      "description": "The white card containing whichever auth step (login or registration) is currently active."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "login-panel",
+      "tag": "div",
+      "description": "The login step of the auth card: email + passkey form. This is 'the login div' — everything needed to sign in lives inside it."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "passwordForm",
+      "tag": "form",
+      "description": "The login form itself (email + passkey fields and the login button), inside #login-panel."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "emailInput",
+      "tag": "input",
+      "description": "Email address input field on the login form."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "passwordInput",
+      "tag": "input",
+      "description": "Passkey (password) input field on the login form."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "login-submit-button",
+      "tag": "button",
+      "description": "The button to click to submit the login form and sign in."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "registration-panel",
+      "tag": "div",
+      "description": "The registration step of the auth card, shown when no account matches the entered email — collects new-account details (role, mode, name, contact, address)."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "registrationForm",
+      "tag": "form",
+      "description": "The registration form itself, inside #registration-panel."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "avatarUploadBtn",
+      "tag": "button",
+      "description": "Circular avatar button on the registration form; click it to open the file picker and choose a profile photo."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "avatarPreview",
+      "tag": "img",
+      "description": "Preview image inside the avatar upload button, showing the chosen (or placeholder) profile photo."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "avatarUploadInput",
+      "tag": "input",
+      "description": "Hidden file input backing the avatar upload button; opened programmatically when the avatar button is clicked."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "registration-operation-group",
+      "tag": "div",
+      "description": "Radio button group on the registration form for choosing the account's role: Retailer, SHG, or Consumer."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "operation-mode-group",
+      "tag": "div",
+      "description": "Radio button group on the registration form for choosing whether the account is Individual or Community (multi-member)."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "individualFields",
+      "tag": "div",
+      "description": "Field group shown when Operation Mode is 'Individual' — collects the single member's name."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "memberName",
+      "tag": "input",
+      "description": "Name input for an individual member, shown when Operation Mode is 'Individual'."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "communityFields",
+      "tag": "div",
+      "description": "Field group shown when Operation Mode is 'Community' — collects the entity name and member names."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "entityName",
+      "tag": "input",
+      "description": "Name-of-the-entity input, shown when Operation Mode is 'Community'."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "memberNames",
+      "tag": "input",
+      "description": "Comma-separated member names input, shown when Operation Mode is 'Community'."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "contactNumber",
+      "tag": "input",
+      "description": "Contact number input on the registration form."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "addressInput",
+      "tag": "input",
+      "description": "Address input on the registration form."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "pinCodeInput",
+      "tag": "input",
+      "description": "Pin code input on the registration form; also used to resolve the SHG's district authority."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "nationalityInput",
+      "tag": "input",
+      "description": "Nationality input on the registration form."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "registration-submit-button",
+      "tag": "button",
+      "description": "Arrow button to click to submit the registration form and create the account."
+    },
+    {
+      "file": "login.html",
+      "type": "id",
+      "name": "loginToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the login page for login/registration errors and status messages."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "auth-page",
+      "tag": "body",
+      "description": "Body-level class marking login.html as the auth page, for page-specific CSS."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "auth-shell",
+      "tag": "div",
+      "description": "Full-page wrapper on the login/registration page that centers the auth card."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "auth-card",
+      "tag": "div",
+      "description": "The white card on the login/registration page holding whichever step is active."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "step-panel",
+      "tag": "div",
+      "description": "One step (login or registration) of the auth flow's multi-step card; shown only while .active."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "active",
+      "tag": "div",
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "form-grid",
+      "tag": ["div", "form"],
+      "description": "Grid layout wrapper arranging a form's .field elements."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "field",
+      "tag": "div",
+      "description": "Generic labeled form-field wrapper (a <label> plus its input/select)."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "primary-btn",
+      "tag": "button",
+      "description": "The site's primary call-to-action button style (used for the login/registration submit buttons)."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "avatar-upload",
+      "tag": "button",
+      "description": "The circular avatar-photo button on the registration form."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "radio-group",
+      "tag": "div",
+      "description": "Wrapper laying out a set of radio-button .radio-option choices in a row."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "radio-option",
+      "tag": "label",
+      "description": "One selectable choice (radio button + label) inside a .radio-group."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "arrow-btn",
+      "tag": "button",
+      "description": "Modifier on .primary-btn that swaps its label for a right-pointing arrow icon (used by the registration submit button)."
+    },
+    {
+      "file": "login.html",
+      "type": "class",
+      "name": "login-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on the login page for status and error messages."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The AIONOS admin dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "avatar-state",
+      "tag": "div",
+      "description": "Colored role-avatar group in the AIONOS admin dashboard's nav bar for the 'state' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-state-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'state' Credential panel, listing that role's credential records for the AIONOS admin to review."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-state-configuration",
+      "tag": "button",
+      "description": "Disabled tab ('Coming Soon') for 'state' configuration, not yet built."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "avatar-district",
+      "tag": "div",
+      "description": "Colored role-avatar group in the AIONOS admin dashboard's nav bar for the 'district' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-district-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'district' Credential panel, listing that role's credential records for the AIONOS admin to review."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-district-configuration",
+      "tag": "button",
+      "description": "Disabled tab ('Coming Soon') for 'district' configuration, not yet built."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "avatar-retailer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the AIONOS admin dashboard's nav bar for the 'retailer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-retailer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'retailer' Credential panel, listing that role's credential records for the AIONOS admin to review."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-retailer-commodity",
+      "tag": "button",
+      "description": "Tab button that switches to the retailer Commodity panel, for the AIONOS admin to review retailer commodity submissions."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "avatar-shg",
+      "tag": "div",
+      "description": "Colored role-avatar group in the AIONOS admin dashboard's nav bar for the 'shg' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-shg-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'shg' Credential panel, listing that role's credential records for the AIONOS admin to review."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-shg-catalog",
+      "tag": "button",
+      "description": "Tab button that switches to the SHG Catalog panel, for the AIONOS admin to review SHG catalog submissions."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "avatar-consumer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the AIONOS admin dashboard's nav bar for the 'consumer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-consumer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'consumer' Credential panel, listing that role's credential records for the AIONOS admin to review."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "tab-consumer-cart",
+      "tag": "button",
+      "description": "Disabled 'Cart' tab ('Coming Soon') for the consumer role."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-state-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'state' credential records for the AIONOS admin to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-district-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'district' credential records for the AIONOS admin to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-retailer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'retailer' credential records for the AIONOS admin to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-retailer-commodity",
+      "tag": "section",
+      "description": "Placeholder panel for the AIONOS admin to review/approve-reject retailer commodity submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-shg-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'shg' credential records for the AIONOS admin to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-shg-catalog",
+      "tag": "section",
+      "description": "Placeholder panel for the AIONOS admin to review/approve-reject SHG catalog submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "panel-consumer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'consumer' credential records for the AIONOS admin to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "id",
+      "name": "roleNavToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the AIONOS admin dashboard for status/error messages (e.g. a disabled tab's reason)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-role-avatar",
+      "tag": "div",
+      "description": "One colored role-avatar group in a supervisory dashboard's nav bar (see data-role/data-label/data-color)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-tab-disabled",
+      "tag": "button",
+      "description": "Modifier marking a .shg-tab as not-yet-available; clicking it shows its title as a toast instead of switching panels."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-aionos.html",
+      "type": "class",
+      "name": "shg-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on dashboard pages for status and error messages."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The consumer dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "tab-items",
+      "tag": "button",
+      "description": "Tab button that switches to the Items panel, showing the products SHGs currently have for sale to consumers."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "tab-profile",
+      "tag": "button",
+      "description": "Tab button that switches to the Profile panel, showing the logged-in member's own account details."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "panel-items",
+      "tag": "section",
+      "description": "Items panel: the browsable/orderable grid of products SHGs currently have for sale to consumers."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "catalogGrid",
+      "tag": "div",
+      "description": "Grid of catalog products from SHGs, browsable/orderable by the consumer, shown on the Items panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "itemsEmptyState",
+      "tag": "p",
+      "description": "'No items available.' message shown on the Items panel when there is nothing to browse yet."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "panel-profile",
+      "tag": "section",
+      "description": "Profile panel: read-only view of the logged-in member's account details (avatar, email, passkey, role, mode, name, contact, address, pincode, nationality)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileAvatar",
+      "tag": "img",
+      "description": "Read-only profile field showing the logged-in consumer member's profile photo, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileEmail",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's email address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profilePasskey",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's passkey, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileRole",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's role, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileMode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's operation mode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileName",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's name, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileContact",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's contact number, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileAddress",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profilePincode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's pincode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "profileNationality",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in consumer member's nationality, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "id",
+      "name": "consumerToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the consumer dashboard for status/error messages (e.g. a disabled tab's reason)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-catalog-grid",
+      "tag": "div",
+      "description": "Grid of product cards on a dashboard's Catalog/Items panel (holds both read-only browse cards and a member's own added-product cards)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "subtext",
+      "tag": "p",
+      "description": "Small, muted helper/empty-state text style."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "auth-card",
+      "tag": "div",
+      "description": "The white card on the login/registration page holding whichever step is active."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "profile-panel-card",
+      "tag": "div",
+      "description": "Card wrapper around a dashboard's read-only Profile panel fields."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "form-grid",
+      "tag": "div",
+      "description": "Grid layout wrapper arranging a form's .field elements."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "field",
+      "tag": "div",
+      "description": "Generic labeled form-field wrapper (a <label> plus its input/select)."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "profile-avatar",
+      "tag": "img",
+      "description": "Circular profile-photo image on a dashboard's read-only Profile panel."
+    },
+    {
+      "file": "console/dashboard-consumer.html",
+      "type": "class",
+      "name": "shg-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on dashboard pages for status and error messages."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The district authority dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "avatar-retailer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the district authority dashboard's nav bar for the 'retailer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-retailer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'retailer' Credential panel, listing that role's credential records for the district authority to review."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-retailer-commodity",
+      "tag": "button",
+      "description": "Tab button that switches to the retailer Commodity panel, for the district authority to review retailer commodity submissions."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "avatar-shg",
+      "tag": "div",
+      "description": "Colored role-avatar group in the district authority dashboard's nav bar for the 'shg' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-shg-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'shg' Credential panel, listing that role's credential records for the district authority to review."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-shg-catalog",
+      "tag": "button",
+      "description": "Tab button that switches to the SHG Catalog panel, for the district authority to review SHG catalog submissions."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "avatar-consumer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the district authority dashboard's nav bar for the 'consumer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-consumer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'consumer' Credential panel, listing that role's credential records for the district authority to review."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "tab-consumer-cart",
+      "tag": "button",
+      "description": "Disabled 'Cart' tab ('Coming Soon') for the consumer role."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "panel-retailer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'retailer' credential records for the district authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "panel-retailer-commodity",
+      "tag": "section",
+      "description": "Placeholder panel for the district authority to review/approve-reject retailer commodity submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "panel-shg-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'shg' credential records for the district authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "panel-shg-catalog",
+      "tag": "section",
+      "description": "Placeholder panel for the district authority to review/approve-reject SHG catalog submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "panel-consumer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'consumer' credential records for the district authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "id",
+      "name": "roleNavToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the district authority dashboard for status/error messages (e.g. a disabled tab's reason)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-role-avatar",
+      "tag": "div",
+      "description": "One colored role-avatar group in a supervisory dashboard's nav bar (see data-role/data-label/data-color)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-tab-disabled",
+      "tag": "button",
+      "description": "Modifier marking a .shg-tab as not-yet-available; clicking it shows its title as a toast instead of switching panels."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-district.html",
+      "type": "class",
+      "name": "shg-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on dashboard pages for status and error messages."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The retailer dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "tab-catalog",
+      "tag": "button",
+      "description": "Tab button that switches to the Catalog panel, where this retailer lists and manages its own products for sale to SHGs."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "tab-profile",
+      "tag": "button",
+      "description": "Tab button that switches to the Profile panel, showing the logged-in member's own account details."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "panel-catalog",
+      "tag": "section",
+      "description": "Catalog panel: the Add Product form plus this retailer's own already-added commodity products, for sale to SHGs."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "addProductForm",
+      "tag": "form",
+      "description": "The 'Add Product' form card — name/category/dates/price/units/min-max-qty/description fields plus a photo upload zone; submitting adds a new commodity row for this retailer."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductName",
+      "tag": "input",
+      "description": "Input for the product name in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductCategory",
+      "tag": "input",
+      "description": "Input for the product category in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductMfgDate",
+      "tag": "input",
+      "description": "Input for the manufacture date in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductExpiry",
+      "tag": "input",
+      "description": "Input for the expiry date in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductMrp",
+      "tag": "input",
+      "description": "Input for the MRP per unit in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductUnits",
+      "tag": "input",
+      "description": "Input for the number of units in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductMinQty",
+      "tag": "input",
+      "description": "Input for the minimum order quantity in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductMaxQty",
+      "tag": "input",
+      "description": "Input for the maximum order quantity in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductDescription",
+      "tag": "input",
+      "description": "Input for the product description in the retailer dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductUploadZone",
+      "tag": "label",
+      "description": "Click/drag target to attach a photo for the new product being added; clicking opens the hidden file input beside it."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "newProductImage",
+      "tag": "input",
+      "description": "Hidden file input backing the new-product photo upload zone."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "add-product-confirm-button",
+      "tag": "button",
+      "description": "The '+' button that confirms and submits the filled-out Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "add-product-cancel-button",
+      "tag": "button",
+      "description": "The '−' button that discards the in-progress Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "materialGrid",
+      "tag": "div",
+      "description": "Grid of this retailer's own already-added commodity products (read-only cards), shown under the Add Product form on the Catalog panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "panel-profile",
+      "tag": "section",
+      "description": "Profile panel: read-only view of the logged-in member's account details (avatar, email, passkey, role, mode, name, contact, address, pincode, nationality)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileAvatar",
+      "tag": "img",
+      "description": "Read-only profile field showing the logged-in retailer member's profile photo, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileEmail",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's email address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profilePasskey",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's passkey, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileRole",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's role, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileMode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's operation mode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileName",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's name, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileContact",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's contact number, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileAddress",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profilePincode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's pincode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "id",
+      "name": "profileNationality",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in retailer member's nationality, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "rt-page",
+      "tag": "body",
+      "description": "Body-level class marking dashboard-retailer.html as the retailer dashboard, for page-specific CSS."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-card",
+      "tag": "form",
+      "description": "Styling class for the 'Add Product' form's card layout (also #addProductForm)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "card",
+      "tag": "form",
+      "description": "Generic white rounded card surface, used as the base style for form cards and product cards."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-fields",
+      "tag": "div",
+      "description": "Wrapper around all of the Add Product form's text/number fields (excludes the photo upload and confirm overlay)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-columns",
+      "tag": "div",
+      "description": "Wrapper laying the Add Product form's fields out in columns."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-col",
+      "tag": "div",
+      "description": "One field-column inside the Add Product form's multi-column layout."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "field",
+      "tag": "div",
+      "description": "Generic labeled form-field wrapper (a <label> plus its input/select)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-upload",
+      "tag": "label",
+      "description": "The clickable photo-upload zone (label) on the Add Product form."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-upload-badge",
+      "tag": "span",
+      "description": "Placeholder badge/icon shown inside the upload zone before a photo is chosen."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-upload-icon",
+      "tag": "svg",
+      "description": "The SVG icon (commodity ingot or catalog coin) inside the upload placeholder badge."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-confirm-overlay",
+      "tag": "div",
+      "description": "Overlay holding the Add Product form's confirm/cancel buttons, revealed once the form is valid."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-confirm-btn",
+      "tag": "button",
+      "description": "Base style for the Add Product form's confirm (+) and cancel (−) buttons (paired with .confirm/.cancel)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "confirm",
+      "tag": "button",
+      "description": "Modifier marking a button as the 'confirm/add/update' action of a confirm/cancel pair."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "cancel",
+      "tag": "button",
+      "description": "Modifier marking a button as the 'cancel/delete/discard' action of a confirm/cancel pair."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "add-product-divider",
+      "tag": "hr",
+      "description": "Horizontal rule separating the Add Product form from the grid of already-added products below it."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "shg-catalog-grid",
+      "tag": "div",
+      "description": "Grid of product cards on a dashboard's Catalog/Items panel (holds both read-only browse cards and a member's own added-product cards)."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "auth-card",
+      "tag": "div",
+      "description": "The white card on the login/registration page holding whichever step is active."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "profile-panel-card",
+      "tag": "div",
+      "description": "Card wrapper around a dashboard's read-only Profile panel fields."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "form-grid",
+      "tag": "div",
+      "description": "Grid layout wrapper arranging a form's .field elements."
+    },
+    {
+      "file": "console/dashboard-retailer.html",
+      "type": "class",
+      "name": "profile-avatar",
+      "tag": "img",
+      "description": "Circular profile-photo image on a dashboard's read-only Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The SHG dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "tab-raw-materials",
+      "tag": "button",
+      "description": "Tab button that switches to the Items panel, showing the raw-material commodities retailers currently have on offer to this SHG."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "tab-catalog",
+      "tag": "button",
+      "description": "Tab button that switches to the Catalog panel, where this SHG lists and manages its own products for sale to consumers."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "tab-insights",
+      "tag": "button",
+      "description": "Disabled tab ('Deprecated — moving to chatbot') that would switch to the Insights panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "tab-contributions",
+      "tag": "button",
+      "description": "Disabled tab ('Open Contributions — Coming Soon') for a not-yet-built Open Contributions feature."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "tab-profile",
+      "tag": "button",
+      "description": "Tab button that switches to the Profile panel, showing the logged-in member's own account details."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "panel-raw-materials",
+      "tag": "section",
+      "description": "Items panel: the browsable grid of raw-material commodities retailers currently have on offer to this SHG."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "rawMaterialsGrid",
+      "tag": "div",
+      "description": "Grid of raw-material commodities retailers have on offer, browsable by this SHG, shown on the Items panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "itemsEmptyState",
+      "tag": "p",
+      "description": "'No items available.' message shown on the Items panel when there is nothing to browse yet."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "panel-catalog",
+      "tag": "section",
+      "description": "Catalog panel: the Add Product form plus this SHG's own already-added catalog products, for sale to consumers."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "addProductForm",
+      "tag": "form",
+      "description": "The 'Add Product' form card — name/category/dates/price/units/min-max-qty/description fields plus a photo upload zone; submitting adds a new catalog row for this SHG."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductName",
+      "tag": "input",
+      "description": "Input for the product name in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductCategory",
+      "tag": "input",
+      "description": "Input for the product category in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductMfgDate",
+      "tag": "input",
+      "description": "Input for the manufacture date in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductExpiry",
+      "tag": "input",
+      "description": "Input for the expiry date in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductMrp",
+      "tag": "input",
+      "description": "Input for the MRP per unit in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductUnits",
+      "tag": "input",
+      "description": "Input for the number of units in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductMinQty",
+      "tag": "input",
+      "description": "Input for the minimum order quantity in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductMaxQty",
+      "tag": "input",
+      "description": "Input for the maximum order quantity in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductDescription",
+      "tag": "input",
+      "description": "Input for the product description in the SHG dashboard's Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductUploadZone",
+      "tag": "label",
+      "description": "Click/drag target to attach a photo for the new product being added; clicking opens the hidden file input beside it."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "newProductImage",
+      "tag": "input",
+      "description": "Hidden file input backing the new-product photo upload zone."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "add-product-confirm-button",
+      "tag": "button",
+      "description": "The '+' button that confirms and submits the filled-out Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "add-product-cancel-button",
+      "tag": "button",
+      "description": "The '−' button that discards the in-progress Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "catalogGrid",
+      "tag": "div",
+      "description": "Grid of this SHG's own already-added catalog products (read-only cards), shown under the Add Product form on the Catalog panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "panel-insights",
+      "tag": "section",
+      "description": "Insights panel: pick one or more of this SHG's products to see market insight and a 'how it's made' video for each."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "insightSelectToggle",
+      "tag": "button",
+      "description": "Dropdown toggle button for the multi-select 'Select products' control on the Insights panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "insightSelectSummary",
+      "tag": "span",
+      "description": "Text inside the Insights product-select toggle, summarizing how many/which products are currently selected."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "insightSelectOptions",
+      "tag": "div",
+      "description": "Checkbox list of every product, opened by the Insights product-select toggle."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "insightPanel",
+      "tag": "div",
+      "description": "Renders one insight block (product details + 'how it's made' video) per product selected in the Insights picker."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "panel-profile",
+      "tag": "section",
+      "description": "Profile panel: read-only view of the logged-in member's account details (avatar, email, passkey, role, mode, name, contact, address, pincode, nationality)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileAvatar",
+      "tag": "img",
+      "description": "Read-only profile field showing the logged-in SHG member's profile photo, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileEmail",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's email address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profilePasskey",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's passkey, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileRole",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's role, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileMode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's operation mode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileName",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's name, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileContact",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's contact number, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileAddress",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's address, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profilePincode",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's pincode, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "profileNationality",
+      "tag": "input",
+      "description": "Read-only profile field showing the logged-in SHG member's nationality, on the Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "id",
+      "name": "shgToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the SHG dashboard for status/error messages (e.g. a disabled tab's reason)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-tab-disabled",
+      "tag": "button",
+      "description": "Modifier marking a .shg-tab as not-yet-available; clicking it shows its title as a toast instead of switching panels."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-catalog-grid",
+      "tag": "div",
+      "description": "Grid of product cards on a dashboard's Catalog/Items panel (holds both read-only browse cards and a member's own added-product cards)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "subtext",
+      "tag": "p",
+      "description": "Small, muted helper/empty-state text style."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-card",
+      "tag": "form",
+      "description": "Styling class for the 'Add Product' form's card layout (also #addProductForm)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "card",
+      "tag": ["div", "form"],
+      "description": "Generic white rounded card surface, used as the base style for form cards and product cards."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-fields",
+      "tag": "div",
+      "description": "Wrapper around all of the Add Product form's text/number fields (excludes the photo upload and confirm overlay)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-columns",
+      "tag": "div",
+      "description": "Wrapper laying the Add Product form's fields out in columns."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-col",
+      "tag": "div",
+      "description": "One field-column inside the Add Product form's multi-column layout."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "field",
+      "tag": "div",
+      "description": "Generic labeled form-field wrapper (a <label> plus its input/select)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-upload",
+      "tag": "label",
+      "description": "The clickable photo-upload zone (label) on the Add Product form."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-upload-badge",
+      "tag": "span",
+      "description": "Placeholder badge/icon shown inside the upload zone before a photo is chosen."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-upload-icon",
+      "tag": "svg",
+      "description": "The SVG icon (commodity ingot or catalog coin) inside the upload placeholder badge."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-confirm-overlay",
+      "tag": "div",
+      "description": "Overlay holding the Add Product form's confirm/cancel buttons, revealed once the form is valid."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-confirm-btn",
+      "tag": "button",
+      "description": "Base style for the Add Product form's confirm (+) and cancel (−) buttons (paired with .confirm/.cancel)."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "confirm",
+      "tag": "button",
+      "description": "Modifier marking a button as the 'confirm/add/update' action of a confirm/cancel pair."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "cancel",
+      "tag": "button",
+      "description": "Modifier marking a button as the 'cancel/delete/discard' action of a confirm/cancel pair."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "add-product-divider",
+      "tag": "hr",
+      "description": "Horizontal rule separating the Add Product form from the grid of already-added products below it."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-insight-select-field",
+      "tag": "div",
+      "description": "Field wrapper around the Insights panel's 'Select products' multi-select control."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-multiselect",
+      "tag": "div",
+      "description": "The custom checkbox-dropdown control used by the Insights panel's product picker."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-multiselect-toggle",
+      "tag": "button",
+      "description": "Button that opens/closes the Insights panel's product-picker checkbox list."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-multiselect-summary",
+      "tag": "span",
+      "description": "Text on the product-picker toggle summarizing the current selection."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-multiselect-chevron",
+      "tag": "span",
+      "description": "Down-chevron icon on the product-picker's toggle button."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-multiselect-panel",
+      "tag": "div",
+      "description": "The checkbox list revealed when the product-picker toggle is opened."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-insight-panel",
+      "tag": "div",
+      "description": "Card holding the rendered insight blocks for whichever products are selected on the Insights panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "auth-card",
+      "tag": "div",
+      "description": "The white card on the login/registration page holding whichever step is active."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "profile-panel-card",
+      "tag": "div",
+      "description": "Card wrapper around a dashboard's read-only Profile panel fields."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "form-grid",
+      "tag": "div",
+      "description": "Grid layout wrapper arranging a form's .field elements."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "profile-avatar",
+      "tag": "img",
+      "description": "Circular profile-photo image on a dashboard's read-only Profile panel."
+    },
+    {
+      "file": "console/dashboard-shg.html",
+      "type": "class",
+      "name": "shg-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on dashboard pages for status and error messages."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "dashboard-tabs-nav",
+      "tag": "nav",
+      "description": "The state authority dashboard's tab bar (CSS-hidden; mirrored by the outer app shell's own nav in apps/web, which forwards clicks down to these real tab buttons)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "avatar-district",
+      "tag": "div",
+      "description": "Colored role-avatar group in the state authority dashboard's nav bar for the 'district' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-district-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'district' Credential panel, listing that role's credential records for the state authority to review."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-district-configuration",
+      "tag": "button",
+      "description": "Disabled tab ('Coming Soon') for 'district' configuration, not yet built."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "avatar-retailer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the state authority dashboard's nav bar for the 'retailer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-retailer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'retailer' Credential panel, listing that role's credential records for the state authority to review."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-retailer-commodity",
+      "tag": "button",
+      "description": "Tab button that switches to the retailer Commodity panel, for the state authority to review retailer commodity submissions."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "avatar-shg",
+      "tag": "div",
+      "description": "Colored role-avatar group in the state authority dashboard's nav bar for the 'shg' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-shg-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'shg' Credential panel, listing that role's credential records for the state authority to review."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-shg-catalog",
+      "tag": "button",
+      "description": "Tab button that switches to the SHG Catalog panel, for the state authority to review SHG catalog submissions."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "avatar-consumer",
+      "tag": "div",
+      "description": "Colored role-avatar group in the state authority dashboard's nav bar for the 'consumer' role, containing that role's own tabs (data-color/data-label read by apps/web's DashboardRoleNav)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-consumer-credential",
+      "tag": "button",
+      "description": "Tab button that switches to the 'consumer' Credential panel, listing that role's credential records for the state authority to review."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "tab-consumer-cart",
+      "tag": "button",
+      "description": "Disabled 'Cart' tab ('Coming Soon') for the consumer role."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-district-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'district' credential records for the state authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-retailer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'retailer' credential records for the state authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-retailer-commodity",
+      "tag": "section",
+      "description": "Placeholder panel for the state authority to review/approve-reject retailer commodity submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-shg-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'shg' credential records for the state authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-shg-catalog",
+      "tag": "section",
+      "description": "Placeholder panel for the state authority to review/approve-reject SHG catalog submissions; populated once wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "panel-consumer-credential",
+      "tag": "section",
+      "description": "Placeholder panel listing 'consumer' credential records for the state authority to review; populated once this supervisory dashboard is wired to the backend."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "id",
+      "name": "roleNavToast",
+      "tag": "div",
+      "description": "Toast notification shown at the bottom of the state authority dashboard for status/error messages (e.g. a disabled tab's reason)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-page",
+      "tag": "body",
+      "description": "Body-level class marking every console/dashboard-*.html page, for shared dashboard CSS."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-tabs",
+      "tag": "nav",
+      "description": "The dashboard's tab-bar nav element (CSS-hidden; apps/web's own nav mirrors and forwards clicks to it)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "page-shell",
+      "tag": ["div", "main"],
+      "description": "Centered, max-width content column used to lay out a page's main content."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-tabs-inner",
+      "tag": "div",
+      "description": "Centered, max-width wrapper around a dashboard's row of tab buttons."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-role-avatar",
+      "tag": "div",
+      "description": "One colored role-avatar group in a supervisory dashboard's nav bar (see data-role/data-label/data-color)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-tab",
+      "tag": "button",
+      "description": "One clickable tab button in a dashboard's tab bar (see data-tab)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "active",
+      "tag": ["button", "section"],
+      "description": "State class toggled onto whichever tab, panel, or slide is currently the visible/selected one."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-tab-disabled",
+      "tag": "button",
+      "description": "Modifier marking a .shg-tab as not-yet-available; clicking it shows its title as a toast instead of switching panels."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-panel",
+      "tag": "section",
+      "description": "One tab's content panel in a dashboard; shown only while its matching .shg-tab is active (see data-panel)."
+    },
+    {
+      "file": "console/dashboard-state.html",
+      "type": "class",
+      "name": "shg-toast",
+      "tag": "div",
+      "description": "Toast/snackbar notification style used on dashboard pages for status and error messages."
+    }
+  ]
+}

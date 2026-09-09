@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/interface/styles.css" />
   </head>
   <body class="shg-page">
-    <nav class="shg-tabs">
+    <nav id="dashboard-tabs-nav" class="shg-tabs">
       <div class="page-shell shg-tabs-inner">
         <!-- Each .shg-role-avatar becomes one colored avatar button in
              apps/web's DashboardRoleNav (see LandingPage.tsx's
@@ -17,29 +17,30 @@
              React, same "read it off the markup" approach DashboardNav
              already takes with its own flat tabs. Aionos oversees every
              role, so all five show here. -->
-        <div class="shg-role-avatar" data-role="state" data-label="State" data-color="purple">
-          <button type="button" class="shg-tab active" data-tab="state-credential">Credential</button>
-          <button type="button" class="shg-tab shg-tab-disabled" data-tab="state-configuration">
+        <div id="avatar-state" class="shg-role-avatar" data-role="state" data-label="State" data-color="purple">
+          <button id="tab-state-credential" type="button" class="shg-tab active" data-tab="state-credential">Credential</button>
+          <button id="tab-state-configuration" type="button" class="shg-tab shg-tab-disabled" data-tab="state-configuration">
             Configuration
           </button>
         </div>
-        <div class="shg-role-avatar" data-role="district" data-label="District" data-color="magenta">
-          <button type="button" class="shg-tab" data-tab="district-credential">Credential</button>
-          <button type="button" class="shg-tab shg-tab-disabled" data-tab="district-configuration">
+        <div id="avatar-district" class="shg-role-avatar" data-role="district" data-label="District" data-color="magenta">
+          <button id="tab-district-credential" type="button" class="shg-tab" data-tab="district-credential">Credential</button>
+          <button id="tab-district-configuration" type="button" class="shg-tab shg-tab-disabled" data-tab="district-configuration">
             Configuration
           </button>
         </div>
-        <div class="shg-role-avatar" data-role="retailer" data-label="Retailer" data-color="brown">
-          <button type="button" class="shg-tab" data-tab="retailer-credential">Credential</button>
-          <button type="button" class="shg-tab" data-tab="retailer-commodity">Commodity</button>
+        <div id="avatar-retailer" class="shg-role-avatar" data-role="retailer" data-label="Retailer" data-color="brown">
+          <button id="tab-retailer-credential" type="button" class="shg-tab" data-tab="retailer-credential">Credential</button>
+          <button id="tab-retailer-commodity" type="button" class="shg-tab" data-tab="retailer-commodity">Commodity</button>
         </div>
-        <div class="shg-role-avatar" data-role="shg" data-label="SHG" data-color="gray">
-          <button type="button" class="shg-tab" data-tab="shg-credential">Credential</button>
-          <button type="button" class="shg-tab" data-tab="shg-catalog">Catalog</button>
+        <div id="avatar-shg" class="shg-role-avatar" data-role="shg" data-label="SHG" data-color="gray">
+          <button id="tab-shg-credential" type="button" class="shg-tab" data-tab="shg-credential">Credential</button>
+          <button id="tab-shg-catalog" type="button" class="shg-tab" data-tab="shg-catalog">Catalog</button>
         </div>
-        <div class="shg-role-avatar" data-role="consumer" data-label="Consumer" data-color="yellow">
-          <button type="button" class="shg-tab" data-tab="consumer-credential">Credential</button>
+        <div id="avatar-consumer" class="shg-role-avatar" data-role="consumer" data-label="Consumer" data-color="yellow">
+          <button id="tab-consumer-credential" type="button" class="shg-tab" data-tab="consumer-credential">Credential</button>
           <button
+            id="tab-consumer-cart"
             type="button"
             class="shg-tab shg-tab-disabled"
             data-tab="consumer-cart"
@@ -60,13 +61,13 @@
            surfacing, and there's no DashboardProfileMenu icon on this
            dashboard's outer nav (see DashboardRoleNav.tsx) that would ever
            link to one. -->
-      <section class="shg-panel active" data-panel="state-credential"></section>
-      <section class="shg-panel" data-panel="district-credential"></section>
-      <section class="shg-panel" data-panel="retailer-credential"></section>
-      <section class="shg-panel" data-panel="retailer-commodity"></section>
-      <section class="shg-panel" data-panel="shg-credential"></section>
-      <section class="shg-panel" data-panel="shg-catalog"></section>
-      <section class="shg-panel" data-panel="consumer-credential"></section>
+      <section id="panel-state-credential" class="shg-panel active" data-panel="state-credential"></section>
+      <section id="panel-district-credential" class="shg-panel" data-panel="district-credential"></section>
+      <section id="panel-retailer-credential" class="shg-panel" data-panel="retailer-credential"></section>
+      <section id="panel-retailer-commodity" class="shg-panel" data-panel="retailer-commodity"></section>
+      <section id="panel-shg-credential" class="shg-panel" data-panel="shg-credential"></section>
+      <section id="panel-shg-catalog" class="shg-panel" data-panel="shg-catalog"></section>
+      <section id="panel-consumer-credential" class="shg-panel" data-panel="consumer-credential"></section>
     </main>
 
     <div id="roleNavToast" class="shg-toast" hidden></div>

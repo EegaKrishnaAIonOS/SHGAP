@@ -8,11 +8,12 @@
     <link rel="stylesheet" href="/interface/styles.css" />
   </head>
   <body class="shg-page">
-    <nav class="shg-tabs">
+    <nav id="dashboard-tabs-nav" class="shg-tabs">
       <div class="page-shell shg-tabs-inner">
-        <button type="button" class="shg-tab" data-tab="raw-materials">Items</button>
-        <button type="button" class="shg-tab" data-tab="catalog">Catalog</button>
+        <button id="tab-raw-materials" type="button" class="shg-tab" data-tab="raw-materials">Items</button>
+        <button id="tab-catalog" type="button" class="shg-tab" data-tab="catalog">Catalog</button>
         <button
+          id="tab-insights"
           type="button"
           class="shg-tab shg-tab-disabled"
           data-tab="insights"
@@ -21,6 +22,7 @@
           Insights
         </button>
         <button
+          id="tab-contributions"
           type="button"
           class="shg-tab shg-tab-disabled"
           data-tab="contributions"
@@ -35,17 +37,17 @@
              tab/panel switching interface/script.js already has instead of
              a separate mechanism. Excluded from DashboardNav's own visible
              tab list (see DashboardNav.tsx's visibleTabs filter). -->
-        <button type="button" class="shg-tab active" data-tab="profile">Profile</button>
+        <button id="tab-profile" type="button" class="shg-tab active" data-tab="profile">Profile</button>
       </div>
     </nav>
 
     <main class="page-shell">
-      <section class="shg-panel" data-panel="raw-materials">
+      <section id="panel-raw-materials" class="shg-panel" data-panel="raw-materials">
         <div id="rawMaterialsGrid" class="shg-catalog-grid"></div>
         <p id="itemsEmptyState" class="subtext" hidden>No items available.</p>
       </section>
 
-      <section class="shg-panel" data-panel="catalog">
+      <section id="panel-catalog" class="shg-panel" data-panel="catalog">
         <form id="addProductForm" class="add-product-card card" novalidate>
           <div class="add-product-fields">
             <div class="add-product-columns">
@@ -114,8 +116,8 @@
           </label>
 
           <div class="add-product-confirm-overlay" aria-hidden="true">
-            <button type="button" class="add-product-confirm-btn confirm" aria-label="Add product">+</button>
-            <button type="button" class="add-product-confirm-btn cancel" aria-label="Discard">&minus;</button>
+            <button id="add-product-confirm-button" type="button" class="add-product-confirm-btn confirm" aria-label="Add product">+</button>
+            <button id="add-product-cancel-button" type="button" class="add-product-confirm-btn cancel" aria-label="Discard">&minus;</button>
           </div>
         </form>
 
@@ -124,7 +126,7 @@
         <div id="catalogGrid" class="shg-catalog-grid"></div>
       </section>
 
-      <section class="shg-panel" data-panel="insights">
+      <section id="panel-insights" class="shg-panel" data-panel="insights">
         <div class="field shg-insight-select-field">
           <div class="shg-multiselect">
             <button
@@ -144,7 +146,7 @@
         <div id="insightPanel" class="card shg-insight-panel"></div>
       </section>
 
-      <section class="shg-panel active" data-panel="profile">
+      <section id="panel-profile" class="shg-panel active" data-panel="profile">
         <div class="auth-card profile-panel-card">
           <div class="form-grid">
             <div class="field">

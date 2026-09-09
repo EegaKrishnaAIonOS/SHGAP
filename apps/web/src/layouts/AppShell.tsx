@@ -1,5 +1,5 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
-import type { ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { PageAssistantTrigger } from "../components/PageAssistantTrigger";
 import { TranslateMenu } from "../components/TranslateMenu";
 import { getChatWidgetBridge, subscribeChatWidgetBridge } from "../lib/chatWidgetBridge";
@@ -137,6 +137,7 @@ export function AppShell({
   // reverted isAuthenticated to false) shows "Guest", going straight from
   // that to the real name with nothing in between.
   const displayName = isAuthenticated && !profileLoading ? profile?.name || "Guest" : "Guest";
+  const avatarSrc = (isAuthenticated && !profileLoading && profile?.avatar) || "/guest-avatar.svg";
   const roleLabel =
     roleLabelOverride ??
     ((isAuthenticated &&
@@ -153,6 +154,34 @@ export function AppShell({
   const chatBridge = useSyncExternalStore(subscribeChatWidgetBridge, getChatWidgetBridge);
   const isChatOpen = chatBridge?.isOpen ?? false;
   const isAnalyzingPage = chatBridge?.isAnalyzingPage ?? false;
+
+  // Drag-to-resize the chat panel, bounded between its default 1/5 width and
+  // half the screen (the iframe never gets squeezed past center). Dragged via
+  // pointer capture (not plain mousemove) so the split keeps tracking even
+  // once the cursor crosses over the iframe — a plain listener would stop
+  // getting move events there, since the iframe is a separate document.
+  const MIN_CHAT_PANEL_PCT = 20;
+  const MAX_CHAT_PANEL_PCT = 50;
+  const [chatPanelWidthPct, setChatPanelWidthPct] = useState(MIN_CHAT_PANEL_PCT);
+  const [isResizingChatPanel, setIsResizingChatPanel] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  const handleResizerPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsResizingChatPanel(true);
+  }, []);
+
+  const handleResizerPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const rect = mainRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const pct = ((rect.right - event.clientX) / rect.width) * 100;
+    setChatPanelWidthPct(Math.min(MAX_CHAT_PANEL_PCT, Math.max(MIN_CHAT_PANEL_PCT, pct)));
+  }, []);
+
+  const handleResizerPointerEnd = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    setIsResizingChatPanel(false);
+  }, []);
 
   // If a translation was already active when this greeting last changed
   // (e.g. it translated "Guest" right before a login inside the iframe
@@ -218,10 +247,10 @@ export function AppShell({
               className="group relative h-10 w-10 shrink-0 overflow-hidden rounded-full"
             >
               <img
-                src="/guest-avatar.svg"
+                src={avatarSrc}
                 alt=""
                 className={cn(
-                  "h-10 w-10 transition duration-150",
+                  "h-10 w-10 rounded-full object-cover transition duration-150",
                   showAvatarHoverIcon && "group-hover:blur-sm",
                 )}
               />
@@ -260,10 +289,10 @@ export function AppShell({
               className="group relative h-9 w-9 shrink-0 overflow-hidden rounded-full"
             >
               <img
-                src="/guest-avatar.svg"
+                src={avatarSrc}
                 alt=""
                 className={cn(
-                  "h-9 w-9 transition duration-150",
+                  "h-9 w-9 rounded-full object-cover transition duration-150",
                   showAvatarHoverIcon && "group-hover:blur-sm",
                 )}
               />
@@ -317,7 +346,7 @@ export function AppShell({
         {topBar}
       </div>
 
-      <main className="flex min-h-0 flex-1">
+      <main ref={mainRef} className="relative flex min-h-0 flex-1">
         {/* No explicit height here — flex stretch (the row main's default
             align-items) sizes this reliably, unlike `h-full`, which is a
             percentage height and silently fails to resolve against a flex
@@ -325,12 +354,17 @@ export function AppShell({
             absolute+inset-0 for why that pattern is used instead of h-full
             wherever something needs to fill a flex-sized ancestor). */}
         <div
-          className={cn(
-            "relative transition-[width] duration-200",
-            isChatOpen ? "w-4/5" : "w-full",
-          )}
+          className={cn("relative", !isResizingChatPanel && "transition-[width] duration-200")}
+          style={{ width: isChatOpen ? `${100 - chatPanelWidthPct}%` : "100%" }}
         >
           {children}
+          {/* Swallows hover/pointer events over the iframe while dragging —
+              without it, the iframe (a separate document) would stop the
+              parent window from seeing pointermove once the cursor crosses
+              into it, freezing the drag. */}
+          {isResizingChatPanel && (
+            <div className="absolute inset-0 z-30 cursor-col-resize" aria-hidden="true" />
+          )}
           {isAnalyzingPage && (
             <div className="pointer-events-none absolute inset-0 z-20" aria-hidden="true">
               <span className="iframe-ripple" style={{ width: "20%" }} />
@@ -347,10 +381,30 @@ export function AppShell({
         <div
           id="chat-panel-slot"
           className={cn(
-            "relative shrink-0 overflow-hidden transition-[width] duration-200",
-            isChatOpen ? "w-1/5 border-l border-neutral-200" : "w-0",
+            "relative shrink-0 overflow-hidden",
+            !isResizingChatPanel && "transition-[width] duration-200",
+            isChatOpen && "border-l border-neutral-200",
           )}
+          style={{ width: isChatOpen ? `${chatPanelWidthPct}%` : "0%" }}
         />
+        {/* Absolutely positioned (rather than a flex sibling) so its own
+            fixed hit-area width never adds to the two panels' 100% split -
+            it just floats over the seam between them. */}
+        {isChatOpen && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize chat panel"
+            onPointerDown={handleResizerPointerDown}
+            onPointerMove={handleResizerPointerMove}
+            onPointerUp={handleResizerPointerEnd}
+            onPointerCancel={handleResizerPointerEnd}
+            className="group absolute inset-y-0 z-40 w-3 -translate-x-1/2 cursor-col-resize touch-none"
+            style={{ left: `${100 - chatPanelWidthPct}%` }}
+          >
+            <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 group-hover:bg-brand-400/40" />
+          </div>
+        )}
       </main>
 
       <footer className="sticky bottom-0 z-10 border-t border-neutral-200 bg-white">

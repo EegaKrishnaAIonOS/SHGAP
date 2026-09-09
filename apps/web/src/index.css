@@ -76,6 +76,27 @@ img[alt="Google Translate"] {
   display: none !important;
 }
 
+/* The widget's own "translating..." loading spinner overlay, shown briefly
+   over the page while it re-translates after a language switch — same
+   "our UI is the only visible translate control" reasoning as the rules
+   above. */
+.goog-te-spinner-pos {
+  display: none !important;
+}
+
+/* A second, separate widget popup (its own fixed-position notification/toast,
+   e.g. observed as class "VIpgJd-ZVi9od-aZ2wEe-wOHMyf") slides on-screen from
+   its default off-screen `left/top: -1000px` via a transition once the
+   widget triggers it — the visible "translate" animation left over after the
+   spinner/tooltip/banner rules above. Its full class name is as unstable as
+   the banner iframe's (see top of file), but every element this widget
+   injects — banner, tooltip, this toast — consistently carries the "VIpgJd-"
+   prefix, so match on that instead of the rotating suffix. Nothing else on
+   this site uses that prefix. */
+[class*="VIpgJd-"] {
+  display: none !important;
+}
+
 /* "Analyzing the page" overlay shown on top of the shell's iframe while a
    long-press voice dictation chunk is out for /api/transcribe + /api/guidance
    (see AppShell.tsx and chatWidgetBridge.ts's isAnalyzingPage) - four rings

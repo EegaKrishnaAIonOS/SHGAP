@@ -47,6 +47,20 @@ export default {
         raised: boxShadow.raised,
         modal: boxShadow.modal,
       },
+      keyframes: {
+        "speaker-pulse": {
+          "0%, 100%": { opacity: "0.55", filter: "brightness(0.75)" },
+          "50%": { opacity: "1", filter: "brightness(1.35)" },
+        },
+        "sound-wave": {
+          "0%, 80%, 100%": { opacity: "0.2", transform: "scale(0.55)" },
+          "40%": { opacity: "1", transform: "scale(1)" },
+        },
+      },
+      animation: {
+        "speaker-pulse": "speaker-pulse 0.9s ease-in-out infinite",
+        "sound-wave": "sound-wave 1.1s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

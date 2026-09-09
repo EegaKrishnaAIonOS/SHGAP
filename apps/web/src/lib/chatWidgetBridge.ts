@@ -12,6 +12,11 @@ export interface ChatWidgetBridgeState {
   isOpen: boolean;
   isListening: boolean;
   isRecording: boolean;
+  // True only when the in-progress recording was started via long-press on
+  // this trigger itself, as opposed to the in-panel voice button - drives
+  // PageAssistantTrigger swapping to the pointer/dictation icon, which
+  // should stay the plain chat-bubble icon for an in-panel voice message.
+  isLongPressRecording: boolean;
   // True for the span between a long-press dictation chunk being sent to
   // /api/transcribe and its /api/guidance round-trip resolving — drives the
   // "analyzing the page" overlay AppShell renders on top of the iframe.

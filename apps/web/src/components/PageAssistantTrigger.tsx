@@ -19,6 +19,7 @@ export function PageAssistantTrigger({ className }: { className?: string }) {
   const isOpen = bridge?.isOpen ?? false;
   const isListening = bridge?.isListening ?? false;
   const isRecording = bridge?.isRecording ?? false;
+  const isLongPressRecording = bridge?.isLongPressRecording ?? false;
 
   return (
     <Tooltip label="agent">
@@ -44,9 +45,11 @@ export function PageAssistantTrigger({ className }: { className?: string }) {
       >
         {/* Stays the same chat-bubble icon even while open — the IconChip's
             black/white invert (active = isOpen here) is what signals "open",
-            not swapping to a separate close/X icon. */}
+            not swapping to a separate close/X icon. The pointer icon is
+            reserved for long-press dictation; an in-panel voice message
+            still shows the plain chat-bubble icon. */}
         <IconChip active={isOpen || isListening || isRecording}>
-          {isListening || isRecording ? (
+          {isLongPressRecording ? (
             <PointerIcon className="h-4 w-4" />
           ) : (
             <ChatBubbleIcon className="h-4 w-4" />

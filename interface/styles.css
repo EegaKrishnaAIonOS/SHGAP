@@ -336,6 +336,40 @@ h3 {
   margin: 0 0 26px;
 }
 
+.about-shg {
+  /* Matches .news-events below it — no horizontal padding here, see that
+     rule's comment for why. */
+  padding: 26px 0;
+  margin-bottom: 26px;
+}
+
+.about-shg-title {
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  margin-bottom: 0;
+}
+
+.about-shg-content {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 22px;
+  background: var(--card);
+}
+
+.about-shg-content p {
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.about-shg-content p:last-child {
+  margin-bottom: 0;
+}
+
+.about-shg-status {
+  color: var(--muted);
+}
+
 .news-events {
   /* No horizontal padding here — .page-shell's own 6px already matches
      .hero-slider's inset (see body[data-page="index"] .page-shell); adding
@@ -1122,29 +1156,51 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 /* Raw column values (info's JSON blob especially) can be far longer than
    their column is wide. Rather than wrapping onto extra lines — which grows
-   every row to fit whichever cell has the most text — each row stays a
-   fixed, single-line height and an overflowing cell scrolls horizontally
-   within itself. table-layout: fixed keeps columns from stretching to fit
-   that content instead of clipping/scrolling it. */
+   every row to fit whichever cell has the most text, or letting the whole
+   table spill past .news-table-wrap and force a page-wide horizontal
+   scrollbar — every column is squeezed to fit within the table's own width
+   (table-layout: fixed splits that width evenly across however many
+   columns exist, since none has an explicit width of its own below) and
+   each row stays a fixed, single-line height; whichever cell's content
+   doesn't fit just scrolls horizontally within that one cell (see the
+   visible scrollbar rule below) instead of growing the row or the table. */
 .shg-credential-table {
   table-layout: fixed;
-  /* Without an explicit per-column width, fixed layout just splits the
-     table's own width evenly across however many columns exist — fine for
-     credential's ~6 columns, but commodity/catalog's ~13 columns each got
-     squeezed down to an unreadable sliver. Giving columns a real baseline
-     width instead makes the table itself grow past the wrap's width when
-     there are many of them, so .news-table-wrap's own overflow-x scrolls
-     the whole table instead of every column collapsing to fit. */
-  width: auto;
-  min-width: 100%;
+  width: 100%;
 }
 
 .shg-credential-table th,
 .shg-credential-table td {
-  width: 160px;
   overflow-x: auto;
   white-space: nowrap;
   border-right: 1px solid var(--border);
+}
+
+/* The page hides scrollbars everywhere (see the global `*` rule above), which
+   for most elements is fine since they don't rely on a visible scrollbar as
+   a cue. These cells are the exception: a value longer than 160px (the
+   info column's JSON blob especially) has no other affordance showing it's
+   truncated rather than complete, so it just reads as cut off. A thin,
+   always-present scrollbar here is what tells the user there's more to
+   scroll to and fits the column's actual content within its own width
+   instead of hiding it. */
+.shg-credential-table td {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.shg-credential-table td::-webkit-scrollbar {
+  display: block;
+  height: 5px;
+}
+
+.shg-credential-table td::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shg-credential-table td::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
 }
 
 .shg-credential-table th:last-child,
@@ -1394,8 +1450,6 @@ html:has(body.auth-page)::-webkit-scrollbar {
      reading as part of it (looked like a gap next to the card, not a
      zone inside it). */
   background-color: var(--secondary);
-  background-size: cover;
-  background-position: center;
   color: var(--muted);
   text-align: center;
   cursor: pointer;
@@ -1408,15 +1462,23 @@ html:has(body.auth-page)::-webkit-scrollbar {
 
 /* White badge + black icon placeholder (Commodity on the Retailer
    dashboard, Catalog on SHG's — see the icon markup in each
-   interface/console/*.html) shown until an image is actually picked. Fills
-   the entire upload zone (not just a centered circle within it) so there's
-   no light-teal margin visible around it — there's no caption text either. */
+   interface/console/*.html) shown until an image is actually picked. Square
+   (matching .add-product-upload img / .filled-product-photo img below), not
+   a circle — width:100% of the padded content box, but height comes from
+   aspect-ratio rather than height:100%, since .filled-product-photo isn't
+   itself square (it stretches to match the taller fields column next to
+   it) and height:100% there would stretch this into a tall rectangle. Its
+   own border makes the 6px padding visible on its own terms: the badge's
+   white and the padding's var(--secondary) are close enough in tone
+   (#ffffff vs #e3f3f1) that the gap barely reads without one. */
 .add-product-upload-badge {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
   background: #ffffff;
   color: #000000;
   flex-shrink: 0;
@@ -1666,19 +1728,49 @@ html:has(body.auth-page)::-webkit-scrollbar {
   position: relative;
   flex-shrink: 0;
   width: 220px;
+  /* Fixed square, same as .add-product-upload — without this, the row's
+     default stretch makes this box as tall as the taller fields column
+     next to it, so the square badge/photo inside (width:100%, aspect-ratio
+     1/1) only matches its 6px padding on the left/right, leaving extra
+     unpadded space above/below. align-self overrides that default stretch. */
+  aspect-ratio: 1 / 1;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 6px;
   border-left: 1px solid var(--border);
   background-color: var(--secondary);
 }
 
+/* Flags a row's uuid as present in func__select_commodity's relavence=true
+   response (inference/tools/database.py) — the padding area around the photo/
+   badge becomes a rainbow gradient so these best-category-match rows stand out
+   after script.js has already floated them to the top of the grid. Each of the
+   4 edges gets its own mirrored VIBGYOR strip (violet at both ends of that
+   edge, red at its midpoint) — top/bottom mirror left-to-right, left/right
+   mirror top-to-bottom — sized to exactly the 6px padding ring so it reads
+   as a frame around the badge, with square corners kept as-is. */
+.filled-product-photo.is-relevant-match {
+  --rainbow-mirror: #8b00ff, #4b0082, #0000ff, #00ff00, #ffff00, #ff7f00, #ff0000, #ff7f00,
+    #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff;
+  background-color: var(--secondary);
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(to right, var(--rainbow-mirror)),
+    linear-gradient(to right, var(--rainbow-mirror)),
+    linear-gradient(to bottom, var(--rainbow-mirror)),
+    linear-gradient(to bottom, var(--rainbow-mirror));
+  background-position: top, bottom, left, right;
+  background-size: 100% 6px, 100% 6px, 6px 100%, 6px 100%;
+}
+
+.add-product-upload img,
 .filled-product-photo img {
-  width: 70%;
-  max-width: 160px;
+  width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
   object-fit: cover;
 }
 
@@ -1744,8 +1836,8 @@ html:has(body.auth-page)::-webkit-scrollbar {
 .commodity-cart-stepper {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
+  gap: 14px;
+  padding: 10px 16px;
   border-radius: 999px;
   background: #ffffff;
   border: 1px solid var(--border);
@@ -1756,10 +1848,14 @@ html:has(body.auth-page)::-webkit-scrollbar {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
+  /* Some engines (Safari in particular) don't apply the flex parent's
+     align-items to a <button> flex item reliably — align-self pins it
+     explicitly instead of relying on inheritance from .commodity-cart-stepper. */
+  align-self: center;
+  margin: 0;
+  padding: 0;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--secondary);
-  color: var(--text);
+  border: 2px solid transparent;
   font-size: 1rem;
   line-height: 1;
   font-weight: 700;
@@ -1770,10 +1866,29 @@ html:has(body.auth-page)::-webkit-scrollbar {
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.commodity-cart-btn:hover:not(:disabled) {
-  background: var(--primary);
+/* Same pastel-resting / vivid-hover pair as .add-product-confirm-btn's own
+   confirm (green) and cancel (red) buttons, so the buy-side qty stepper
+   reads with the same +/- color language as that commit/discard control. */
+.commodity-cart-btn.plus {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+.commodity-cart-btn.plus:hover:not(:disabled) {
+  background: var(--success);
   color: #ffffff;
-  border-color: var(--primary);
+  border-color: #15803d;
+}
+
+.commodity-cart-btn.minus {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.commodity-cart-btn.minus:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #991b1b;
 }
 
 .commodity-cart-btn:disabled {
@@ -1781,12 +1896,43 @@ html:has(body.auth-page)::-webkit-scrollbar {
   cursor: not-allowed;
 }
 
+.commodity-cart-qty-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 34px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.commodity-cart-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  color: var(--text);
+  opacity: 0.28;
+  pointer-events: none;
+}
+
 .commodity-cart-qty {
+  position: relative;
+  z-index: 1;
   min-width: 20px;
   text-align: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--primary);
+  /* The Feather cart glyph's basket (the rounded rectangle body between the
+     handle and the wheels) isn't centered on the icon's own viewBox — it
+     sits slightly right and slightly above the icon's geometric middle, so
+     the number needs its own small offset to land inside the basket rather
+     than on the icon's literal center. */
+  transform: translate(3px, -1px);
 }
 
 @media (max-width: 640px) {

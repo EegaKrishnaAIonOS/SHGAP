@@ -1,80 +1,65 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import ReactMarkdown from "react-markdown";
 import { cn } from "../../lib/cn";
-import { speakText, transcribeAudio } from "../../lib/api/voice";
-import { requestGuidance } from "../../lib/api/guidance";
+import { queryS2T, queryT2S, queryT2T, queryNavigator } from "../../lib/api/guidance";
 import { publishChatWidgetBridge } from "../../lib/chatWidgetBridge";
-import { CloseIcon } from "../icons/CloseIcon";
-
-type FooterMode = "default" | "text" | "voice";
 
 interface ChatMessage {
   id: string;
   sender: "user" | "bot";
-  kind: "text" | "voice";
-  text?: string;
-  durationSec?: number;
-  transcript?: string;
+  text: string;
   timestamp: number;
 }
 
-interface ChatSession {
-  id: string;
-  startedAt: number;
-  messages: ChatMessage[];
-}
-
-const HISTORY_STORAGE_KEY = "shgap.chatbot.sessions";
-const MAX_STORED_SESSIONS = 20;
 const LONG_PRESS_MS = 500;
+// The footer mic button's own recording (not long-press dictation, which is
+// uncapped) auto-stops after this long if the user never taps stop - same
+// treatment as a manual stop, transcribing whatever was captured so far.
+const MIC_RECORDING_AUTO_STOP_MS = 28_000;
 // Recording itself never auto-stops - only a follow-up click ends it. Instead,
 // a 4-second gap with no detected speech flushes whatever's been captured so
-// far as its own transcribable chunk (via MediaRecorder.requestData(), which
-// hands over the buffered audio without stopping the recorder), then keeps
-// listening. This keeps a single long-press session from producing one giant
-// clip - Sarvam's REST STT endpoint hard-rejects anything over 30s, so a gap
-// this short (well under a natural mid-sentence pause) keeps chunks well
-// clear of that limit too, not just short for its own sake.
+// far as its own transcribable chunk (draining the buffered PCM samples
+// without tearing down the underlying audio graph), then keeps listening.
+// This keeps a single long-press session from producing one giant clip -
+// Sarvam's REST STT endpoint hard-rejects anything over 30s, so a gap this
+// short (well under a natural mid-sentence pause) keeps chunks well clear of
+// that limit too, not just short for its own sake.
 const SILENCE_CHUNK_MS = 4_000;
 const SILENCE_CHECK_INTERVAL_MS = 300;
 // Heuristic RMS threshold on byte time-domain data (0-1 scale, 0 = digital
 // silence) below which the mic input counts as "no speech" - ambient
 // room/phone-mic noise typically sits well under this.
 const SILENCE_RMS_THRESHOLD = 0.02;
-// applyGuidanceHighlight's box-shadow override toggles on/off at this
-// interval for as long as it stays applied - the caller (flushChunk) keeps
-// it running for the duration of the guidance message's spoken audio, then
-// clears it once that audio ends.
-const GUIDANCE_HIGHLIGHT_BLINK_INTERVAL_MS = 120;
-const GUIDANCE_HIGHLIGHT_BOX_SHADOW = "0 0 10px 4px gray";
-
-function HistoryIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M10 6v4l3 2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+// The backend's response template isn't real Markdown: it emits raw <br>/<b>
+// tags, which plain ReactMarkdown drops since we don't load rehype-raw, and
+// the model sometimes runs multiple "* [title](url)" source bullets together
+// on one line instead of one per line. Normalize both into Markdown
+// ReactMarkdown can actually render as a proper multi-item list.
+function normalizeBotMarkdown(text: string): string {
+  return text
+    .replace(/<br\s*\/?>/gi, "\n\n")
+    .replace(/<(b|strong)>([\s\S]*?)<\/\1>/gi, "**$2**")
+    .replace(/\s*\*\s*(?=\[[^\]]+\]\(<?[^)]+>?\))/g, "\n* ");
 }
 
-function BackIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden="true">
-      <path
-        d="M12.5 4.5 6 10l6.5 5.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+// TTS should only speak the explanation, never a source citation: besides
+// being unwanted to read aloud, a source URL's "/" characters break the
+// backend's t2s route (a FastAPI {text} path param can't contain a "/" -
+// uvicorn decodes %2F back into a literal slash before route matching, which
+// 404s since the extra segment no longer fits the single-{text} route).
+// The model doesn't always wrap the citation in the <br>/<b> template tags,
+// so look for a "source" heading line (plain or **bold**) instead of relying
+// on those tags being present, and cut everything from there onward.
+function getSpeechText(text: string): string {
+  const withoutTags = text.replace(/<br\s*\/?>/gi, "\n").replace(/<\/?[^>]+>/g, "");
+  const sourceHeading = withoutTags.match(/^[ \t]*\*{0,2}source\*{0,2}\s*:?\s*$/im);
+  const spokenPart = sourceHeading ? withoutTags.slice(0, sourceHeading.index) : withoutTags;
+  return spokenPart
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^[\s*-]+/gm, "")
+    .trim();
 }
 
 function SendIcon({ className }: { className?: string }) {
@@ -113,32 +98,23 @@ function StopIcon({ className }: { className?: string }) {
   );
 }
 
-function loadSessions(): ChatSession[] {
-  try {
-    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveSessions(sessions: ChatSession[]) {
-  try {
-    localStorage.setItem(
-      HISTORY_STORAGE_KEY,
-      JSON.stringify(sessions.slice(0, MAX_STORED_SESSIONS)),
-    );
-  } catch {
-    // localStorage may be unavailable (private mode / quota) - history just won't persist.
-  }
-}
-
-function formatDuration(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+function SpeakerIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 7.5h3L10.5 4v12L6 12.5H3v-5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13.5 7a4 4 0 0 1 0 6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 let idCounter = 0;
@@ -182,26 +158,63 @@ function playNotificationTone(audioContextRef: { current: AudioContext | null })
 }
 
 /**
- * Stops `recorder` and resolves with its complete recording as a Blob.
- *
- * This is deliberately a full `stop()`, not `requestData()` mid-stream: a
- * WebM/Opus container's header is only written once, at the very start of a
- * recording session — `requestData()` clears the buffer but does NOT re-emit
- * that header, so every chunk after the first one comes back as a headerless
- * fragment that Sarvam (and most decoders) can't read on its own
- * ("Failed to read the file, please check the audio format"). Stopping and
- * starting a brand-new `MediaRecorder` on the same underlying stream for
- * each chunk (see `startRecorderSegment`) gives every chunk its own valid,
- * independently-decodable header instead.
+ * Encodes captured PCM (mono, one Float32Array per audio-process callback)
+ * into a standard 16-bit PCM WAV Blob. `func__s2t`'s eventual real
+ * implementation (see inference/tools/message.py's commented-out Sarvam
+ * code) calls `speech_to_text.transcribe(file=open("audio.wav", "rb"), ...)`
+ * - a WAV file, not the WebM/Opus a bare `MediaRecorder` would produce -
+ * hence encoding it by hand here rather than recording via MediaRecorder.
  */
-function captureRecorderChunk(recorder: MediaRecorder): Promise<Blob> {
-  return new Promise((resolve) => {
-    const handleData = (event: BlobEvent) => {
-      recorder.removeEventListener("dataavailable", handleData);
-      resolve(event.data);
-    };
-    recorder.addEventListener("dataavailable", handleData);
-    recorder.stop();
+function encodeWavBlob(chunks: Float32Array[], sampleRate: number): Blob {
+  let sampleCount = 0;
+  for (const chunk of chunks) sampleCount += chunk.length;
+
+  const bytesPerSample = 2;
+  const blockAlign = bytesPerSample; // mono
+  const dataSize = sampleCount * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  const writeString = (offset: number, text: string) => {
+    for (let i = 0; i < text.length; i += 1) view.setUint8(offset + i, text.charCodeAt(i));
+  };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true); // fmt chunk size
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true); // byte rate
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bytesPerSample * 8, true); // bits per sample
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (const chunk of chunks) {
+    for (let i = 0; i < chunk.length; i += 1) {
+      const clamped = Math.max(-1, Math.min(1, chunk[i]));
+      view.setInt16(offset, clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+/** Base64-encodes a recorded clip for the s2t endpoint, which - like the
+ * chat's t2t endpoint - takes its payload as a URL path segment rather than
+ * a multipart body. Strips the "data:...;base64," prefix FileReader's
+ * data URL comes wrapped in, leaving just the encoded bytes. */
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve((reader.result as string).split(",")[1] ?? "");
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -226,8 +239,8 @@ function playAudioBlob(blob: Blob): Promise<void> {
  * Floating support chatbot, mounted once at the app root so it's present on
  * every route (auth screens, SHG mobile shell, official/admin dashboards).
  * Chat replies are mocked - there is no backend endpoint for this yet - but
- * the mic capture and voice transcription are both real (MediaRecorder +
- * voice-service's Sarvam-backed /api/transcribe).
+ * the mic capture and voice transcription are both real (Web Audio PCM
+ * capture encoded to WAV + voice-service's Sarvam-backed /api/transcribe).
  *
  * This must stay mounted as a sibling of <Routes> in App.tsx, outside any
  * individual route's element - that's what keeps an in-progress recording
@@ -248,29 +261,41 @@ export function FloatingChatWidget() {
   useEffect(() => {
     setChatPanelSlot(document.getElementById("chat-panel-slot"));
   }, []);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [footerMode, setFooterMode] = useState<FooterMode>("default");
   const [textValue, setTextValue] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [isSending, setIsSending] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isAnalyzingPage, setIsAnalyzingPage] = useState(false);
-  const [elapsedSec, setElapsedSec] = useState(0);
   const [micError, setMicError] = useState<string | null>(null);
-  const elapsedSecRef = useRef(0);
+  // Which bot message (if any) is currently being read aloud via the
+  // per-message speaker button, and what stage that playback is at -
+  // "loading" while /api/speak is in flight, "playing" once the returned
+  // clip has started. Only one message can speak at a time.
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [speakingPhase, setSpeakingPhase] = useState<"loading" | "playing" | null>(null);
 
-  const sessionIdRef = useRef(createId("session"));
   const bodyRef = useRef<HTMLDivElement>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggeredRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const silenceCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Raw PCM capture (replaces MediaRecorder - see encodeWavBlob's comment for
+  // why). pcmChunksRef accumulates one Float32Array per audio-process tick
+  // since the last flush; the processor keeps running across flushes (no
+  // MediaRecorder-style restart needed, since raw PCM has no per-chunk
+  // container header to worry about) until stopPcmCapture tears the graph
+  // down at the end of the recording session.
+  const pcmProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const pcmSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const pcmSilentGainRef = useRef<GainNode | null>(null);
+  const pcmChunksRef = useRef<Float32Array[]>([]);
+  const pcmSampleRateRef = useRef(48000);
   const lastActivityAtRef = useRef(0);
   const isFlushingChunkRef = useRef(false);
   // Guards the silence-triggered flush: without it, staying silent the whole
@@ -283,27 +308,18 @@ export function FloatingChatWidget() {
   // button (an actual chat turn), it should never trigger the mocked bot
   // auto-reply. Set per recording session in handleStartRecording.
   const isLongPressSessionRef = useRef(false);
-  // Cleans up whichever page element the guidance agent last highlighted -
-  // set by applyGuidanceHighlight, cleared on focus of that element or when
-  // the long-press session ends (handleStopRecording). At most one active
-  // highlight at a time: a new one always clears the previous first.
-  const clearGuidanceHighlightRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    setSessions(loadSessions());
-  }, []);
 
   useEffect(() => {
     if (bodyRef.current) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isSending]);
 
   useEffect(() => {
-    if (footerMode === "text") {
+    if (isOpen) {
       textInputRef.current?.focus();
     }
-  }, [footerMode]);
+  }, [isOpen]);
 
   const stopMediaStream = useCallback(() => {
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -314,10 +330,13 @@ export function FloatingChatWidget() {
   // mid-recording (e.g. a future route change unmounts the app shell).
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
       if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      if (autoStopTimerRef.current) clearTimeout(autoStopTimerRef.current);
       if (silenceCheckIntervalRef.current) clearInterval(silenceCheckIntervalRef.current);
       analyserRef.current?.disconnect();
+      pcmProcessorRef.current?.disconnect();
+      pcmSourceRef.current?.disconnect();
+      pcmSilentGainRef.current?.disconnect();
       stopMediaStream();
       void audioContextRef.current?.close();
     };
@@ -326,15 +345,6 @@ export function FloatingChatWidget() {
   const appendMessage = useCallback((message: Omit<ChatMessage, "id" | "timestamp">) => {
     setMessages((prev) => [...prev, { ...message, id: createId("msg"), timestamp: Date.now() }]);
   }, []);
-
-  const sendBotReply = useCallback(
-    (replyText: string) => {
-      window.setTimeout(() => {
-        appendMessage({ sender: "bot", kind: "text", text: replyText });
-      }, 600);
-    },
-    [appendMessage],
-  );
 
   const stopSilenceWatcher = useCallback(() => {
     if (silenceCheckIntervalRef.current) {
@@ -345,172 +355,129 @@ export function FloatingChatWidget() {
     analyserRef.current = null;
   }, []);
 
-  // Starts a fresh MediaRecorder on the same already-permitted mic stream -
-  // used both for the very first segment and to reopen listening right
-  // after each silence-triggered chunk (see captureRecorderChunk's comment
-  // for why a new recorder, not requestData(), is what makes each chunk
-  // independently decodable).
-  const startRecorderSegment = useCallback((stream: MediaStream) => {
-    const recorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = recorder;
-    recorder.start();
-  }, []);
+  // Builds the raw-PCM capture graph on an already-permitted mic stream:
+  // source -> ScriptProcessorNode -> a zero-gain node -> destination. The
+  // silent gain node is required, not decorative - Chrome only fires
+  // onaudioprocess once the graph reaches the destination, and routing
+  // straight to it would otherwise loop the mic back out the speakers.
+  // ScriptProcessorNode is deprecated in favor of AudioWorklet, but stays
+  // simple here (no separate worklet module to host/fetch) and both
+  // Chromium and Firefox still ship it.
+  const startPcmCapture = useCallback((stream: MediaStream) => {
+    const AudioContextClass =
+      window.AudioContext ??
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContextClass();
+    }
+    const ctx = audioContextRef.current;
+    if (ctx.state === "suspended") void ctx.resume();
 
-  // Highlights the element the guidance agent pointed to, blinking its
-  // box-shadow override continuously until the caller explicitly clears it
-  // (flushChunk keeps it running for as long as the guidance message's
-  // spoken audio is playing, then clears it once that audio ends) - or
-  // until it gets focused or the long-press session ends early
-  // (clearGuidanceHighlightRef is also invoked from handleStopRecording).
-  // Deliberately does NOT eval() the agent's `override_code` string - that's
-  // LLM-generated text arriving over the network, and executing it as code
-  // would be a real injection risk. Reproducing the same visual effect (a
-  // gray glow) directly from the structured `elementId` field alone gets
-  // the identical result safely.
-  const applyGuidanceHighlight = useCallback((elementId: string) => {
-    clearGuidanceHighlightRef.current?.();
-    // The whole app body (LandingPage's AppShell) renders interface/*.html
-    // in a persistent iframe (a separate document), so an element the
-    // guidance agent points to there (e.g. "passwordForm") won't be found
-    // via the top document's getElementById - fall back to looking inside
-    // that same-origin iframe.
-    const el =
-      document.getElementById(elementId) ??
-      document
-        .querySelector<HTMLIFrameElement>("#app-body-iframe")
-        ?.contentDocument?.getElementById(elementId) ??
-      null;
-    if (!el) return;
-    const originalBoxShadow = el.style.boxShadow;
-    let isHighlighted = true;
-    el.style.boxShadow = GUIDANCE_HIGHLIGHT_BOX_SHADOW;
-    const intervalId = window.setInterval(() => {
-      isHighlighted = !isHighlighted;
-      el.style.boxShadow = isHighlighted ? GUIDANCE_HIGHLIGHT_BOX_SHADOW : originalBoxShadow;
-    }, GUIDANCE_HIGHLIGHT_BLINK_INTERVAL_MS);
-    const clear = () => {
-      window.clearInterval(intervalId);
-      el.style.boxShadow = originalBoxShadow;
-      el.removeEventListener("focus", clear);
-      clearGuidanceHighlightRef.current = null;
+    const source = ctx.createMediaStreamSource(stream);
+    const processor = ctx.createScriptProcessor(4096, 1, 1);
+    const silentGain = ctx.createGain();
+    silentGain.gain.value = 0;
+
+    pcmChunksRef.current = [];
+    pcmSampleRateRef.current = ctx.sampleRate;
+    processor.onaudioprocess = (event) => {
+      pcmChunksRef.current.push(new Float32Array(event.inputBuffer.getChannelData(0)));
     };
-    el.addEventListener("focus", clear, { once: true });
-    clearGuidanceHighlightRef.current = clear;
+
+    source.connect(processor);
+    processor.connect(silentGain);
+    silentGain.connect(ctx.destination);
+
+    pcmSourceRef.current = source;
+    pcmProcessorRef.current = processor;
+    pcmSilentGainRef.current = silentGain;
   }, []);
 
-  // Grabs whatever's been recorded since the last flush and sends it to
-  // voice-service's batch STT endpoint. `isFinal` (manual stop) always
-  // surfaces a message, falling back to a plain duration bubble if
-  // transcription comes back empty - a deliberate stop should never look
-  // like it silently did nothing. A silence-triggered chunk (`isFinal` false)
-  // only surfaces a message when there's actual transcribed text, so a long
-  // pause with nothing said doesn't spam the chat with empty voice bubbles.
+  const stopPcmCapture = useCallback(() => {
+    pcmProcessorRef.current?.disconnect();
+    pcmSourceRef.current?.disconnect();
+    pcmSilentGainRef.current?.disconnect();
+    pcmProcessorRef.current = null;
+    pcmSourceRef.current = null;
+    pcmSilentGainRef.current = null;
+  }, []);
+
+  // Grabs whatever's been recorded since the last flush. Runs on both a
+  // manual stop (`isFinal`) and on each silence-triggered chunk during a
+  // longer recording, so a long dictation session fills the textbox
+  // incrementally instead of all at once at the end. Long-press dictation
+  // and the footer mic button are otherwise unrelated features that just
+  // happen to share this capture pipeline - they part ways below over which
+  // transcription endpoint each one calls and what it does with the result.
   const flushChunk = useCallback(
     async (isFinal: boolean) => {
-      const recorder = mediaRecorderRef.current;
-      const stream = mediaStreamRef.current;
-      const duration = elapsedSecRef.current;
       const skipBotReply = isLongPressSessionRef.current;
       // Captured before any reset below - this decides whether the chunk
       // we're about to grab is even worth a network call. Without this, a
       // manual stop right after a silence-chunk already fired would still
-      // call /api/transcribe again for whatever few frames of near-silence
-      // the fresh segment picked up in between, even though nothing new was
-      // actually said.
+      // call the transcription endpoint again for whatever few frames of
+      // near-silence the fresh segment picked up in between, even though
+      // nothing new was actually said.
       const hadSpeech = hasSpeechSinceFlushRef.current;
-      if (!recorder || recorder.state === "inactive" || isFlushingChunkRef.current) {
-        if (isFinal && duration > 0 && !isFlushingChunkRef.current) {
-          elapsedSecRef.current = 0;
-          setElapsedSec(0);
-          // Long-press dictation feeds the guidance agent, not the chat
-          // assistant - these are different functionalities, so it never
-          // touches the chat's own message list/bot-reply flow.
-          if (!skipBotReply) {
-            appendMessage({ sender: "user", kind: "voice", durationSec: duration });
-            sendBotReply(
-              "Thanks for your voice message! Our support team will get back to you shortly.",
-            );
-          }
-        }
+      if (!pcmProcessorRef.current || isFlushingChunkRef.current) {
         return;
       }
       isFlushingChunkRef.current = true;
-      elapsedSecRef.current = 0;
-      setElapsedSec(0);
       hasSpeechSinceFlushRef.current = false;
       try {
-        const blob = await captureRecorderChunk(recorder);
-        // Reopen listening immediately on the same stream (not final) rather
-        // than waiting on the transcription network round-trip below, so
-        // there's no audible gap in what's being captured.
-        if (!isFinal && stream && stream.active) {
-          startRecorderSegment(stream);
-        }
-        if (blob.size > 0 && hadSpeech) {
-          // The "analyzing the page" overlay only makes sense for the
-          // dictation flow below, which is the only one that goes on to
-          // call /api/guidance - toggled on right as its /api/transcribe
-          // call fires, off once the /api/guidance round-trip settles
-          // (success, no-match, or error - the finally below covers all).
-          if (skipBotReply) setIsAnalyzingPage(true);
+        // Drains whatever's accumulated since the last flush - the capture
+        // graph itself keeps running (not final) so there's no gap in what's
+        // being recorded while the transcription network round-trip below is
+        // in flight.
+        const chunks = pcmChunksRef.current;
+        pcmChunksRef.current = [];
+        if (isFinal) stopPcmCapture();
+        if (chunks.length === 0 || !hadSpeech) return;
+        const blob = encodeWavBlob(chunks, pcmSampleRateRef.current);
+        if (blob.size === 0) return;
+
+        if (skipBotReply) {
+          // Long-press dictation: send the recorded clip straight to
+          // agentLakshmi's navigator endpoint (inference/route.py's
+          // /route/navigator) - STT, the LLM turn, and TTS all happen
+          // server-side in one round trip, so there's no separate
+          // transcribe/guidance/speak sequence to orchestrate here. The
+          // backend replies with both the spoken audio and its text/code
+          // (see queryNavigator's comment in lib/api/guidance.ts) - show the
+          // latter as a bot message while the former plays.
+          setIsAnalyzingPage(true);
           try {
-            const transcript = await transcribeAudio(blob);
-            if (skipBotReply) {
-              // Long-press is pure dictation, feeding the guidance agent
-              // (inference/route.py) rather than the mocked chat reply - the
-              // transcript becomes its `question`, and the agent's response
-              // (which page element it thinks you meant, if any) is what gets
-              // surfaced here, not the raw transcript.
-              if (transcript) {
-                const guidance = await requestGuidance(transcript);
-                console.log("[chatbot] /api/guidance response:", guidance);
-                if (guidance?.element_id && guidance.message) {
-                  const audioBlob = await speakText(guidance.message, "en");
-                  // Keep the "analyzing" overlay running through the
-                  // /api/speak round-trip too, stopping right as the blink
-                  // takes over - stopping any earlier (e.g. right after
-                  // /api/guidance) left a visible gap between the two
-                  // animations while /api/speak was still in flight.
-                  setIsAnalyzingPage(false);
-                  if (audioBlob) {
-                    applyGuidanceHighlight(guidance.element_id);
-                    await playAudioBlob(audioBlob);
-                    clearGuidanceHighlightRef.current?.();
-                  }
-                } else {
-                  setIsAnalyzingPage(false);
-                }
-              }
-            } else {
-              console.log("[chatbot] transcribed chunk:", transcript);
-            }
-            // Same separation as above - only the regular chat flow appends
-            // to the chat's message list / gets a bot reply.
-            if ((transcript || isFinal) && !skipBotReply) {
-              appendMessage({
-                sender: "user",
-                kind: "voice",
-                durationSec: duration,
-                transcript: transcript || undefined,
-              });
-              sendBotReply(
-                "Thanks for your voice message! Our support team will get back to you shortly.",
-              );
+            const audioBase64 = await blobToBase64(blob);
+            const reply = await queryNavigator(audioBase64);
+            setIsAnalyzingPage(false);
+            if (reply) {
+              appendMessage({ sender: "bot", text: reply.element });
+              await playAudioBlob(reply.audio);
             }
           } finally {
-            if (skipBotReply) setIsAnalyzingPage(false);
+            setIsAnalyzingPage(false);
           }
-        } else if (isFinal && duration > 0 && !skipBotReply) {
-          appendMessage({ sender: "user", kind: "voice", durationSec: duration });
-          sendBotReply(
-            "Thanks for your voice message! Our support team will get back to you shortly.",
-          );
+        } else {
+          // Footer mic button: agentLakshmi's own speech-to-text (inference's
+          // s2t endpoint), fed back into the textbox for the user to
+          // review/edit before hitting Send.
+          setIsTranscribing(true);
+          try {
+            const audioBase64 = await blobToBase64(blob);
+            const transcript = await queryS2T(audioBase64);
+            if (transcript) {
+              setTextValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
+            }
+          } finally {
+            setIsTranscribing(false);
+          }
         }
       } finally {
         isFlushingChunkRef.current = false;
       }
     },
-    [appendMessage, sendBotReply, startRecorderSegment, applyGuidanceHighlight],
+    [stopPcmCapture, appendMessage],
   );
 
   // Polls mic input volume every SILENCE_CHECK_INTERVAL_MS; once
@@ -552,6 +519,10 @@ export function FloatingChatWidget() {
             return;
           }
           if (
+            // Footer mic (s2t) only ever posts once, on explicit stop - see
+            // S2T_CHUNK_SAMPLE_RATE's comment - so this mid-recording,
+            // silence-triggered flush is long-press dictation only.
+            isLongPressSessionRef.current &&
             hasSpeechSinceFlushRef.current &&
             Date.now() - lastActivityAtRef.current >= SILENCE_CHUNK_MS
           ) {
@@ -571,54 +542,62 @@ export function FloatingChatWidget() {
 
   const handleStopRecording = useCallback(
     (shouldSend: boolean) => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      if (autoStopTimerRef.current) {
+        clearTimeout(autoStopTimerRef.current);
+        autoStopTimerRef.current = null;
       }
       stopSilenceWatcher();
-      // "Stopping the long-press interaction" is the other trigger (besides
-      // focusing the highlighted element) that clears a still-active
-      // guidance highlight - no-ops if none is active.
-      clearGuidanceHighlightRef.current?.();
       if (shouldSend) {
         void flushChunk(true).finally(() => {
           stopMediaStream();
-          mediaRecorderRef.current = null;
         });
       } else {
-        const recorder = mediaRecorderRef.current;
-        if (recorder && recorder.state !== "inactive") {
-          recorder.stop();
-        }
+        stopPcmCapture();
         stopMediaStream();
-        mediaRecorderRef.current = null;
       }
       setIsRecording(false);
       setIsListening(false);
-      setFooterMode("default");
-      setElapsedSec(0);
-      elapsedSecRef.current = 0;
     },
-    [flushChunk, stopMediaStream, stopSilenceWatcher],
+    [flushChunk, stopMediaStream, stopPcmCapture, stopSilenceWatcher],
   );
 
   const handleToggleOpen = () => {
     setIsOpen((open) => !open);
-    setIsHistoryOpen(false);
   };
 
-  const handleClose = () => {
-    if (isRecording) handleStopRecording(false);
-    setIsOpen(false);
-    setIsHistoryOpen(false);
-  };
-
-  const handleSendText = () => {
+  const handleSendText = async () => {
     const trimmed = textValue.trim();
-    if (!trimmed) return;
-    appendMessage({ sender: "user", kind: "text", text: trimmed });
+    if (!trimmed || isSending) return;
+    appendMessage({ sender: "user", text: trimmed });
     setTextValue("");
-    sendBotReply("Thanks for your message! Our support team will get back to you shortly.");
+    setIsSending(true);
+    try {
+      const reply = await queryT2T(trimmed);
+      appendMessage({
+        sender: "bot",
+        text: reply ?? "Sorry, something went wrong. Please try again.",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Reads a bot message aloud via voice-service's TTS endpoint. Guarded to
+  // one at a time - a click while another message is already speaking is a
+  // no-op rather than overlapping two clips.
+  const handleSpeakMessage = async (message: ChatMessage) => {
+    if (speakingMessageId) return;
+    setSpeakingMessageId(message.id);
+    setSpeakingPhase("loading");
+    try {
+      const audioBlob = await queryT2S(getSpeechText(message.text));
+      if (!audioBlob) return;
+      setSpeakingPhase("playing");
+      await playAudioBlob(audioBlob);
+    } finally {
+      setSpeakingMessageId(null);
+      setSpeakingPhase(null);
+    }
   };
 
   const handleStartRecording = async (fromLongPress: boolean) => {
@@ -633,17 +612,15 @@ export function FloatingChatWidget() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
-      startRecorderSegment(stream);
-      setFooterMode("voice");
+      startPcmCapture(stream);
       setIsRecording(true);
       setIsListening(true);
-      setElapsedSec(0);
-      elapsedSecRef.current = 0;
-      timerRef.current = setInterval(() => {
-        elapsedSecRef.current += 1;
-        setElapsedSec(elapsedSecRef.current);
-      }, 1000);
       startSilenceWatcher(stream);
+      if (!fromLongPress) {
+        autoStopTimerRef.current = setTimeout(() => {
+          handleStopRecording(true);
+        }, MIC_RECORDING_AUTO_STOP_MS);
+      }
     } catch {
       setMicError(
         "Microphone access was denied. Please allow microphone access to send a voice message.",
@@ -703,6 +680,7 @@ export function FloatingChatWidget() {
       isOpen,
       isListening,
       isRecording,
+      isLongPressRecording: isLongPressSessionRef.current && (isListening || isRecording),
       isAnalyzingPage,
       onTriggerClick: handleLauncherClick,
       onTriggerPointerDown: handleLauncherPointerDown,
@@ -717,44 +695,19 @@ export function FloatingChatWidget() {
     return () => publishChatWidgetBridge(null);
   }, []);
 
-  const persistCurrentSession = useCallback((currentMessages: ChatMessage[]) => {
-    if (currentMessages.length === 0) return;
-    const session: ChatSession = {
-      id: sessionIdRef.current,
-      startedAt: currentMessages[0].timestamp,
-      messages: currentMessages,
-    };
-    const next = [session, ...loadSessions().filter((s) => s.id !== session.id)];
-    saveSessions(next);
-    setSessions(next);
-  }, []);
-
-  const handleOpenHistory = () => {
-    setSessions(loadSessions());
-    setIsHistoryOpen(true);
-  };
-
-  const handleStartNewChat = () => {
-    persistCurrentSession(messages);
-    sessionIdRef.current = createId("session");
-    setMessages([]);
-    setIsHistoryOpen(false);
-    setFooterMode("default");
-  };
-
-  const handleViewSession = (session: ChatSession) => {
-    persistCurrentSession(messages);
-    sessionIdRef.current = session.id;
-    setMessages(session.messages);
-    setIsHistoryOpen(false);
-    setFooterMode("default");
-  };
-
   const dialog = isOpen && (
     <div
       role="dialog"
       aria-label="SHG Assistant"
-      className={
+      // Excluded from Google's Website Translator (see lib/googleTranslate.ts
+      // and TranslateMenu.tsx's own use of `notranslate`) - the widget's
+      // messages re-render constantly (new messages, the typing indicator),
+      // which fights with Google's DOM rewriting the same way the header
+      // greeting does, and a live agent reply shouldn't get retranslated out
+      // from under the language it actually answered in anyway.
+      translate="no"
+      className={cn(
+        "notranslate",
         chatPanelSlot
           ? // Docked beside the iframe (AppShell's chat-panel-slot already
             // sizes/borders the column) — fill it exactly, no floating-card
@@ -763,60 +716,97 @@ export function FloatingChatWidget() {
             // resolution doesn't reliably see — see AppShell.tsx's comment
             // on the same pattern for the iframe itself.
             "absolute inset-0 flex flex-col overflow-hidden bg-white"
-          : "relative flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white shadow-modal"
-      }
+          : "relative flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white shadow-modal",
+      )}
     >
-      <div className="flex items-center justify-between bg-brand-400 px-4 py-3 text-white">
-        <button
-          type="button"
-          onClick={handleOpenHistory}
-          aria-label="Chat history"
-          className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        >
-          <HistoryIcon />
-        </button>
-        <span className="text-base font-semibold">SHG Assistant</span>
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label="Close"
-          className="rounded p-1.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        >
-          <CloseIcon />
-        </button>
-      </div>
-
       <div ref={bodyRef} className="flex-1 space-y-3 overflow-y-auto bg-neutral-50 px-4 py-3">
         {messages.length === 0 && (
           <p className="mt-6 text-center text-sm text-neutral-400">
-            Ask us anything, by text or voice.
+            agentLakshmi
+            <br />
+            an innovative intelligent assistant
           </p>
         )}
         {messages.map((message) => (
           <div
             key={message.id}
-            className={cn("flex", message.sender === "user" ? "justify-end" : "justify-start")}
+            className={cn(
+              "group flex items-center gap-1.5",
+              message.sender === "user" ? "justify-start" : "justify-end",
+            )}
           >
+            {message.sender === "bot" && (
+              <div
+                className={cn(
+                  "flex shrink-0 items-center gap-1 transition-opacity duration-150",
+                  speakingMessageId === message.id
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100 focus-within:opacity-100",
+                )}
+              >
+                {speakingMessageId === message.id && speakingPhase === "playing" && (
+                  <span className="flex items-center gap-0.5" aria-hidden="true">
+                    <span className="animate-sound-wave text-xs font-semibold leading-none text-brand-400 [animation-delay:-0.3s]">
+                      )
+                    </span>
+                    <span className="animate-sound-wave text-xs font-semibold leading-none text-brand-400 [animation-delay:-0.15s]">
+                      )
+                    </span>
+                    <span className="animate-sound-wave text-xs font-semibold leading-none text-brand-400">
+                      )
+                    </span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void handleSpeakMessage(message)}
+                  disabled={speakingMessageId !== null}
+                  aria-label="Listen to this message"
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-full bg-white/60 text-neutral-600 backdrop-blur-sm transition hover:bg-white/80 disabled:cursor-not-allowed",
+                    speakingMessageId === message.id &&
+                      speakingPhase === "loading" &&
+                      "animate-speaker-pulse",
+                  )}
+                >
+                  <SpeakerIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
             <div
               className={cn(
-                "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                "max-w-[80%] rounded-lg px-3 py-2 text-sm text-justify",
+                "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+                "[&_ul]:my-1.5 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-4",
+                "[&_strong]:font-semibold [&_a]:underline",
                 message.sender === "user"
                   ? "bg-brand-400 text-white"
                   : "bg-white text-neutral-800 shadow-card",
               )}
             >
-              {message.kind === "text" ? (
-                message.text
+              {message.sender === "bot" ? (
+                <ReactMarkdown
+                  components={{
+                    a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+                  }}
+                >
+                  {normalizeBotMarkdown(message.text)}
+                </ReactMarkdown>
               ) : (
-                <span className="flex items-center gap-2">
-                  <MicIcon className="h-4 w-4 shrink-0" />
-                  {message.transcript ||
-                    `Voice message (${formatDuration(message.durationSec ?? 0)})`}
-                </span>
+                message.text
               )}
             </div>
           </div>
         ))}
+        {isSending && (
+          <div className="flex justify-end">
+            <div className="flex items-center gap-1 rounded-lg bg-white px-3 py-2.5 shadow-card">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400" />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-neutral-200 bg-white px-3 py-3">
@@ -826,133 +816,55 @@ export function FloatingChatWidget() {
           </p>
         )}
 
-        {footerMode === "default" && (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setFooterMode("text")}
-              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-            >
-              Text
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleStartRecording(false)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-400 px-3 py-2 text-sm font-medium text-white hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
-            >
-              <MicIcon className="h-4 w-4" />
-              Voice
-            </button>
-          </div>
-        )}
-
-        {footerMode === "text" && (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setFooterMode("default")}
-              aria-label="Back to input options"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-            >
-              <BackIcon />
-            </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              isRecording ? handleStopRecording(true) : void handleStartRecording(false)
+            }
+            disabled={!isRecording && (textValue.trim().length > 0 || isTranscribing)}
+            aria-label={isRecording ? "Stop recording" : "Send voice message"}
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:hover:bg-neutral-300",
+              isRecording ? "bg-danger-500 hover:bg-danger-700" : "bg-brand-400 hover:bg-brand-500",
+            )}
+          >
+            {isRecording ? <StopIcon className="h-4 w-4" /> : <MicIcon className="h-4 w-4" />}
+          </button>
+          <div className="relative flex-1">
             <input
               ref={textInputRef}
               type="text"
               value={textValue}
               onChange={(event) => setTextValue(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter") handleSendText();
-                if (event.key === "Escape") setFooterMode("default");
+                if (event.key === "Enter") void handleSendText();
               }}
-              placeholder="Type your message..."
-              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              disabled={isTranscribing}
+              placeholder="message"
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:bg-neutral-50"
             />
-            <button
-              type="button"
-              onClick={handleSendText}
-              disabled={!textValue.trim()}
-              aria-label="Send"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-400 text-white disabled:bg-neutral-300"
-            >
-              <SendIcon className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        {footerMode === "voice" && (
-          <div className="flex items-center gap-3">
-            <span className="relative flex h-3 w-3 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-500 opacity-75" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-danger-500" />
-            </span>
-            <span className="flex-1 text-sm font-medium text-neutral-700">
-              Recording &middot; {formatDuration(elapsedSec)}
-            </span>
-            <button
-              type="button"
-              onClick={() => handleStopRecording(true)}
-              aria-label="Stop recording"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger-500 text-white hover:bg-danger-700"
-            >
-              <StopIcon className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {isHistoryOpen && (
-        <div className="absolute inset-0 flex flex-col bg-white">
-          <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
-            <button
-              type="button"
-              onClick={() => setIsHistoryOpen(false)}
-              aria-label="Back to chat"
-              className="rounded p-1.5 text-neutral-600 hover:bg-neutral-100"
-            >
-              <BackIcon />
-            </button>
-            <span className="text-sm font-semibold text-neutral-800">Previous conversations</span>
-            <button
-              type="button"
-              onClick={handleStartNewChat}
-              className="text-sm font-medium text-brand-500 hover:text-brand-600"
-            >
-              New chat
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {sessions.length === 0 ? (
-              <p className="mt-6 text-center text-sm text-neutral-400">
-                No previous conversations yet.
-              </p>
-            ) : (
-              sessions.map((session) => {
-                const preview =
-                  session.messages.find((m) => m.kind === "text")?.text ?? "Voice message";
-                return (
-                  <button
-                    key={session.id}
-                    type="button"
-                    onClick={() => handleViewSession(session)}
-                    className="flex w-full flex-col gap-0.5 border-b border-neutral-100 px-4 py-3 text-left hover:bg-neutral-50"
-                  >
-                    <span className="truncate text-sm text-neutral-800">{preview}</span>
-                    <span className="text-xs text-neutral-400">
-                      {new Date(session.startedAt).toLocaleString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </button>
-                );
-              })
+            {/* Covers the input while agentLakshmi's s2t call is in flight -
+                the transcript replaces this in place once it resolves. */}
+            {isTranscribing && (
+              <div className="absolute inset-0 flex items-center justify-center gap-1 rounded-md border border-neutral-300 bg-white">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400" />
+              </div>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => void handleSendText()}
+            disabled={!textValue.trim() || isSending || isTranscribing}
+            aria-label="Send"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-400 text-white disabled:bg-neutral-300"
+          >
+            <SendIcon className="h-4 w-4" />
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 

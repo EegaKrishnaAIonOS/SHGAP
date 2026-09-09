@@ -133,6 +133,10 @@ export interface UserProfile {
   phone: string;
   email?: string | null;
   name: string | null;
+  /** Only ever set by the guidance-api credential flow's session (see
+   * guidanceSessionStore.ts's GuidanceSessionInfo.avatar) — core-api profiles
+   * have no avatar of their own, so this is always undefined for them. */
+  avatar?: string;
   status?: UserStatus;
   createdAt?: string;
   userRoles: Array<{

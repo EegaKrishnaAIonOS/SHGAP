@@ -158,6 +158,7 @@ export function LandingPage() {
         phone: guidanceSession.info.contact ?? "",
         email: guidanceSession.email,
         name: guidanceDisplayName(guidanceSession.info),
+        avatar: guidanceSession.info.avatar,
         // The AIONOS account (see inference/tools/database.py's
         // func__init_credential) has no `role` field, just an
         // `organisation` — identified that way instead here, same as

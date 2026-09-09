@@ -2,8 +2,11 @@ import json5
 import os
 from pathlib import Path
 from datetime import datetime, timezone
+from collections import Counter
 from supabase import create_client
 from dotenv import load_dotenv
+
+from tools.miscellaneous import *
 
 load_dotenv()
 
@@ -213,10 +216,10 @@ def func__init_commodity():
 # func__init_commodity()
 
 
-def func__select_commodity(email=None, info=None):
+def func__select_commodity(email=None, info=None, relavence=False):
     info = json5.loads(info) if(info!=None) else None
     if(): pass
-    elif(email != None):
+    elif(email != None and info == None):
         query = db.table("commodity")\
                 .select("*")\
                 .eq("email", email)\
@@ -231,14 +234,28 @@ def func__select_commodity(email=None, info=None):
                 .eq("is_authenticated", 1)\
                 .execute()
     reqres = query.data
+
+    if(): pass
+    elif(relavence == True):
+        query = db.table("catalog")\
+                .select("product_category")\
+                .eq("email", email)\
+                .execute()
+
+        max__product_catogery__catalog = Counter(itr["product_category"] for itr in query.data).most_common(1)[0][0]
+        dct__product_catogery__commodity = [{itr["uuid"] : itr["product_category"]} for itr in reqres]
+
+        reqres = {"reqres" : reqres, "relavence" : func__relavence_product(dct__product_catogery__commodity, max__product_catogery__catalog)}
+    else: pass
+
     return reqres
 
 
-def func__insert_commodity(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email):
+def func__insert_commodity(email, avatar, product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order):
     query = db.table("commodity")\
             .insert\
             (
-                {"product_name": product_name, "product_category": product_category, "product_description": product_description, "mfg_date": mfg_date, "exp_date": exp_date, "mrp_per_unit": mrp_per_unit, "n_units": n_units, "min_qty_per_order": min_qty_per_order, "max_qty_per_order": max_qty_per_order, "email": email, "is_authenticated": 0}
+                {"email": email, "avatar": avatar, "product_name": product_name, "product_category": product_category, "product_description": product_description, "mfg_date": mfg_date, "exp_date": exp_date, "mrp_per_unit": mrp_per_unit, "n_units": n_units, "min_qty_per_order": min_qty_per_order, "max_qty_per_order": max_qty_per_order, "is_authenticated": 0}
             )\
             .execute()
     reqres = query.data
@@ -321,7 +338,7 @@ def func__init_catalog():
 # func__init_catalog()
 
 
-def func__select_catalog(email=None, info=None):
+def func__select_catalog(email=None, info=None, relavence=False):
     info = json5.loads(info) if(info!=None) else None
     if(): pass
     elif(email != None):
@@ -361,16 +378,15 @@ def func__select_catalog(email=None, info=None):
     return reqres
 
 
-def func__insert_catalog(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email):
+def func__insert_catalog(email, avatar, product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order):
     query = db.table("catalog")\
             .insert\
             (
-                {"product_name": product_name, "product_category": product_category, "product_description": product_description, "mfg_date": mfg_date, "exp_date": exp_date, "mrp_per_unit": mrp_per_unit, "n_units": n_units, "min_qty_per_order": min_qty_per_order, "max_qty_per_order": max_qty_per_order, "email": email, "is_authenticated": 0}
+                {"email": email, "avatar": avatar, "product_name": product_name, "product_category": product_category, "product_description": product_description, "mfg_date": mfg_date, "exp_date": exp_date, "mrp_per_unit": mrp_per_unit, "n_units": n_units, "min_qty_per_order": min_qty_per_order, "max_qty_per_order": max_qty_per_order, "is_authenticated": 0}
             )\
             .execute()
     reqres = query.data
     return reqres
-
 
 def func__update_catalog(uuid, is_authenticated):
     query = db.table("catalog")\

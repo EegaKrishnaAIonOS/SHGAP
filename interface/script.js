@@ -34,8 +34,8 @@ const GUIDANCE_SESSION_STORAGE_KEY = "shgap.guidanceSession.v1";
 
 // Shared at top level (not scoped inside one `if (page === ...)` block)
 // since every dashboard page, plus setupAddProductForm below, hits this
-// same guidance-api proxy path (see apps/web/vite.config.ts's apiProxy).
-const GUIDANCE_API_BASE = "/guidance-api";
+// same route proxy path (see apps/web/vite.config.ts's apiProxy).
+const GUIDANCE_API_BASE = "/route";
 
 // Bare filenames only (both login.html at interface/'s root and
 // console/profile.html need this map, from two different relative depths —
@@ -118,10 +118,17 @@ const CATALOG_PLACEHOLDER_ICON_PATH =
 // consumer dashboard's Catalog tab (browsing an SHG's catalog rows) — a
 // listing looks the same whichever side it's viewed from, just with the
 // matching placeholder icon for whichever table it's reading from.
-function buildSupplyRowCard(row, { iconPath = COMMODITY_PLACEHOLDER_ICON_PATH } = {}) {
+function buildSupplyRowCard(
+  row,
+  { iconPath = COMMODITY_PLACEHOLDER_ICON_PATH, relevantUuids } = {},
+) {
   const minQty = Math.max(1, Number(row.min_qty_per_order) || 1);
   const maxQty = Math.max(minQty, Number(row.max_qty_per_order) || minQty);
   let qty = minQty;
+  // func__select_commodity's relavence=true mode (inference/tools/database.py)
+  // returns a list of uuids matching the viewer's dominant catalog category —
+  // those rows get a rainbow-gradient photo frame instead of the default one.
+  const isRelevantMatch = Boolean(relevantUuids?.has(row.uuid));
 
   const card = document.createElement("article");
   card.className = "card filled-product-card commodity-card";
@@ -147,19 +154,33 @@ function buildSupplyRowCard(row, { iconPath = COMMODITY_PLACEHOLDER_ICON_PATH } 
       </div>
       <div class="filled-field"><span>Product Description</span><span>${row.product_description}</span></div>
     </div>
-    <div class="filled-product-photo">
-      <span class="add-product-upload-badge" aria-hidden="true">
-        <!-- Neither the commodity nor the catalog table has an image
-             field, so every card here uses this same default per-table
-             placeholder rather than a generated per-product one. -->
-        <svg class="add-product-upload-icon" viewBox="0 0 20 20" aria-hidden="true">
-          <path d="${iconPath}" fill="currentColor" fill-rule="evenodd" />
-        </svg>
-      </span>
+    <div class="filled-product-photo${isRelevantMatch ? " is-relevant-match" : ""}">
+      ${
+        row.avatar
+          ? `<img src="${row.avatar}" alt="${row.product_name}" />`
+          : `
+            <span class="add-product-upload-badge" aria-hidden="true">
+              <!-- Falls back to this default per-table placeholder only when
+                   the row itself has no uploaded avatar (see buildFilledCard/
+                   supplyRowToFilledCardData, which read the same commodity/
+                   catalog avatar column for a member's own products). -->
+              <svg class="add-product-upload-icon" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="${iconPath}" fill="currentColor" fill-rule="evenodd" />
+              </svg>
+            </span>
+          `
+      }
       <div class="commodity-cart-overlay">
         <div class="commodity-cart-stepper">
           <button type="button" class="commodity-cart-btn minus" aria-label="Decrease order quantity">&minus;</button>
-          <span class="commodity-cart-qty">${qty}</span>
+          <span class="commodity-cart-qty-wrap">
+            <svg class="commodity-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            <span class="commodity-cart-qty">${qty}</span>
+          </span>
           <button type="button" class="commodity-cart-btn plus" aria-label="Increase order quantity">&plus;</button>
         </div>
       </div>
@@ -195,6 +216,41 @@ function renderSupplyRowGrid(container, rows, options) {
 }
 
 if (page === "index") {
+  // Wikipedia's own text on SHGs, scraped server-side (inference/tools/scrape.py)
+  // rather than hardcoded here, so an edit to that page is reflected without a
+  // frontend deploy. The route returns a list of paragraph strings to unpack.
+  const ABOUT_SHG_SOURCE_URL = "https://en.wikipedia.org/wiki/Self-help_group_(finance)";
+
+  async function loadAboutShg() {
+    const container = document.getElementById("about-shg-content");
+    if (!container) return;
+
+    try {
+      const response = await fetch(
+        `${GUIDANCE_API_BASE}/scrape/url/${encodeURIComponent(ABOUT_SHG_SOURCE_URL)}`,
+      );
+      if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+      const paragraphs = await response.json();
+
+      container.innerHTML = "";
+      if (!Array.isArray(paragraphs) || paragraphs.length === 0) {
+        container.innerHTML = '<p class="about-shg-status">No content available right now.</p>';
+        return;
+      }
+
+      paragraphs.forEach((paragraph) => {
+        const p = document.createElement("p");
+        p.textContent = paragraph;
+        container.appendChild(p);
+      });
+    } catch {
+      container.innerHTML =
+        '<p class="about-shg-status">Unable to load this content right now.</p>';
+    }
+  }
+
+  loadAboutShg();
+
   const slides = document.querySelectorAll(".hero-slide");
   const dots = document.querySelectorAll(".hero-slider-dot");
   let activeSlide = 0;
@@ -272,23 +328,12 @@ if (page === "login") {
   }
 
   // Which authority an unauthenticated account should be told to contact —
-  // the state authority for retailer/consumer accounts, or the SHG's own
-  // district authority (looked up from its pincode) for SHG accounts.
-  async function resolveAuthority(info) {
+  // the state authority for retailer/consumer accounts, else the generic
+  // message.
+  function resolveAuthority(info) {
     const role = (info.role || "").toUpperCase();
     if (role === "RETAILER" || role === "CONSUMER") {
       return "Andhra Pradesh State Authority";
-    }
-    if (role === "SHG" && info.pincode) {
-      try {
-        const response = await fetch(
-          `${GUIDANCE_API_BASE}/route/get/district/pincode/${encodeURIComponent(info.pincode)}`,
-        );
-        const districtName = await response.json().catch(() => null);
-        if (districtName) return `${titleCase(districtName)} District Authority`;
-      } catch {
-        // fall through to the generic message below
-      }
     }
     return "the respective authority";
   }
@@ -307,7 +352,7 @@ if (page === "login") {
     submitBtn.disabled = true;
     try {
       const response = await fetch(
-        `${GUIDANCE_API_BASE}/route/select/credential/email/${encodeURIComponent(email)}/passkey/${encodeURIComponent(passkey)}`,
+        `${GUIDANCE_API_BASE}/select/credential/email/${encodeURIComponent(email)}/passkey/${encodeURIComponent(passkey)}`,
       );
       const records = await response.json().catch(() => []);
 
@@ -339,13 +384,13 @@ if (page === "login") {
       const info = Array.isArray(record.info) ? record.info[0] : (record.info ?? {});
 
       if (record.is_authenticated === 0) {
-        const authority = await resolveAuthority(info);
+        const authority = resolveAuthority(info);
         showLoginToast(`Account yet to be authenticated. Kindly contact ${authority}.`, "neutral");
         return;
       }
 
       if (record.is_authenticated === -1) {
-        const authority = await resolveAuthority(info);
+        const authority = resolveAuthority(info);
         showLoginToast(`Account yet to be authenticated. Kindly contact ${authority}.`, "dark");
         return;
       }
@@ -382,6 +427,10 @@ if (page === "login") {
   const avatarUploadBtn = document.getElementById("avatarUploadBtn");
   const avatarUploadInput = document.getElementById("avatarUploadInput");
   const avatarPreview = document.getElementById("avatarPreview");
+  // Required at submit (see the checkValidity() || !registrationAvatarDataUrl
+  // gate below) but, like the Add Product image, can't be enforced via a
+  // native `required` on the file input since it's `hidden` (see markup).
+  let registrationAvatarDataUrl = null;
   avatarUploadBtn.addEventListener("click", () => avatarUploadInput.click());
   avatarUploadInput.addEventListener("change", () => {
     const file = avatarUploadInput.files[0];
@@ -389,6 +438,7 @@ if (page === "login") {
     const reader = new FileReader();
     reader.onload = () => {
       avatarPreview.src = reader.result;
+      registrationAvatarDataUrl = reader.result;
     };
     reader.readAsDataURL(file);
   });
@@ -428,12 +478,12 @@ if (page === "login") {
   const registrationSubmitBtn = registrationForm.querySelector('button[type="submit"]');
   registrationForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!registrationForm.checkValidity()) return;
+    if (!registrationForm.checkValidity() || !registrationAvatarDataUrl) return;
 
     const isCommunity = communityFields.hidden === false;
     const info = [
       {
-        avatar: "",
+        avatar: registrationAvatarDataUrl,
         role: registrationForm.registrationOperation.value,
         mode: titleCase(registrationForm.operationMode.value),
         name: isCommunity ? entityNameInput.value : memberNameInput.value,
@@ -449,10 +499,11 @@ if (page === "login") {
 
     registrationSubmitBtn.disabled = true;
     try {
-      const response = await fetch(
-        `${GUIDANCE_API_BASE}/route/insert/credential/email/${encodeURIComponent(email)}/passkey/${encodeURIComponent(passkey)}/info/${encodeURIComponent(JSON.stringify(info))}`,
-        { method: "POST" },
-      );
+      const response = await fetch(`${GUIDANCE_API_BASE}/insert/credential`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, passkey, info: JSON.stringify(info) }),
+      });
       await response.json().catch(() => []);
       goToStep(1);
     } catch (err) {
@@ -684,18 +735,14 @@ function buildFilledCard(data) {
   updateBtn.addEventListener("click", () => flashThenRun(updateBtn, () => {}));
   deleteBtn.addEventListener("click", () => {
     flashThenRun(deleteBtn, () => {
-      if (!window.confirm(`Delete "${data.name}"? This cannot be undone.`)) return;
       // data.uuid is only set for a card backed by a real row (see
       // supplyRowToFilledCardData and addProduct's own post-insert
       // showCard) — falls back to a local-only removal otherwise, same as
       // before this card had any backend link at all.
       if (data.uuid) {
-        fetch(
-          `${GUIDANCE_API_BASE}/route/delete/${data.entity}/uuid/${encodeURIComponent(data.uuid)}`,
-          {
-            method: "POST",
-          },
-        )
+        fetch(`${GUIDANCE_API_BASE}/delete/${data.entity}/uuid/${encodeURIComponent(data.uuid)}`, {
+          method: "POST",
+        })
           .catch((err) => console.error(err))
           .finally(() => card.remove());
       } else {
@@ -710,14 +757,13 @@ function buildFilledCard(data) {
 // Maps a commodity/catalog row (see inference/tools/database.py — both
 // tables share this exact shape) to buildFilledCard's own data shape, for
 // rendering a member's own already-persisted products with the same card
-// used for ones just added this session. Neither table has an image
-// field, so `imageDataUrl` is left unset — buildFilledCard falls back to
-// the same commodity/catalog placeholder badge buildSupplyRowCard shows
-// elsewhere, rather than a generated per-product one, so a retailer's own
-// commodity listing (or an SHG's own catalog listing) always shows the
-// same default photo whether it's browsed by someone else or by its owner.
-// `entity` and the row's own `uuid` are what buildFilledCard's delete
-// button needs to call the real DELETE route.
+// used for ones just added this session. `imageDataUrl` comes straight off
+// the row's own `avatar` column — null/undefined there (rows inserted
+// before that column existed, or never given a photo) leaves it unset, so
+// buildFilledCard falls back to the same commodity/catalog placeholder
+// badge buildSupplyRowCard shows elsewhere rather than a generated
+// per-product one. `entity` and the row's own `uuid` are what
+// buildFilledCard's delete button needs to call the real DELETE route.
 function supplyRowToFilledCardData(
   row,
   iconPath = COMMODITY_PLACEHOLDER_ICON_PATH,
@@ -733,6 +779,7 @@ function supplyRowToFilledCardData(
     minQty: row.min_qty_per_order,
     maxQty: row.max_qty_per_order,
     description: row.product_description,
+    imageDataUrl: row.avatar || undefined,
     iconPath,
     isAuthenticated: row.is_authenticated,
     uuid: row.uuid,
@@ -765,7 +812,7 @@ function setupAddProductForm() {
   let lastImageDataUrl = null;
 
   function clearImagePreview() {
-    uploadZone.style.backgroundImage = "";
+    uploadZone.querySelector("img")?.remove();
     uploadZone.classList.remove("has-image");
     lastImageDataUrl = null;
   }
@@ -782,12 +829,15 @@ function setupAddProductForm() {
   }
 
   // Drives the blur-then-icons reveal above and gates addProduct() below —
-  // this is the form's real, live validity (the image input has no
-  // `required` of its own, so it's excluded), recomputed on every field
-  // change, not just at submit time.
+  // this is the form's real, live validity, recomputed on every field
+  // change, not just at submit time. The image is required too, but checked
+  // via lastImageDataUrl rather than a native `required` on the file input:
+  // that input is `hidden` (see markup), and a hidden/display:none control is
+  // barred from native constraint validation in most browsers, so
+  // form.checkValidity() alone can't be trusted to enforce it.
   function updateValidityState() {
     const wasValid = form.classList.contains("is-valid");
-    const nowValid = form.checkValidity();
+    const nowValid = form.checkValidity() && Boolean(lastImageDataUrl);
     form.classList.toggle("is-valid", nowValid);
     if (nowValid && !wasValid) {
       scheduleReveal();
@@ -799,11 +849,13 @@ function setupAddProductForm() {
   function addProduct() {
     // checkValidity() (not reportValidity()) — still gates this on the
     // required fields, just without the native "Please fill out this
-    // field" browser tooltip popping up. In practice this is only ever
-    // reachable already-valid (the confirm button only ever shows once
-    // .is-valid is set, and the Enter-key path below checks it too), but
-    // kept as the actual gate rather than trusting that indirectly.
-    if (!form.checkValidity()) return;
+    // field" browser tooltip popping up. lastImageDataUrl is checked
+    // alongside it for the same reason updateValidityState does — the file
+    // input can't enforce this natively since it's hidden. In practice this
+    // is only ever reachable already-valid (the confirm button only ever
+    // shows once .is-valid is set, and the Enter-key path below checks it
+    // too), but kept as the actual gate rather than trusting that indirectly.
+    if (!form.checkValidity() || !lastImageDataUrl) return;
     if (grid) {
       const row = {
         product_name: document.getElementById("newProductName").value.trim(),
@@ -817,6 +869,8 @@ function setupAddProductForm() {
         max_qty_per_order: document.getElementById("newProductMaxQty").value,
       };
 
+      const avatar = lastImageDataUrl;
+
       function showCard(uuid) {
         const card = buildFilledCard({
           name: row.product_name,
@@ -828,7 +882,7 @@ function setupAddProductForm() {
           minQty: row.min_qty_per_order,
           maxQty: row.max_qty_per_order,
           description: row.product_description,
-          imageDataUrl: lastImageDataUrl,
+          imageDataUrl: avatar,
           iconPath,
           // The commodity/catalog insert always starts a new row at
           // is_authenticated: 0 (see func__insert_commodity/_catalog in
@@ -847,18 +901,22 @@ function setupAddProductForm() {
 
       // Persists to the commodity/catalog table (see inference/route.py's
       // insert routes) before showing the card, scoped to whichever member
-      // is logged in — the row's own product_name/../max_qty_per_order
-      // keys already match that route's path segment names 1:1. Without a
-      // session (shouldn't happen in practice, this page requires login)
-      // the card still shows locally rather than silently doing nothing —
-      // just without a uuid, so its own hover delete button falls back to
-      // a local-only removal (see buildFilledCard).
+      // is logged in — sent as a JSON body (not a URL path) since `avatar`
+      // is a base64 data URL, too large/unsafe for a path segment. Field
+      // order (email, then avatar, then the row's own product_name/../
+      // max_qty_per_order) matches cls__insert_commodity/cls__insert_catalog
+      // in inference/route.py. Without a session (shouldn't happen in
+      // practice, this page requires login) the card still shows locally
+      // rather than silently doing nothing — just without a uuid, so its
+      // own hover delete button falls back to a local-only removal (see
+      // buildFilledCard).
       const email = readGuidanceSession()?.email;
       if (email) {
-        const path = Object.entries({ ...row, email })
-          .map(([key, value]) => `${key}/${encodeURIComponent(value)}`)
-          .join("/");
-        fetch(`${GUIDANCE_API_BASE}/route/insert/${entity}/${path}`, { method: "POST" })
+        fetch(`${GUIDANCE_API_BASE}/insert/${entity}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, avatar, ...row }),
+        })
           .then((response) => response.json())
           .then((inserted) => showCard(Array.isArray(inserted) ? inserted[0]?.uuid : undefined))
           .catch((err) => {
@@ -887,8 +945,23 @@ function setupAddProductForm() {
     const reader = new FileReader();
     reader.onload = () => {
       lastImageDataUrl = reader.result;
-      uploadZone.style.backgroundImage = `url(${reader.result})`;
+      // Same <img> markup/style buildFilledCard uses for a real photo post-
+      // insert (.add-product-upload img, .filled-product-photo img in
+      // styles.css) — so the preview here already looks like the card it's
+      // about to become, not a different full-bleed treatment.
+      let preview = uploadZone.querySelector("img");
+      if (!preview) {
+        preview = document.createElement("img");
+        preview.alt = "";
+        uploadZone.appendChild(preview);
+      }
+      preview.src = reader.result;
       uploadZone.classList.add("has-image");
+      // The form-level "change" listener below also calls this, but it fires
+      // synchronously on the input event — before this async FileReader
+      // callback has set lastImageDataUrl — so validity would still read as
+      // false at that point. Re-run it now that the image is actually ready.
+      updateValidityState();
     };
     reader.readAsDataURL(file);
   });
@@ -953,21 +1026,35 @@ if (page === "shg-dashboard") {
   // the supply chain it's browsed from. Uses that function's default
   // (commodity/ingot) placeholder icon, since these rows are commodities.
 
-  function renderRawMaterials(rows) {
-    renderSupplyRowGrid(rawMaterialsGrid, rows);
+  function renderRawMaterials(rows, relevantUuids) {
+    renderSupplyRowGrid(rawMaterialsGrid, rows, { relevantUuids });
     itemsEmptyState.hidden = rows.length > 0;
   }
 
   function loadRawMaterials() {
     const info = { role: "SHG" };
+    const email = readGuidanceSession()?.email;
     fetch(
-      `${GUIDANCE_API_BASE}/route/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}`,
+      `${GUIDANCE_API_BASE}/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}?relavence=true${email ? `&email=${encodeURIComponent(email)}` : ""}`,
     )
       .then((response) => response.json())
-      .then((rows) => renderRawMaterials(Array.isArray(rows) ? rows : []))
+      .then((payload) => {
+        // relavence=true makes func__select_commodity (inference/tools/database.py)
+        // reply as {reqres: [...rows], relavence: [...uuid]} instead of a bare row
+        // array — the uuid list is what the SHG's dominant catalog category matches.
+        // Rows are still returned bare (no relavence key) from any other branch of
+        // that endpoint, so keep tolerating a plain array too.
+        const isWrapped = payload && !Array.isArray(payload) && Array.isArray(payload.reqres);
+        const rows = isWrapped ? payload.reqres : Array.isArray(payload) ? payload : [];
+        const relevantUuids = new Set(isWrapped ? payload.relavence : []);
+        const sorted = [...rows].sort(
+          (a, b) => Number(relevantUuids.has(b.uuid)) - Number(relevantUuids.has(a.uuid)),
+        );
+        renderRawMaterials(sorted, relevantUuids);
+      })
       .catch((err) => {
         console.error(err);
-        renderRawMaterials([]);
+        renderRawMaterials([], new Set());
       });
   }
 
@@ -1130,7 +1217,7 @@ if (page === "shg-dashboard") {
   function loadOwnCatalog() {
     const session = readGuidanceSession();
     if (!session?.email) return;
-    fetch(`${GUIDANCE_API_BASE}/route/select/catalog/email/${encodeURIComponent(session.email)}`)
+    fetch(`${GUIDANCE_API_BASE}/select/catalog/email/${encodeURIComponent(session.email)}`)
       .then((response) => response.json())
       .then((rows) => {
         sortByModifiedDesc(Array.isArray(rows) ? rows : []).forEach((row) => {
@@ -1174,9 +1261,7 @@ if (page === "consumer-dashboard") {
   setupProfilePanel();
 
   const info = { role: "consumer" };
-  fetch(
-    `${GUIDANCE_API_BASE}/route/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`,
-  )
+  fetch(`${GUIDANCE_API_BASE}/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`)
     .then((response) => response.json())
     .then((rows) => {
       const products = Array.isArray(rows) ? rows : [];
@@ -1209,7 +1294,7 @@ if (page === "retailer-dashboard") {
   function loadOwnCommodities() {
     const session = readGuidanceSession();
     if (!session?.email) return;
-    fetch(`${GUIDANCE_API_BASE}/route/select/commodity/email/${encodeURIComponent(session.email)}`)
+    fetch(`${GUIDANCE_API_BASE}/select/commodity/email/${encodeURIComponent(session.email)}`)
       .then((response) => response.json())
       .then((rows) => {
         sortByModifiedDesc(Array.isArray(rows) ? rows : []).forEach((row) => {
@@ -1387,7 +1472,7 @@ if (page === "district-dashboard" || page === "state-dashboard" || page === "aio
       const uuid = activeCell.closest("tr").dataset.uuid;
       rowActions.classList.remove("is-visible");
       fetch(
-        `${GUIDANCE_API_BASE}/route/update/${entity}/uuid/${encodeURIComponent(uuid)}/is_authenticated/${encodeURIComponent(isAuthenticated)}`,
+        `${GUIDANCE_API_BASE}/update/${entity}/uuid/${encodeURIComponent(uuid)}/is_authenticated/${encodeURIComponent(isAuthenticated)}`,
         { method: "POST" },
       )
         .catch(() => {})
@@ -1417,9 +1502,7 @@ if (page === "district-dashboard" || page === "state-dashboard" || page === "aio
       role === "SHG" && currentDistrictName
         ? { role, district_name: currentDistrictName }
         : { role };
-    fetch(
-      `${GUIDANCE_API_BASE}/route/select/credential/info/${encodeURIComponent(JSON.stringify(info))}`,
-    )
+    fetch(`${GUIDANCE_API_BASE}/select/credential/info/${encodeURIComponent(JSON.stringify(info))}`)
       .then((response) => response.json())
       .then((records) => renderCredentialTable(panel, records, role))
       .catch(() => {
@@ -1470,9 +1553,7 @@ if (page === "district-dashboard" || page === "state-dashboard" || page === "aio
       CURRENT_DASHBOARD_ROLE === "district"
         ? { role: CURRENT_DASHBOARD_ROLE, district_name: currentDistrictName }
         : { role: CURRENT_DASHBOARD_ROLE };
-    fetch(
-      `${GUIDANCE_API_BASE}/route/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}`,
-    )
+    fetch(`${GUIDANCE_API_BASE}/select/commodity/info/${encodeURIComponent(JSON.stringify(info))}`)
       .then((response) => response.json())
       .then((records) =>
         renderApprovableTable(panel, records, {
@@ -1517,9 +1598,7 @@ if (page === "district-dashboard" || page === "state-dashboard" || page === "aio
       CURRENT_DASHBOARD_ROLE === "district"
         ? { role: CURRENT_DASHBOARD_ROLE, district_name: currentDistrictName }
         : { role: CURRENT_DASHBOARD_ROLE };
-    fetch(
-      `${GUIDANCE_API_BASE}/route/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`,
-    )
+    fetch(`${GUIDANCE_API_BASE}/select/catalog/info/${encodeURIComponent(JSON.stringify(info))}`)
       .then((response) => response.json())
       .then((records) =>
         renderApprovableTable(panel, records, {

@@ -59,12 +59,14 @@ export async function transliterate(text: string): Promise<string> {
  * VoiceAssistantPage uses. Multipart, not JSON, so this doesn't go through
  * `voiceFetch`. Returns an empty string (never throws) on failure so a
  * transcription hiccup falls back to the widget's plain duration bubble
- * instead of breaking the send.
+ * instead of breaking the send. `blob` is a WAV clip encoded client-side
+ * (see FloatingChatWidget's encodeWavBlob) — not the WebM/Opus a bare
+ * MediaRecorder would have produced.
  */
 export async function transcribeAudio(blob: Blob): Promise<string> {
   try {
     const form = new FormData();
-    form.append("file", blob, "recording.webm");
+    form.append("file", blob, "recording.wav");
     const res = await fetch(`${VOICE_API_BASE}/api/transcribe`, { method: "POST", body: form });
     if (!res.ok) return "";
     const data = (await res.json()) as { transcript?: string };

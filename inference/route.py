@@ -1,10 +1,53 @@
 import os
+import base64
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from tools import tools
+
+
+class cls__insert_credential(BaseModel):
+    email: str
+    passkey: str
+    info: str
+
+
+class cls__insert_commodity(BaseModel):
+    email: str
+    avatar: str
+    product_name: str
+    product_category: str
+    product_description: str
+    mfg_date: str
+    exp_date: str | None = None
+    mrp_per_unit: float
+    n_units: int
+    min_qty_per_order: int
+    max_qty_per_order: int
+
+
+class cls__insert_catalog(BaseModel):
+    email: str
+    avatar: str
+    product_name: str
+    product_category: str
+    product_description: str
+    mfg_date: str
+    exp_date: str | None = None
+    mrp_per_unit: float
+    n_units: int
+    min_qty_per_order: int
+    max_qty_per_order: int
+
+
+class cls__s2t(BaseModel):
+    speech: str
+
+class cls__navigator(BaseModel):
+    interaction: str
 
 route = FastAPI(title="agentLakshmi")
 route.add_middleware\
@@ -24,9 +67,9 @@ def func__select_credential(email=None, passkey=None, info=None):
     return reqres
 
 
-@route.post("/route/insert/credential/email/{email}/passkey/{passkey}/info/{info}")
-def func__insert_credential(email, passkey, info):
-    reqres = tools.func__insert_credential(email, passkey, info)
+@route.post("/route/insert/credential")
+def func__insert_credential(credential : cls__insert_credential):
+    reqres = tools.func__insert_credential(credential.email, credential.passkey, credential.info)
     return reqres
 
 
@@ -39,14 +82,14 @@ def func__update_credential(uuid, is_authenticated):
 @route.get("/route/select/commodity/email/{email}/info/{info}")
 @route.get("/route/select/commodity/email/{email}")
 @route.get("/route/select/commodity/info/{info}")
-def func__select_commodity(email=None, info=None):
-    reqres = tools.func__select_commodity(email, info)
+def func__select_commodity(email=None, info=None, relavence: bool = False):
+    reqres = tools.func__select_commodity(email, info, relavence)
     return reqres
 
 
-@route.post("/route/insert/commodity/product_name/{product_name}/product_category/{product_category}/product_description/{product_description}/mfg_date/{mfg_date}/exp_date/{exp_date}/mrp_per_unit/{mrp_per_unit}/n_units/{n_units}/min_qty_per_order/{min_qty_per_order}/max_qty_per_order/{max_qty_per_order}/email/{email}")
-def func__insert_commodity(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email):
-    reqres = tools.func__insert_commodity(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email)
+@route.post("/route/insert/commodity")
+def func__insert_commodity(commodity: cls__insert_commodity):
+    reqres = tools.func__insert_commodity(commodity.email, commodity.avatar, commodity.product_name, commodity.product_category, commodity.product_description, commodity.mfg_date, commodity.exp_date, commodity.mrp_per_unit, commodity.n_units, commodity.min_qty_per_order, commodity.max_qty_per_order)
     return reqres
 
 
@@ -65,14 +108,14 @@ def func__delete_commodity(uuid):
 @route.get("/route/select/catalog/email/{email}/info/{info}")
 @route.get("/route/select/catalog/email/{email}")
 @route.get("/route/select/catalog/info/{info}")
-def func__select_catalog(email=None, info=None):
-    reqres = tools.func__select_catalog(email, info)
+def func__select_catalog(email=None, info=None, relavence: bool = False):
+    reqres = tools.func__select_catalog(email, info, relavence)
     return reqres
 
 
-@route.post("/route/insert/catalog/product_name/{product_name}/product_category/{product_category}/product_description/{product_description}/mfg_date/{mfg_date}/exp_date/{exp_date}/mrp_per_unit/{mrp_per_unit}/n_units/{n_units}/min_qty_per_order/{min_qty_per_order}/max_qty_per_order/{max_qty_per_order}/email/{email}")
-def func__insert_catalog(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email):
-    reqres = tools.func__insert_catalog(product_name, product_category, product_description, mfg_date, exp_date, mrp_per_unit, n_units, min_qty_per_order, max_qty_per_order, email)
+@route.post("/route/insert/catalog")
+def func__insert_catalog(catalog: cls__insert_catalog):
+    reqres = tools.func__insert_catalog(catalog.email, catalog.avatar, catalog.product_name, catalog.product_category, catalog.product_description, catalog.mfg_date, catalog.exp_date, catalog.mrp_per_unit, catalog.n_units, catalog.min_qty_per_order, catalog.max_qty_per_order)
     return reqres
 
 
@@ -85,6 +128,36 @@ def func__update_catalog(uuid, is_authenticated):
 @route.post("/route/delete/catalog/uuid/{uuid}")
 def func__delete_catalog(uuid):
     reqres = tools.func__delete_catalog(uuid)
+    return reqres
+
+
+@route.post("/route/message/s2t/speech")
+def func__s2t(speech: cls__s2t):
+    reqres = tools.func__s2t(speech.speech)
+    return reqres
+
+
+@route.get("/route/message/t2t/message/{message}")
+def func__t2t(message):
+    reqres = tools.func__t2t(message)
+    return reqres
+
+
+@route.post("/route/message/t2s/text/{text}")
+def func__t2s(text):
+    reqres = tools.func__t2s(text)
+    return Response(content=base64.b64decode(reqres), media_type="audio/wav")
+
+
+@route.post("/route/navigator")
+def func__navigator(interaction: cls__navigator):
+    reqres = tools.func__navigator(interaction.interaction)
+    return reqres
+
+
+@route.get("/route/scrape/url/{url:path}")
+def func__scrape(url):
+    reqres = tools.func__scrape(url)
     return reqres
 
 

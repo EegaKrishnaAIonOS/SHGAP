@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="auth-page">
-    <div class="auth-shell">
-      <div class="auth-card">
-        <div class="step-panel active" data-step="1">
+    <div id="auth-shell" class="auth-shell">
+      <div id="auth-card" class="auth-card">
+        <div id="login-panel" class="step-panel active" data-step="1">
           <form id="passwordForm" class="form-grid">
             <div class="field">
               <label for="emailInput">Email</label>
@@ -20,11 +20,11 @@
               <label for="passwordInput">Passkey</label>
               <input id="passwordInput" type="text" placeholder="********" />
             </div>
-            <button class="primary-btn" type="submit" style="width: 100%; margin-top: 18px;">login</button>
+            <button id="login-submit-button" class="primary-btn" type="submit" style="width: 100%; margin-top: 18px;">login</button>
           </form>
         </div>
 
-        <div class="step-panel" data-step="2">
+        <div id="registration-panel" class="step-panel" data-step="2">
           <form id="registrationForm" class="form-grid" novalidate>
             <div class="field">
               <button type="button" id="avatarUploadBtn" class="avatar-upload" aria-label="Upload photo">
@@ -35,7 +35,7 @@
 
             <div class="field">
               <label>Registration Operation</label>
-              <div class="radio-group">
+              <div id="registration-operation-group" class="radio-group">
                 <label class="radio-option"
                   ><input type="radio" name="registrationOperation" value="RETAILER" required /> Retailer</label
                 >
@@ -50,7 +50,7 @@
 
             <div class="field">
               <label>Operation Mode</label>
-              <div class="radio-group">
+              <div id="operation-mode-group" class="radio-group">
                 <label class="radio-option"
                   ><input type="radio" name="operationMode" value="INDIVIDUAL" required /> Individual</label
                 >
@@ -97,6 +97,7 @@
             </div>
 
             <button
+              id="registration-submit-button"
               class="primary-btn arrow-btn"
               type="submit"
               aria-label="Submit"

@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="/interface/styles.css" />
   </head>
   <body class="shg-page">
-    <nav class="shg-tabs">
+    <nav id="dashboard-tabs-nav" class="shg-tabs">
       <div class="page-shell shg-tabs-inner">
-        <button type="button" class="shg-tab" data-tab="items">Items</button>
+        <button id="tab-items" type="button" class="shg-tab" data-tab="items">Items</button>
         <!-- Not a real tab a member picks from this bar (which is itself
              CSS-hidden — see .shg-tabs) — apps/web's DashboardProfileMenu
              forwards its own icon's click to this button (see
@@ -18,17 +18,17 @@
              tab/panel switching interface/script.js already has instead of
              a separate mechanism. Excluded from DashboardNav's own visible
              tab list (see DashboardNav.tsx's visibleTabs filter). -->
-        <button type="button" class="shg-tab active" data-tab="profile">Profile</button>
+        <button id="tab-profile" type="button" class="shg-tab active" data-tab="profile">Profile</button>
       </div>
     </nav>
 
     <main class="page-shell">
-      <section class="shg-panel" data-panel="items">
+      <section id="panel-items" class="shg-panel" data-panel="items">
         <div id="catalogGrid" class="shg-catalog-grid"></div>
         <p id="itemsEmptyState" class="subtext" hidden>No items available.</p>
       </section>
 
-      <section class="shg-panel active" data-panel="profile">
+      <section id="panel-profile" class="shg-panel active" data-panel="profile">
         <div class="auth-card profile-panel-card">
           <div class="form-grid">
             <div class="field">
